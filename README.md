@@ -22,8 +22,9 @@ The layout separates the three kinds of files so the build flow is obvious:
 ├── src/                        ← EDIT THIS (hand-authored source)
 │   ├── pages/
 │   │   └── index.html          ← static page, copied verbatim
-│   ├── content/
-│   │   └── introducing-freedom.md   ← blog post source (Markdown)
+│   ├── content/                ← blog post sources (Markdown)
+│   │   ├── introducing-freedom.md
+│   │   └── freedom-0-8-5-daily-driver.md
 │   ├── templates/
 │   │   └── blog-template.html  ← HTML shell for rendered posts
 │   ├── images/                 ← logos + screenshots (copied verbatim)
@@ -34,6 +35,7 @@ The layout separates the three kinds of files so the build flow is obvious:
 └── dist/                       ← GENERATED, git-ignored — never edit by hand
     ├── index.html
     ├── introducing-freedom.html
+    ├── freedom-0-8-5-daily-driver.html
     └── images/
 ```
 

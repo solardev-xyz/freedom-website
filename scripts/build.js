@@ -31,6 +31,11 @@ const POSTS = [
     template: 'blog-template.html',
     output: 'introducing-freedom.html',
   },
+  {
+    content: 'freedom-0-8-5-daily-driver.md',
+    template: 'blog-template.html',
+    output: 'freedom-0-8-5-daily-driver.html',
+  },
 ];
 
 // --- markdown front-matter + metadata helpers ---------------------------------
