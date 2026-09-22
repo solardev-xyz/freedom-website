@@ -121,6 +121,9 @@ should be rebuilt from the published commit.`);
   }
   if (EXPECT) console.log('expected   matches — the published content hash still resolves to this');
 
+  // Leave the reference where freedom.baby/ens can prefill its form with it.
+  fs.writeFileSync(path.join(ROOT, '.swarm-last-ref'), `${ref}\n`);
+
   console.log(`
 next: set the content hash on freedombrowser.eth to
 
