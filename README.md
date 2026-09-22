@@ -13,6 +13,45 @@ The built site is published to two places:
   via a gateway at
   **[https://freedombrowser.eth.limo](https://freedombrowser.eth.limo/)**.
 
+Both are published from the same `dist/`, which is what keeps them
+identical. Only the site goes to Swarm — the installers stay on
+freedom.baby and the pages link to them absolutely, so the Swarm payload is
+a few MB rather than the tens of GB of binaries.
+
+### Publishing to Swarm
+
+```bash
+npm run build
+npm run deploy:swarm -- --dry-run   # packs, checks the batch, uploads nothing
+npm run deploy:swarm                # prints the reference to publish
+```
+
+Run it **on the fra1 host**: it posts to the antd node at `127.0.0.1:1633`,
+which holds the postage batch (`SWARM_API` overrides the target). The script
+checks the batch is usable before uploading and reads the result back to
+confirm the manifest serves the built index, then writes the reference to
+`.swarm-last-ref`.
+
+Then set the ENS content hash to that reference at
+[freedom.baby/ens](https://freedom.baby/ens), which prefills from that file
+and hands the transaction to the wallet holding the name's owner key.
+`eth.limo` caches for about five minutes, so give it a moment before
+checking.
+
+**The postage batch** is `16112b8a…da14` — 1 GiB, mutable, bought
+2026-09-22 for roughly a year (18.15 xBZZ). It expires around **2027-09-22**
+and the ENS site stops resolving if it lapses; `antctl postage status` shows
+the remaining room and TTL, `antctl postage top-up` extends it. One upload of
+this site costs about 2% of its capacity, and re-uploading identical content
+is free because the same chunk addresses land in the same bucket slots.
+
+**`deploy/` holds a weekly re-push timer.** Re-pushing is the only repair
+available: antd's automatic heal covers job-based uploads, not the gateway
+path this script uses ([ant#87](https://github.com/freedom-hq/ant/issues/87)).
+The unit pins the published reference with `--expect`, so it fails loudly if
+`dist/` has drifted from what ENS points at instead of quietly publishing
+something else.
+
 ## Structure
 
 The layout separates the three kinds of files so the build flow is obvious:
