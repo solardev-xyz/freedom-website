@@ -1,0 +1,15 @@
+[Unit]
+Description=Re-push the freedombrowser.eth site to Swarm (keeps the published content hash retrievable)
+Documentation=https://github.com/freedom-hq/ant/issues/87
+After=network-online.target antd.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/freedom-website
+Environment=PATH=/home/ubuntu/node/bin:/usr/local/bin:/usr/bin:/bin
+# --expect pins the published reference: re-pushing identical content is free
+# and repairs gaps, but a changed reference means dist/ has drifted from what
+# ENS points at, and the unit should fail loudly rather than publish it.
+ExecStart=/home/ubuntu/node/bin/node scripts/deploy-swarm.js --expect 2aeb0f91ba94ff32f0570b832b57d565a9b53e530d64512e7cb76ec969cb8a35

@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.js",
-    "preview": "npm run build && npx --yes serve dist"
+    "preview": "npm run build && npx --yes serve dist",
+    "deploy:swarm": "node scripts/deploy-swarm.js"
   },
   "dependencies": {
     "marked": "^18.0.5"

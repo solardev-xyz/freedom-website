@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly re-push of the freedombrowser.eth site to Swarm
+
+[Timer]
+OnCalendar=Mon 04:17
+Persistent=true
+RandomizedDelaySec=900
+
+[Install]
+WantedBy=timers.target
