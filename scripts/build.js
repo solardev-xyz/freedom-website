@@ -148,6 +148,16 @@ function renderNews(posts) {
   console.log('  rendered  news list → dist/news.html');
 }
 
+/** robots.txt + sitemap.xml for the public pages (absolute URLs from site.json). */
+function writeSitemap() {
+  const pages = ['', 'news.html', ...POSTS.map((p) => p.output), 'developer/', 'imprint.html', 'privacy.html'];
+  const urls = pages.map((p) => `  <url><loc>${SITE.url}${p}</loc></url>`).join('\n');
+  fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
+  fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}sitemap.xml\n`);
+  console.log('  wrote     robots.txt, sitemap.xml');
+}
+
 /** Fill {{…}} site values in every copied HTML page. */
 function fillPages(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -178,6 +188,7 @@ function main() {
   copyDirInto(ASSETS_DIR, path.join(DIST, 'assets'), 'src/assets');
   copyDirInto(IMAGES_DIR, path.join(DIST, 'images'), 'src/images');
   renderNews(POSTS.map(renderPost));
+  writeSitemap();
   console.log('✓ Build complete');
 }
 

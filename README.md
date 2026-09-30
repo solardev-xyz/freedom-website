@@ -87,6 +87,7 @@ src/assets/**       ──copy──▶         dist/assets/**    (site.css, con
 src/images/**       ──copy──▶         dist/images/**
 src/content/*.md    ──render──▶       dist/<post>.html  (via src/templates/post-template.html + marked)
 POSTS (build.js)    ──render──▶       dist/news.html    (via src/templates/news-template.html)
+                    ──write──▶        dist/sitemap.xml, dist/robots.txt (absolute URLs from site.json `url`)
 ```
 
 ### Release values: `src/site.json`
@@ -95,7 +96,7 @@ The version and the headline numbers live in one place. Any `{{key}}` in a
 page or template is replaced at build time:
 
 ```json
-{ "version": "0.8.6", "downloads": "8,600+", "countries": "145", "contributors": "15" }
+{ "version": "0.8.6", "downloads": "8,600+", "countries": "145", "contributors": "15", "url": "https://freedom.baby/" }
 ```
 
 Bumping `version` updates every download link, the changelog and source
