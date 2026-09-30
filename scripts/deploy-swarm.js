@@ -53,7 +53,7 @@ async function api(path, init) {
 /** The version the built pages advertise — used to verify what Swarm serves. */
 function builtVersion() {
   const html = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
-  return html.match(/Alpha release \(([\d.]+)\)/)?.[1] ?? null;
+  return (html.match(/<meta name="freedom-version" content="([\d.]+)">/) ?? html.match(/Alpha release \(([\d.]+)\)/))?.[1] ?? null;
 }
 
 async function main() {
@@ -108,7 +108,9 @@ async function main() {
   // Fetch it back through the node before claiming success: a manifest that
   // does not serve its own index is the failure worth catching here.
   const check = await api(`/bzz/${ref}/`);
-  const served = check.ok && version ? check.text.includes(`Alpha release (${version})`) : check.ok;
+  const served = check.ok && version
+    ? check.text.includes(`<meta name="freedom-version" content="${version}">`) || check.text.includes(`Alpha release (${version})`)
+    : check.ok;
   console.log(`\nreference  ${ref}`);
   console.log(`readback   ${check.status}${served ? ' — serves the built index' : ' — could not confirm the index'}`);
   if (!served) process.exitCode = 1;

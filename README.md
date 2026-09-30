@@ -65,7 +65,8 @@ The layout separates the three kinds of files so the build flow is obvious:
 │   │   ├── introducing-freedom.md
 │   │   └── freedom-0-8-5-daily-driver.md
 │   ├── templates/
-│   │   └── blog-template.html  ← HTML shell for rendered posts
+│   │   ├── post-template.html  ← HTML shell for rendered posts
+│   │   └── news-template.html  ← HTML shell for the news list
 │   ├── images/                 ← logos + screenshots (copied verbatim)
 │   └── assets/
 │       └── freedom_icon.svg    ← master for index.html's inline favicon
@@ -81,10 +82,27 @@ The layout separates the three kinds of files so the build flow is obvious:
 ## Build flow
 
 ```text
-src/pages/*.html   ──copy──▶  dist/*.html
-src/images/**      ──copy──▶  dist/images/**
-src/content/*.md   ──render──▶ dist/*.html   (via src/templates/ + marked)
+src/pages/**        ──copy + fill──▶  dist/**           (home, imprint, privacy, developer)
+src/assets/**       ──copy──▶         dist/assets/**    (site.css, content.css, scripts, fonts, logos)
+src/images/**       ──copy──▶         dist/images/**
+src/content/*.md    ──render──▶       dist/<post>.html  (via src/templates/post-template.html + marked)
+POSTS (build.js)    ──render──▶       dist/news.html    (via src/templates/news-template.html)
+                    ──write──▶        dist/sitemap.xml, dist/robots.txt (absolute URLs from site.json `url`)
 ```
+
+### Release values: `src/site.json`
+
+The version and the headline numbers live in one place. Any `{{key}}` in a
+page or template is replaced at build time:
+
+```json
+{ "version": "0.8.6", "downloads": "8,600+", "countries": "145", "contributors": "15", "url": "https://freedom.baby/" }
+```
+
+Bumping `version` updates every download link, the changelog and source
+links, and the `freedom-version` meta tag that `deploy:swarm` reads. Refresh
+the numbers from freedom.baby/stats and the GitHub contributor count before
+each deploy.
 
 ```bash
 npm install
@@ -99,7 +117,8 @@ git-ignored.
 
 1. Add `src/content/<post>.md` (optional `--- title/description/image ---`
    front-matter).
-2. Register it in the `POSTS` array in `scripts/build.js`.
+2. Register it in the `POSTS` array in `scripts/build.js` (newest first),
+   with a one-line `summary` for the news list.
 3. `npm run build`.
 
 ### Blog post conventions
@@ -160,9 +179,12 @@ the post carries the story. Link the changelog pinned to the release branch
 
 ## Notes
 
-- The site is self-contained at runtime: the favicon is an inline
-  data-URI SVG and there are no build-time external dependencies beyond
-  `marked`. `src/assets/freedom_icon.svg` is the master the inline favicon
-  was derived from; it is not copied to `dist/`.
+- The site is self-contained at runtime: fonts (Inter, OFL), scripts and
+  logos ship in `src/assets/`, nothing is loaded from third parties, and
+  there are no build-time dependencies beyond `marked`. Pages use relative
+  links only, so the same `dist/` works on freedom.baby and on Swarm.
+- `src/assets/dither.js` draws the grain on the teal and copper sections at
+  runtime; `src/assets/os.js` plus a small inline script point the download
+  buttons at the visitor's platform.
 - The output in `dist/` is a plain static site — serve it with any static
   file host.

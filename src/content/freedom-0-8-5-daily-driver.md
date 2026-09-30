@@ -1,7 +1,7 @@
 ---
 title: Freedom 0.8.5: the daily-driver release
 description: Freedom 0.8.5 is the first release you can use as your only browser.
-image: images/freedom-0.8.5-screenshot.png
+image: images/freedom-0.8.5-og.jpg
 ---
 
 # Freedom 0.8.5: the daily-driver release
@@ -9,7 +9,7 @@ image: images/freedom-0.8.5-screenshot.png
 *10 September 2026*
 
 <figure>
-  <img src="images/freedom-0.8.5-screenshot.png" alt="Freedom 0.8.5">
+  <img src="images/freedom-0.8.5-screenshot.webp" width="1172" height="750" alt="Freedom 0.8.5">
   <figcaption>Freedom 0.8.5 — now coming with Ethereum and Tor nodes</figcaption>
 </figure>
 
