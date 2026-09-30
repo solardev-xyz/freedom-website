@@ -1,7 +1,7 @@
 ---
 title: Introducing Freedom
 description: Freedom is a minimalist browser for the decentralized web, connecting directly to Swarm and IPFS without centralized gateways.
-image: images/freedom-0.6.0-screenshot.png
+image: images/freedom-0.6.0-og.jpg
 ---
 
 # Introducing Freedom
@@ -9,7 +9,7 @@ image: images/freedom-0.6.0-screenshot.png
 *1 January 2026*
 
 <figure>
-  <img src="images/freedom-0.6.0-screenshot.png" alt="Freedom 0.6.0">
+  <img src="images/freedom-0.6.0-screenshot.webp" width="1220" height="849" alt="Freedom 0.6.0">
   <figcaption>Freedom 0.6.0 — connected to Swarm and IPFS</figcaption>
 </figure>
 

@@ -118,7 +118,7 @@ function renderPost(post) {
 
   const html = marked(content);
   const dateHtml = date || '';
-  const imageHtml = image || 'images/freedom-0.8.5-screenshot.png';
+  const imageHtml = image || 'images/freedom-0.8.5-og.jpg';
 
   const escapedTitle = title.replace(/"/g, '&quot;');
   const escapedDesc = description.replace(/"/g, '&quot;');
