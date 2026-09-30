@@ -309,7 +309,7 @@ section.block:nth-of-type(odd) .card, section.block:nth-of-type(odd) .plat { bac
 section.block:nth-of-type(even) .card, section.block:nth-of-type(even) .plat { background: #12302f !important; }
 section.block .card, section.block .plat { box-shadow: none !important; }
 .powered a { display: inline-flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; font-weight: 550; font-size: .95rem; opacity: .9; transition: opacity .15s; }
-.powered a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 4px; }
+.powered a:hover { opacity: 1; }
 .powered a img { width: 26px; height: 26px; object-fit: contain; }
 /* Optical balance: heavy filled marks smaller, light/outline marks larger */
 .powered a img[src*="swarm"], .powered a img[src*="gnosis"] { width: 21px; height: 21px; }
