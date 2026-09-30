@@ -1,0 +1,46 @@
+/* Content pages: teal title band, black text on white */
+.page-top .hero-in { max-width: 760px; margin: 0 auto; padding: 72px 24px 56px; }
+.page-top .kick { font-size: .9rem; opacity: .75; }
+.page-top h1 { font-size: clamp(2.2rem, 5.4vw, 3.6rem); letter-spacing: -0.045em; line-height: 1.05; margin-top: 10px; text-wrap: balance; }
+.page-top .dek { margin-top: 18px; font-size: 1.1rem; opacity: .85; max-width: 38rem; }
+body { display: flex; flex-direction: column; min-height: 100vh; }
+.prose-wrap { background: #173637; padding: 64px 0 104px; flex: 1; }
+.prose { max-width: 680px; margin: 0 auto; padding: 0 24px; font-size: 1.06rem; line-height: 1.7; }
+.prose > * + * { margin-top: 1.1em; }
+.prose h2 { text-wrap: pretty; font-size: 1.5rem; letter-spacing: -0.03em; line-height: 1.2; margin-top: 2em; }
+.prose ul { padding-left: 1.2em; }
+.prose li + li { margin-top: .5em; }
+.prose a { color: #9fe0da; text-decoration: none; font-weight: 550; }
+.prose a:hover { color: #fff; }
+.prose code { font-size: .9em; background: rgba(0,0,0,.28); padding: 1px 6px; border-radius: 4px; }
+.prose figure { margin: 0 0 2.4em; }
+.prose figure img { width: 100%; height: auto; border-radius: 10px; }
+.prose figcaption { margin-top: 10px; font-size: .88rem; opacity: .7; text-align: center; }
+.prose .info-section h2 { margin-top: 1.4em; }
+.prose .last-updated { opacity: .7; font-size: .92rem; }
+.posts { max-width: 760px; margin: 0 auto; padding: 0 24px; display: grid; gap: 16px; }
+.post { display: block; background: #12302f; border-radius: 14px; padding: 28px 30px; color: #fff; text-decoration: none; transition: background .15s; }
+.post:hover { background: #163a39; }
+.post time { font-size: .88rem; opacity: .7; }
+.post b { display: block; font-size: 1.35rem; letter-spacing: -0.02em; margin-top: 6px; }
+.post span { display: block; margin-top: 8px; opacity: .8; }
+.post em { display: inline-block; margin-top: 14px; font-style: normal; font-weight: 650; }
+
+.prose-wrap.cd { background: #fff; color: #111; padding: 72px 0 110px; }
+.cd a { color: #0b6b6d; text-decoration: none; font-weight: 550; }
+.cd a:hover { color: #000; }
+.cd .prose { color: #1a1a1a; font-size: 1.08rem; line-height: 1.75; }
+.cd .prose code { background: #f0f0ee; color: #111; }
+.cd .prose figcaption { color: #666; opacity: 1; }
+.cd .prose .last-updated { color: #666; opacity: 1; }
+/* News list: plain rows with dividers */
+.cd .posts { gap: 0; }
+.cd .post:first-child { padding-top: 0; }
+.cd .post:last-child { border-bottom: 0; padding-bottom: 0; }
+.cd .post { display: grid; grid-template-columns: 170px 1fr; gap: 8px 32px; background: none; border-radius: 0; padding: 28px 0; border-bottom: 1px solid #e3e3e0; color: #111; font-weight: 400; }
+.cd .post:hover { background: none; }
+.cd .post time { color: #666; opacity: 1; font-size: .92rem; padding-top: 5px; }
+.cd .post b { margin-top: 0; font-size: 1.3rem; transition: color .15s; }
+.cd .post:hover b { color: #0b6b6d; }
+.cd .post span { color: #555; opacity: 1; }
+@media (max-width: 640px) { .cd .post { grid-template-columns: 1fr; gap: 4px; } .cd .post time { padding-top: 0; } }

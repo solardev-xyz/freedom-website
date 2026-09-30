@@ -53,7 +53,7 @@ async function api(path, init) {
 /** The version the built pages advertise — used to verify what Swarm serves. */
 function builtVersion() {
   const html = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
-  return html.match(/Alpha release \(([\d.]+)\)/)?.[1] ?? null;
+  return (html.match(/<meta name="freedom-version" content="([\d.]+)">/) ?? html.match(/Alpha release \(([\d.]+)\)/))?.[1] ?? null;
 }
 
 async function main() {

@@ -3,10 +3,16 @@
  * Build the freedom.baby site into ./dist (everything in dist/ is generated).
  *
  * Flow:
- *   src/pages/*.html      → copied verbatim    → dist/*.html
+ *   src/pages/**          → copied (with {{…}} values from src/site.json) → dist/**
+ *   src/assets/**         → copied verbatim    → dist/assets/**
  *   src/images/**         → copied verbatim    → dist/images/**
- *   src/content/*.md      → rendered with a    → dist/*.html
- *     + src/templates/      template
+ *   src/content/*.md      → rendered with      → dist/*.html
+ *     + src/templates/post-template.html
+ *   POSTS                 → news list with     → dist/news.html
+ *     + src/templates/news-template.html
+ *
+ * src/site.json holds the values that change between releases (version,
+ * download stats); any {{key}} in a page or template is replaced with it.
  *
  * Run with `npm run build`. `dist/` is git-ignored and reproducible from src/.
  */
@@ -22,19 +28,29 @@ const PAGES_DIR = path.join(SRC, 'pages');
 const IMAGES_DIR = path.join(SRC, 'images');
 const CONTENT_DIR = path.join(SRC, 'content');
 const TEMPLATES_DIR = path.join(SRC, 'templates');
+const ASSETS_DIR = path.join(SRC, 'assets');
+const SITE = JSON.parse(fs.readFileSync(path.join(SRC, 'site.json'), 'utf-8'));
+
+/** Replace {{key}} with values from src/site.json. */
+function fillSite(text) {
+  return text.replace(/\{\{(\w+)\}\}/g, (m, key) => (key in SITE ? SITE[key] : m));
+}
 
 // Markdown posts to render. Each entry maps a content file + template to a
 // generated page in dist/.
+// Newest first; the order is also the order of the news list.
 const POSTS = [
   {
-    content: 'introducing-freedom.md',
-    template: 'blog-template.html',
-    output: 'introducing-freedom.html',
+    content: 'freedom-0-8-5-daily-driver.md',
+    template: 'post-template.html',
+    output: 'freedom-0-8-5-daily-driver.html',
+    summary: 'The first release you can use as your only browser, now with Ethereum and Tor nodes.',
   },
   {
-    content: 'freedom-0-8-5-daily-driver.md',
-    template: 'blog-template.html',
-    output: 'freedom-0-8-5-daily-driver.html',
+    content: 'introducing-freedom.md',
+    template: 'post-template.html',
+    output: 'introducing-freedom.html',
+    summary: 'The first public preview: a minimalist browser that loads Swarm and IPFS content straight from peers.',
   },
 ];
 
@@ -101,10 +117,8 @@ function renderPost(post) {
   if (date) content = content.replace(/^\n\*[^*]+\*\n/, '');
 
   const html = marked(content);
-  const dateHtml = date ? `<p class="date">${date}</p>` : '';
-  const imageHtml = image
-    ? `<meta property="og:image" content="${image}">\n  <meta name="twitter:image" content="${image}">`
-    : '';
+  const dateHtml = date || '';
+  const imageHtml = image || 'images/freedom-0.8.5-screenshot.png';
 
   const escapedTitle = title.replace(/"/g, '&quot;');
   const escapedDesc = description.replace(/"/g, '&quot;');
@@ -116,8 +130,31 @@ function renderPost(post) {
     .replace(/\{\{content\}\}/g, html)
     .replace(/\{\{image\}\}/g, imageHtml);
 
-  fs.writeFileSync(path.join(DIST, post.output), output);
+  fs.writeFileSync(path.join(DIST, post.output), fillSite(output));
   console.log(`  rendered  src/content/${post.content} → dist/${post.output}`);
+  return { title, date, output: post.output, summary: post.summary || description };
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function renderNews(posts) {
+  const template = fs.readFileSync(path.join(TEMPLATES_DIR, 'news-template.html'), 'utf-8');
+  const list = posts
+    .map((p) => `  <a class="post" href="${p.output}"><time>${escapeHtml(p.date || '')}</time><div><b>${escapeHtml(p.title)}</b><span>${escapeHtml(p.summary)}</span></div></a>`)
+    .join('\n');
+  fs.writeFileSync(path.join(DIST, 'news.html'), fillSite(template.replace('{{posts}}', list)));
+  console.log('  rendered  news list → dist/news.html');
+}
+
+/** Fill {{…}} site values in every copied HTML page. */
+function fillPages(dir) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, entry.name);
+    if (entry.isDirectory()) fillPages(p);
+    else if (entry.name.endsWith('.html')) fs.writeFileSync(p, fillSite(fs.readFileSync(p, 'utf-8')));
+  }
 }
 
 // --- build --------------------------------------------------------------------
@@ -137,8 +174,10 @@ function main() {
 
   console.log('Building site → dist/');
   copyDirInto(PAGES_DIR, DIST, 'src/pages');
+  fillPages(DIST);
+  copyDirInto(ASSETS_DIR, path.join(DIST, 'assets'), 'src/assets');
   copyDirInto(IMAGES_DIR, path.join(DIST, 'images'), 'src/images');
-  for (const post of POSTS) renderPost(post);
+  renderNews(POSTS.map(renderPost));
   console.log('✓ Build complete');
 }
 
