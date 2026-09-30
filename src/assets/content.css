@@ -44,3 +44,6 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 .cd .post:hover b { color: #0b6b6d; }
 .cd .post span { color: #555; opacity: 1; }
 @media (max-width: 640px) { .cd .post { grid-template-columns: 1fr; gap: 4px; } .cd .post time { padding-top: 0; } }
+
+/* Back link at the end of an article */
+.prose .back { margin-top: 3.2em; padding-top: 1.6em; border-top: 1px solid #e3e3e0; }
