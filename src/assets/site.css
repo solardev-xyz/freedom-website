@@ -378,3 +378,8 @@ section.block .plat.rec { box-shadow: inset 0 0 0 2px #fff !important; }
   nav.top .menu a:first-child { border-top: 0 !important; }
   nav.top .menu a:active { color: #fff; }
 }
+
+/* Linux tile: wider column, and the formats may wrap instead of being clipped (fonts render wider in some browsers, e.g. Firefox on Linux) */
+#download .platforms { grid-template-columns: 1fr 1fr 1.35fr; max-width: 1040px; }
+#download .plat.multi .get { flex-wrap: wrap; align-items: center; row-gap: 8px; }
+@media (max-width: 860px) { #download .platforms { grid-template-columns: 1fr; max-width: 460px; } }
