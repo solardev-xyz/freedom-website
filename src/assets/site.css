@@ -277,8 +277,10 @@ footer { border-top: 0; }
 div.top { background: linear-gradient(180deg, var(--bg) 0%, #005a5d 100%); }
 /* Phones: header scrolls away with the page instead of staying fixed */
 @media (max-width: 640px) { nav.top { position: relative; } }
-/* Phones: header Download shrinks to an icon button */
-@media (max-width: 640px) { nav.top .btn.sm { font-size: 0; gap: 0; width: 34px; height: 34px; padding: 0; justify-content: center; } nav.top .btn.sm::before { width: 15px; height: 15px; } }
+/* Phones: header Download shrinks to an icon button. The label is visually hidden (still read by screen readers);
+   font-size: 0 kept some width on iOS and pushed the icon off centre. */
+@media (max-width: 640px) { nav.top .btn.sm { gap: 0; width: 34px; height: 34px; padding: 0; justify-content: center; } nav.top .btn.sm::before { width: 15px; height: 15px; }
+  nav.top .btn.sm .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
 /* Every section fades to a lighter tone from the start page painting: teal to #005a5d, copper from #9c4330 */
 section.block:nth-of-type(odd) { background: linear-gradient(180deg, #9c4330 0%, #79271a 100%); }
 section.block:nth-of-type(even) { background: linear-gradient(180deg, var(--bg) 0%, #005a5d 100%); }
