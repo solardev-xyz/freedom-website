@@ -12,4 +12,4 @@ Environment=PATH=/home/ubuntu/node/bin:/usr/local/bin:/usr/bin:/bin
 # --expect pins the published reference: re-pushing identical content is free
 # and repairs gaps, but a changed reference means dist/ has drifted from what
 # ENS points at, and the unit should fail loudly rather than publish it.
-ExecStart=/home/ubuntu/node/bin/node scripts/deploy-swarm.js --expect 155ea2753b1c5f13e8819efa5420cbb1e6b6b3d9c89a09e387fe050cdf25d333
+ExecStart=/home/ubuntu/node/bin/node scripts/deploy-swarm.js --expect f07a42fbd5630e32c7c9ce27729eaefe9036b83f9873216c780a561db2ab61ce
