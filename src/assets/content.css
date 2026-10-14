@@ -54,7 +54,7 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 .logo-page .logo-art { display: grid; place-items: center; aspect-ratio: 4 / 3; border-radius: 12px; padding: 32px; }
 .logo-page .on-dark .logo-art { background: #1B1E25; }
 .logo-page .on-light .logo-art { background: #f4f4f2; }
-.logo-page .icon .logo-art img { width: 46%; height: auto; border-radius: 0; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+.logo-page .icon .logo-art img { width: 46%; height: auto; border-radius: 0; filter: drop-shadow(0 6px 16px rgba(0,0,0,.18)); }
 .logo-page .word .logo-art img { width: 78%; height: auto; border-radius: 0; }
 .logo-page .logo-tile figcaption { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-size: .95rem; text-align: left; color: #1a1a1a; }
 .logo-page .logo-tile figcaption b { font-weight: 600; }
