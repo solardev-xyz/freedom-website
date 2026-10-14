@@ -150,7 +150,7 @@ function renderNews(posts) {
 
 /** robots.txt + sitemap.xml for the public pages (absolute URLs from site.json). */
 function writeSitemap() {
-  const pages = ['', 'news.html', ...POSTS.map((p) => p.output), 'developer/', 'imprint.html', 'privacy.html'];
+  const pages = ['', 'news.html', ...POSTS.map((p) => p.output), 'developer/', 'logo.html', 'imprint.html', 'privacy.html'];
   const urls = pages.map((p) => `  <url><loc>${SITE.url}${p}</loc></url>`).join('\n');
   fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
