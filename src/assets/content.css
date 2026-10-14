@@ -47,3 +47,21 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 
 /* Back link at the end of an article */
 .prose .back { margin-top: 3.2em; padding-top: 1.6em; border-top: 1px solid #e3e3e0; }
+/* Logo page: preview tiles with SVG and PNG downloads */
+.logo-page .logo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 18px; }
+@media (max-width: 560px) { .logo-page .logo-grid { grid-template-columns: 1fr; } }
+.logo-page .logo-tile { margin: 0; }
+.logo-page .logo-art { display: grid; place-items: center; aspect-ratio: 4 / 3; border-radius: 12px; padding: 32px; }
+.logo-page .on-dark .logo-art { background: #1B1E25; }
+.logo-page .on-light .logo-art { background: #f4f4f2; }
+.logo-page .icon .logo-art img { width: 46%; height: auto; border-radius: 0; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+.logo-page .word .logo-art img { width: 78%; height: auto; border-radius: 0; }
+.logo-page .logo-tile figcaption { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-size: .95rem; text-align: left; color: #1a1a1a; }
+.logo-page .logo-tile figcaption b { font-weight: 600; }
+.logo-page .logo-tile figcaption span { white-space: nowrap; }
+.logo-page .logo-tile figcaption i { font-style: normal; color: #999; margin: 0 4px; }
+.logo-page .swatches { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 560px) { .logo-page .swatches { grid-template-columns: 1fr; } }
+.logo-page .swatches li { margin: 0; }
+.logo-page .swatches i { display: block; height: 72px; border-radius: 10px; margin-bottom: 10px; }
+.logo-page .swatches b { display: block; font-weight: 600; }
