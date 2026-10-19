@@ -118,7 +118,8 @@ function renderPost(post) {
 
   const html = marked(content);
   const dateHtml = date || '';
-  const imageHtml = image || 'images/freedom-0.8.5-og.jpg';
+  // Link previews need absolute URLs, so relative images get the site URL.
+  const imageHtml = new URL(image || 'images/freedom-0.8.5-og.jpg', SITE.url).href;
 
   const escapedTitle = title.replace(/"/g, '&quot;');
   const escapedDesc = description.replace(/"/g, '&quot;');
@@ -128,7 +129,8 @@ function renderPost(post) {
     .replace(/\{\{description\}\}/g, escapedDesc)
     .replace(/\{\{date\}\}/g, dateHtml)
     .replace(/\{\{content\}\}/g, html)
-    .replace(/\{\{image\}\}/g, imageHtml);
+    .replace(/\{\{image\}\}/g, imageHtml)
+    .replace(/\{\{page\}\}/g, post.output);
 
   fs.writeFileSync(path.join(DIST, post.output), fillSite(output));
   console.log(`  rendered  src/content/${post.content} → dist/${post.output}`);
