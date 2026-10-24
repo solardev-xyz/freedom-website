@@ -41,6 +41,12 @@ function fillSite(text) {
 // Newest first; the order is also the order of the news list.
 const POSTS = [
   {
+    content: 'who-decides-where-a-name-takes-you.md',
+    template: 'post-template.html',
+    output: 'who-decides-where-a-name-takes-you.html',
+    summary: 'What a single RPC provider can do to a name lookup, and how Freedom checks the answer instead.',
+  },
+  {
     content: 'freedom-0-8-5-daily-driver.md',
     template: 'post-template.html',
     output: 'freedom-0-8-5-daily-driver.html',
