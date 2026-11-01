@@ -41,6 +41,12 @@ function fillSite(text) {
 // Newest first; the order is also the order of the news list.
 const POSTS = [
   {
+    content: 'freedom-0-8-8-agent.md',
+    template: 'post-template.html',
+    output: 'freedom-0-8-8-agent.html',
+    summary: 'Freedom Agent: an assistant in the browser that builds, publishes and names decentralized sites from one prompt.',
+  },
+  {
     content: 'freedom-0-8-5-daily-driver.md',
     template: 'post-template.html',
     output: 'freedom-0-8-5-daily-driver.html',
