@@ -3,3 +3,4 @@ dist/
 .DS_Store
 *.log
 .swarm-last-ref
+.swarm-feed-ref

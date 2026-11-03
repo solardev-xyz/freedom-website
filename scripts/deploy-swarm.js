@@ -174,6 +174,8 @@ from the published commit.`);
   fs.writeFileSync(path.join(ROOT, '.swarm-last-ref'), `${ref}\n`);
 
   const feed = await updateFeed(ref);
+  // freedom.baby/ens prefills the content hash form from this.
+  fs.writeFileSync(path.join(ROOT, '.swarm-feed-ref'), `${feed.manifest}\n`);
   console.log(`feed       ${feed.changed ? 'updated' : 'already current, re-pushed'} (index ${feed.index})`);
   console.log(`manifest   ${feed.manifest}`);
   console.log(`
