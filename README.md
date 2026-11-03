@@ -104,7 +104,7 @@ The version and the headline numbers live in one place. Any `{{key}}` in a
 page or template is replaced at build time:
 
 ```json
-{ "version": "0.8.6", "downloads": "8,600+", "countries": "145", "contributors": "10", "url": "https://freedom.baby/" }
+{ "version": "0.8.6", "downloads": "10k", "countries": "145", "contributors": "10", "url": "https://freedom.baby/" }
 ```
 
 Bumping `version` updates every download link, the changelog and source
