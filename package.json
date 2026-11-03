@@ -9,6 +9,7 @@
     "deploy:swarm": "node scripts/deploy-swarm.js"
   },
   "dependencies": {
+    "@ethersphere/bee-js": "^13.2.0",
     "marked": "^18.0.5"
   },
   "engines": {

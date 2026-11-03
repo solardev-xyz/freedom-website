@@ -1,16 +1,21 @@
 #!/usr/bin/env node
 /**
- * Upload ./dist to Swarm as a website collection and print the bzz reference
- * that `freedombrowser.eth`'s content hash should point at.
+ * Upload ./dist to Swarm as a website collection and point the site's feed at
+ * it. `freedombrowser.eth`'s content hash is the feed manifest, which always
+ * resolves to the latest update, so a deploy needs no ENS transaction.
  *
  *   npm run build && npm run deploy:swarm
  *   npm run deploy:swarm -- --dry-run     # pack and check, upload nothing
  *   npm run deploy:swarm -- --expect <ref>  # fail if the result differs
+ *   npm run deploy:swarm -- --expect-feed   # fail if it differs from the feed
  *
- * `--expect` is for the scheduled re-push: re-uploading identical content is
- * free (same addresses, same bucket slots on a mutable batch) and re-pushes
- * every chunk, but if dist/ has moved on since the content hash was published,
- * the reference changes — and that should be an alarm, not a silent publish.
+ * `--expect-feed` is for the scheduled re-push: re-uploading identical content
+ * is free (same addresses, same bucket slots on a mutable batch) and re-pushes
+ * every chunk, but if dist/ has moved on since the last deploy, the reference
+ * changes — and that should be an alarm, not a silent publish.
+ * When the feed already points at the reference, its latest update is
+ * re-pushed rather than repeated, so the weekly run repairs the feed chunks
+ * too without adding an index.
  *
  * Only the site goes to Swarm. The installers stay on freedom.baby and the
  * pages link to them absolutely, so this payload is a few MB rather than the
@@ -19,13 +24,17 @@
  * Environment:
  *   SWARM_API    node API base       (default http://127.0.0.1:1633)
  *   SWARM_BATCH  postage batch id    (default: the site's 1 GiB batch)
+ *   SWARM_FEED_KEY  file holding the feed owner's private key
+ *                   (default ~/.config/freedom-website/swarm-feed.key)
  *
- * Dependency-free, same as the build: it shells out to `tar` and uses fetch.
+ * The upload shells out to `tar` and uses fetch; bee-js signs feed updates.
  */
 
 const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
+const { Bee, PrivateKey, Topic } = require('@ethersphere/bee-js');
 
 const ROOT = path.join(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
@@ -33,7 +42,13 @@ const API = (process.env.SWARM_API || 'http://127.0.0.1:1633').replace(/\/$/, ''
 const BATCH =
   process.env.SWARM_BATCH ||
   '16112b8a948a4fb88598c235a606f211d8cfeb75aa1f4f7dd4e1e89e23b9da14';
+const FEED_KEY =
+  process.env.SWARM_FEED_KEY || path.join(os.homedir(), '.config/freedom-website/swarm-feed.key');
+// A different key or topic is a different feed manifest, and the ENS content
+// hash would have to be set again.
+const FEED_TOPIC = 'freedombrowser.eth';
 const DRY = process.argv.includes('--dry-run');
+const EXPECT_FEED = process.argv.includes('--expect-feed');
 const EXPECT = (() => {
   const i = process.argv.indexOf('--expect');
   return i === -1 ? null : (process.argv[i + 1] || '').replace(/^bzz:\/\//, '').trim();
@@ -48,6 +63,38 @@ async function api(path, init) {
   const res = await fetch(`${API}${path}`, { signal: AbortSignal.timeout(300000), ...init });
   const text = await res.text();
   return { ok: res.ok, status: res.status, text };
+}
+
+/** Point the site feed at `ref`; returns the feed manifest and update index. */
+async function updateFeed(ref) {
+  // Enforced before any write: --expect-feed must never move the feed.
+  const mustMatch = EXPECT_FEED;
+  if (!fs.existsSync(FEED_KEY)) {
+    die(`no feed key at ${FEED_KEY}. Restore it from its backup or set SWARM_FEED_KEY;
+a new key means a new feed manifest and a new ENS content hash.`);
+  }
+  const bee = new Bee(API);
+  const signer = new PrivateKey(fs.readFileSync(FEED_KEY, 'utf8').trim());
+  const topic = Topic.fromString(FEED_TOPIC);
+
+  // Idempotent: the same owner and topic give the same manifest chunk, so
+  // this also re-pushes it.
+  const manifest = await bee.feed.createManifest(BATCH, topic, signer.publicKey().address());
+  const writer = bee.feed.makeWriter(topic, signer);
+  const latest = await writer.downloadReference().catch((e) => {
+    if (e.status === 404) return null;
+    throw e;
+  });
+
+  const changed = !latest || latest.reference.toHex() !== ref;
+  if (changed && mustMatch) {
+    die(`reference changed: the feed points at ${latest ? latest.reference.toHex() : 'nothing yet'}, dist/ is ${ref}.
+dist/ drifted from what is published; rebuild it from the published commit,
+or deploy without --expect-feed if this is an intended update.`);
+  }
+  const index = !latest ? 0n : changed ? latest.feedIndex.toBigInt() + 1n : latest.feedIndex.toBigInt();
+  await writer.uploadReference(BATCH, ref, { index: Number(index) });
+  return { manifest: manifest.toHex(), index, changed };
 }
 
 /** The version the built pages advertise — used to verify what Swarm serves. */
@@ -113,26 +160,27 @@ async function main() {
     : check.ok;
   console.log(`\nreference  ${ref}`);
   console.log(`readback   ${check.status}${served ? ' — serves the built index' : ' — could not confirm the index'}`);
-  if (!served) process.exitCode = 1;
+  // Never point the feed at a manifest that does not serve its own index.
+  if (!served) die('not updating the feed.');
 
   if (EXPECT && ref !== EXPECT) {
     die(`reference changed: expected ${EXPECT}, got ${ref}.
-dist/ no longer matches what the content hash points at. Either this is an
-intended update — publish the new reference to ENS — or dist/ drifted and
-should be rebuilt from the published commit.`);
+dist/ no longer matches what the feed points at. Either this is an intended
+update — deploy without --expect — or dist/ drifted and should be rebuilt
+from the published commit.`);
   }
-  if (EXPECT) console.log('expected   matches — the published content hash still resolves to this');
+  if (EXPECT) console.log('expected   matches');
 
-  // Leave the reference where freedom.baby/ens can prefill its form with it.
   fs.writeFileSync(path.join(ROOT, '.swarm-last-ref'), `${ref}\n`);
 
+  const feed = await updateFeed(ref);
+  console.log(`feed       ${feed.changed ? 'updated' : 'already current, re-pushed'} (index ${feed.index})`);
+  console.log(`manifest   ${feed.manifest}`);
   console.log(`
-next: set the content hash on freedombrowser.eth to
+freedombrowser.eth resolves to the feed, so this is live once eth.limo's cache
+expires (a few minutes). Its content hash should be
 
-    bzz://${ref}
-
-at https://app.ens.domains/freedombrowser.eth (note the old hash first), then
-check https://freedombrowser.eth.limo and the bzz:// URL inside Freedom.`);
+    bzz://${feed.manifest}`);
 }
 
 main().catch((e) => die(e.message));
