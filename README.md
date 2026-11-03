@@ -23,20 +23,27 @@ a few MB rather than the tens of GB of binaries.
 ```bash
 npm run build
 npm run deploy:swarm -- --dry-run   # packs, checks the batch, uploads nothing
-npm run deploy:swarm                # prints the reference to publish
+npm run deploy:swarm                # uploads and points the feed at it
 ```
 
 Run it **on the fra1 host**: it posts to the antd node at `127.0.0.1:1633`,
 which holds the postage batch (`SWARM_API` overrides the target). The script
 checks the batch is usable before uploading and reads the result back to
-confirm the manifest serves the built index, then writes the reference to
-`.swarm-last-ref`.
+confirm the manifest serves the built index, then points the site's feed at
+the new reference. That is the whole publish step.
 
-Then set the ENS content hash to that reference at
-[freedom.baby/ens](https://freedom.baby/ens), which prefills from that file
-and hands the transaction to the wallet holding the name's owner key.
-`eth.limo` caches for about five minutes, so give it a moment before
-checking.
+**ENS points at a feed, not at a release.** The content hash of
+`freedombrowser.eth` is the feed manifest
+`bzz://eaf9d3a18b0820c6b0c656a8c247dc131130a1d4cfab41b769de68788f04c5af`
+(owner `ea20b62e…279d`, topic `freedombrowser.eth`), which always resolves
+to the latest update, so deploys need no ENS transaction. `eth.limo` caches
+for about five minutes, so give it a moment before checking.
+
+The feed is signed with the key in
+`~/.config/freedom-website/swarm-feed.key` on fra1 (`SWARM_FEED_KEY`
+overrides the path). It holds no funds but **keep a backup**: without it the
+feed can't be updated, and a new key means a new manifest and a new ENS
+content hash.
 
 **The postage batch** is `16112b8a…da14` — 1 GiB, mutable, bought
 2026-09-22 for roughly a year (18.15 xBZZ). It expires around **2027-09-22**
@@ -48,9 +55,10 @@ is free because the same chunk addresses land in the same bucket slots.
 **`deploy/` holds a weekly re-push timer.** Re-pushing is the only repair
 available: antd's automatic heal covers job-based uploads, not the gateway
 path this script uses ([ant#87](https://github.com/freedom-hq/ant/issues/87)).
-The unit pins the published reference with `--expect`, so it fails loudly if
-`dist/` has drifted from what ENS points at instead of quietly publishing
-something else.
+It runs with `--expect-feed`: the content, the feed manifest and the latest
+feed update are all re-pushed, and if `dist/` no longer matches what the
+feed points at, the unit fails loudly instead of publishing it. The unit
+needs no change after a deploy.
 
 ## Structure
 
@@ -101,8 +109,8 @@ page or template is replaced at build time:
 
 Bumping `version` updates every download link, the changelog and source
 links, and the `freedom-version` meta tag that `deploy:swarm` reads. Refresh
-the numbers from freedom.baby/stats and the GitHub contributor count before
-each deploy.
+the numbers from freedom.baby/stats and the GitHub contributor count (people,
+not bots) before each deploy.
 
 ```bash
 npm install
