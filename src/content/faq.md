@@ -36,9 +36,7 @@ Yes. Freedom for Android and iOS is essentially ready, and we are working throug
 
 ## How does Freedom handle the RAM, CPU and bandwidth cost of running P2P nodes?
 
-TODO: answer with Florian.
-
-<!-- Facts already on the site that may help: 0.8.8 fixed a Swarm memory issue, and Freedom Agent starts the Swarm, IPFS, Radicle, Tor and Myotis nodes as needed. -->
+Freedom's built-in nodes for Swarm, IPFS, Radicle, Ethereum and Tor are all written in Rust and tuned to use little memory, CPU and bandwidth. We wrote our own Swarm and IPFS clients from scratch so they run smoothly on Android and iOS phones, and the desktop app uses the same ones. Only Swarm and IPFS start automatically. Radicle, the experimental Ethereum light client and Tor stay off until you turn them on in Settings. The Swarm node stays connected to its peers in the background, while IPFS only does real work when you open or publish IPFS content.
 
 ## How can developers contribute? Are there mentorship opportunities?
 
