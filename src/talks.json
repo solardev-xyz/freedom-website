@@ -1,5 +1,17 @@
 [
   {
+    "id": "iY5RF7XbTJM",
+    "slug": "building-a-privacy-browser-for-ethereum",
+    "title": "Building a Privacy Browser for Ethereum",
+    "event": "Devcon 8",
+    "channel": "Ethereum Foundation",
+    "speaker": "Meinhard Benn",
+    "date": "2026-11-04",
+    "duration": 417,
+    "thumbnail": "images/talks/iY5RF7XbTJM.webp",
+    "description": "Meinhard Benn, co-founder of Freedom Browser, gives a lightning talk at Devcon 8 in India on building a privacy browser for Ethereum. The talk covers how Freedom Browser approaches privacy by default across the stack — running more of the stack on the user’s device, routing sensitive requests privately, separate wallet identities per dApp, and private transactions — distinguishing what works today from what remains next."
+  },
+  {
     "id": "2cjETrFsVKw",
     "slug": "writing-the-dweb",
     "title": "Writing the dweb: Wallet and Storage APIs in Freedom Browser",
