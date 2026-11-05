@@ -445,6 +445,19 @@ pre.build-code code {
 .compare-table tbody tr:last-child td { border-bottom: 0; }
 .compare-table a { color: #fff; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
 .compare-table a:hover { opacity: .8; }
+.compare-table .col-freedom {
+  background: rgba(0, 233, 196, .10);
+}
+.compare-table thead .col-freedom {
+  color: #00e9c4;
+  opacity: 1;
+}
+.compare-table td.win {
+  box-shadow: inset 3px 0 0 #00e9c4;
+  font-weight: 650;
+  color: #fff;
+}
+.compare-table td.win code { font-weight: 650; }
 @media (max-width: 640px) {
   pre.build-code { font-size: .8rem; padding: 14px 14px; }
   .compare-table { font-size: .86rem; }
