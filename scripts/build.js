@@ -285,6 +285,7 @@ const organization = () => ({
   email: 'info@freedom.baby',
   sameAs: [
     'https://github.com/solardev-xyz/freedom-browser',
+    'https://app.radicle.xyz/nodes/seed.radicle.garden/rad:z3QXuMvMmSeEX3ZgoUidZC1v5MkKE',
     'https://bsky.app/profile/freedombrowser.bsky.social',
     'https://t.me/freedom_browser',
   ],
@@ -315,6 +316,10 @@ const softwareApplication = () => ({
   image: abs(DEFAULT_IMAGE),
   screenshot: abs('images/freedom-0.8.8-hero.webp'),
   license: 'https://www.mozilla.org/en-US/MPL/2.0/',
+  codeRepository: [
+    'https://github.com/solardev-xyz/freedom-browser',
+    'https://app.radicle.xyz/nodes/seed.radicle.garden/rad:z3QXuMvMmSeEX3ZgoUidZC1v5MkKE',
+  ],
   isAccessibleForFree: true,
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
   publisher: { '@id': ORG_ID },
