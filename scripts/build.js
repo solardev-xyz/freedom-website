@@ -384,10 +384,45 @@ function renderDoc(doc) {
     .replace(/\{\{page\}\}/g, doc.output)
     .replace(/\{\{content\}\}/g, () => html);
 
+  indexDoc(doc, title, kick, description, html);
+
   const outPath = path.join(DIST, doc.output);
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, fillSite(output));
   console.log(`  rendered  src/developer/${doc.content} → dist/${doc.output}`);
+}
+
+// --- docs search index -------------------------------------------------------
+
+// One entry per page section (intro + every h2/h3), built from the rendered
+// HTML so the index matches exactly what readers see. Served as a static JSON
+// file and searched client-side by assets/docs-search.js (no external service).
+const SEARCH_INDEX = [];
+
+function htmlToText(html) {
+  return stripTags(html.replace(/<a class="h-anchor"[^>]*>#<\/a>/g, '').replace(/<(\/p|br|li|\/h\d|\/pre|\/td|\/th)[^>]*>/g, ' $&'))
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ').trim();
+}
+
+function indexDoc(doc, title, kick, description, html) {
+  const href = docHref(doc.output);
+  const parts = html.split(/(?=<h[23] id=")/);
+  parts.forEach((part, i) => {
+    const m = part.match(/^<h([23]) id="([^"]+)">([\s\S]*?)<\/h\1>/);
+    const heading = m ? htmlToText(m[3].replace(BADGE_RE, '')) : '';
+    const text = htmlToText(m ? part.slice(m[0].length) : part);
+    if (!m && !text && i > 0) return;
+    SEARCH_INDEX.push({
+      p: title, k: kick, u: m ? `${href}#${m[2]}` : href,
+      h: heading, t: (m ? text : `${description} ${text}`.trim()).slice(0, 4000),
+    });
+  });
+}
+
+function writeSearchIndex() {
+  fs.writeFileSync(path.join(DIST, 'developer', 'search-index.json'), JSON.stringify(SEARCH_INDEX));
+  console.log(`  wrote     developer/search-index.json (${SEARCH_INDEX.length} sections)`);
 }
 
 function renderNews(posts) {
@@ -441,6 +476,7 @@ function main() {
   copyDirInto(IMAGES_DIR, path.join(DIST, 'images'), 'src/images');
   renderNews(POSTS.map(renderPost));
   DOC_PAGES.forEach(renderDoc);
+  writeSearchIndex();
   writeSitemap();
   console.log('✓ Build complete');
 }
