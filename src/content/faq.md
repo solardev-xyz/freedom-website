@@ -28,7 +28,7 @@ Yes, you can use Freedom as your everyday browser. It is built on Chromium, so r
 
 ## Is there a token or reward mechanism like Brave's?
 
-TODO: answer with Florian.
+Not today. Freedom has no token, no rewards and no ads, and you don't need anything beyond the browser to use it. We are exploring ways to reward the people who help Freedom grow, and we'll announce anything concrete in our [community](https://freedom.davinci.space) first.
 
 ## Is there a mobile app?
 
