@@ -44,6 +44,8 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 .cd .post:hover .post-title { color: #0b6b6d; }
 .cd .post span { color: #555; opacity: 1; }
 @media (max-width: 640px) { .cd .post { grid-template-columns: 1fr; gap: 4px; } .cd .post time { padding-top: 0; } }
+.cd .post .post-ver { display: inline-block; margin: 0 0 4px; font-size: .82rem; font-weight: 650; letter-spacing: 0.02em; color: #0b6b6d; opacity: 1; }
+.cd .releases .post .post-title { margin-top: 2px; }
 
 /* Back link at the end of an article */
 .prose .back { margin-top: 3.2em; padding-top: 1.6em; border-top: 1px solid #e3e3e0; }

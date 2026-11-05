@@ -12,7 +12,8 @@
  *   POSTS                 → news list with     → dist/news.html
  *     + src/templates/news-template.html
  *   src/content/faq.md    → FAQ section on the home page + its FAQPage JSON-LD
- *   POSTS                 → dist/feed.xml (RSS), dist/sitemap.xml, dist/robots.txt
+ *   POSTS                 → dist/feed.xml (RSS), dist/releases.html + releases.xml,
+ *                          dist/sitemap.xml, dist/robots.txt
  *
  * Templating, kept deliberately small:
  *   {{> name}}   inserts src/partials/name.html (head, nav, footer, scripts)
@@ -63,27 +64,114 @@ const LATEST_POSTS_ON_HOME = 3;
 // Markdown posts to render. Each entry maps a content file + template to a
 // generated page in dist/.
 // Newest first; the order is also the order of the news list and the feed.
+// kind: 'release' + version → listed on dist/releases.html (and releases.xml).
 // Optional here (they win over the post's front matter): description, imageAlt.
 const POSTS = [
   {
     content: 'freedom-0-8-8-agent.md',
     template: 'post-template.html',
     output: 'freedom-0-8-8-agent.html',
+    kind: 'release',
+    version: '0.8.8',
     summary: 'Freedom Agent: an assistant in the browser that builds, publishes and names decentralized sites from one prompt.',
     imageAlt: 'Freedom 0.8.8 with Freedom Agent registering littlecorner.gwei and publishing the site to Swarm',
+  },
+  {
+    content: 'freedom-0-8-7.md',
+    template: 'post-template.html',
+    output: 'freedom-0-8-7.html',
+    kind: 'release',
+    version: '0.8.7',
+    summary: 'Swarm browsing credit, a pop-up blocker, simpler publishing payments and a large round of fixes.',
+  },
+  {
+    content: 'freedom-0-8-6.md',
+    template: 'post-template.html',
+    output: 'freedom-0-8-6.html',
+    kind: 'release',
+    version: '0.8.6',
+    summary: 'External IPFS nodes, ENSv2 readiness, settings search and Arch packages.',
   },
   {
     content: 'freedom-0-8-5-daily-driver.md',
     template: 'post-template.html',
     output: 'freedom-0-8-5-daily-driver.html',
+    kind: 'release',
+    version: '0.8.5',
     summary: 'The first release you can use as your only browser, now with Ethereum and Tor nodes.',
     description: 'Freedom 0.8.5 is the first release you can use as your only browser, with ad and tracker blocking on by default, private windows, and Ethereum and Tor nodes.',
     imageAlt: 'Freedom 0.8.5 showing its start page with the node status panel open',
   },
   {
+    content: 'freedom-0-8-0.md',
+    template: 'post-template.html',
+    output: 'freedom-0-8-0.html',
+    kind: 'release',
+    version: '0.8.0',
+    summary: 'In-house Ant and freedom-ipfs nodes replace Bee and Kubo, plus multiple profiles.',
+  },
+  {
+    content: 'freedom-0-7-4.md',
+    template: 'post-template.html',
+    output: 'freedom-0-7-4.html',
+    kind: 'release',
+    version: '0.7.4',
+    summary: 'Native x402 payments from the wallet and Swarm publisher identities.',
+  },
+  {
+    content: 'freedom-0-7-3.md',
+    template: 'post-template.html',
+    output: 'freedom-0-7-3.html',
+    kind: 'release',
+    version: '0.7.3',
+    summary: 'Bee 2.8.0 — a breaking peer-to-peer upgrade for the Swarm node.',
+  },
+  {
+    content: 'freedom-0-7-2.md',
+    template: 'post-template.html',
+    output: 'freedom-0-7-2.html',
+    kind: 'release',
+    version: '0.7.2',
+    summary: 'Cryptographic ENS verification via Colibri and a unified network registry.',
+  },
+  {
+    content: 'freedom-0-7-1.md',
+    template: 'post-template.html',
+    output: 'freedom-0-7-1.html',
+    kind: 'release',
+    version: '0.7.1',
+    summary: 'ENS verified across public RPCs, and native bzz://, ipfs:// and ipns:// schemes.',
+  },
+  {
+    content: 'freedom-0-7-0.md',
+    template: 'post-template.html',
+    output: 'freedom-0-7-0.html',
+    kind: 'release',
+    version: '0.7.0',
+    summary: 'Experimental wallet and identity, dApp connections and Swarm publishing.',
+  },
+  {
+    content: 'freedom-0-6-2.md',
+    template: 'post-template.html',
+    output: 'freedom-0-6-2.html',
+    kind: 'release',
+    version: '0.6.2',
+    summary: 'Experimental Radicle on macOS and Linux, plus Swarm encrypted references.',
+  },
+  {
+    content: 'freedom-0-6-1.md',
+    template: 'post-template.html',
+    output: 'freedom-0-6-1.html',
+    kind: 'release',
+    version: '0.6.1',
+    summary: 'First public open-source release, with shortcuts, DoH and security hardening.',
+  },
+  {
     content: 'introducing-freedom.md',
     template: 'post-template.html',
     output: 'introducing-freedom.html',
+    kind: 'release',
+    version: '0.6.0',
     summary: 'The first public preview: a minimalist browser that loads Swarm and IPFS content straight from peers.',
     imageAlt: 'Freedom showing its start page with the Swarm and IPFS node status panel open',
   },
@@ -469,6 +557,38 @@ function renderNews(posts) {
   console.log('  rendered  news list → dist/news.html');
 }
 
+function releaseListHtml(posts) {
+  return posts
+    .map((p) => '  <a class="post" href="' + p.output + '"><time datetime="' + p.iso + '">' + escapeHtml(p.date) + '</time><div><span class="post-ver">' + escapeHtml(p.version) + '</span><h2 class="post-title">' + escapeHtml(p.title) + '</h2><span>' + escapeHtml(p.summary) + '</span></div></a>')
+    .join('\n');
+}
+
+function renderReleases(posts) {
+  const releases = posts.filter((p) => p.kind === 'release' && p.version);
+  const template = fs.readFileSync(path.join(TEMPLATES_DIR, 'releases-template.html'), 'utf-8');
+  const vars = pageVars('releases.html', {
+    title: 'Releases — Freedom Browser',
+    ogTitle: 'Freedom Browser releases',
+    description: 'Release notes for every stable Freedom Browser version, newest first.',
+  });
+  vars.jsonLdHtml = jsonLdScript(graph(
+    {
+      '@type': 'CollectionPage',
+      '@id': `${vars.canonical}#releases`,
+      name: 'Freedom Browser releases',
+      url: vars.canonical,
+      isPartOf: { '@id': SITE_ID },
+      hasPart: releases.map((p) => ({ '@type': 'SoftwareApplication', name: `Freedom ${p.version}`, softwareVersion: p.version, url: abs(p.output), releaseNotes: abs(p.output) })),
+    },
+    organization(),
+    breadcrumbs([['Home', SITE.url], ['Releases', vars.canonical]]),
+  ));
+  vars.postsHtml = releaseListHtml(releases);
+  fs.writeFileSync(path.join(DIST, 'releases.html'), render(template, vars, 'releases-template.html'));
+  console.log('  rendered  releases list → dist/releases.html');
+  return releases;
+}
+
 /** RSS 2.0 with the full post in content:encoded (links made absolute for readers). */
 function writeFeed(posts) {
   const absolutize = (html) => html.replace(/\s(src|href)="(?![a-z][a-z0-9+.-]*:|#|\/\/)([^"]+)"/gi, (m, attr, url) => ` ${attr}="${abs(url)}"`);
@@ -496,6 +616,36 @@ ${items}
 `;
   fs.writeFileSync(path.join(DIST, 'feed.xml'), xml);
   console.log('  wrote     feed.xml');
+}
+
+/** Release-only RSS (same shape as feed.xml). */
+function writeReleasesFeed(releases) {
+  if (!releases.length) return;
+  const absolutize = (html) => html.replace(/\s(src|href)="(?![a-z][a-z0-9+.-]*:|#|\/\/)([^"]+)"/gi, (m, attr, url) => ` ${attr}="${abs(url)}"`);
+  const items = releases.map((p) => `    <item>
+      <title>${escapeXml(p.title)}</title>
+      <link>${abs(p.output)}</link>
+      <guid isPermaLink="true">${abs(p.output)}</guid>
+      <pubDate>${rfc822(p.iso)}</pubDate>
+      <description>${escapeXml(p.summary)}</description>
+      <content:encoded><![CDATA[${absolutize(p.html).replace(/]]>/g, ']]]]><![CDATA[>')}]]></content:encoded>
+    </item>`).join('\n');
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Freedom Browser releases</title>
+    <link>${abs('releases.html')}</link>
+    <atom:link href="${abs('releases.xml')}" rel="self" type="application/rss+xml"/>
+    <description>Stable Freedom Browser release notes.</description>
+    <language>en</language>
+    <image><url>${abs('apple-touch-icon.png')}</url><title>Freedom Browser releases</title><link>${abs('releases.html')}</link></image>
+    <lastBuildDate>${rfc822(releases[0].iso)}</lastBuildDate>
+${items}
+  </channel>
+</rss>
+`;
+  fs.writeFileSync(path.join(DIST, 'releases.xml'), xml);
+  console.log('  wrote     releases.xml');
 }
 
 // --- static pages -----------------------------------------------------------------------
@@ -542,10 +692,11 @@ function renderPages(ctx) {
 
 /** robots.txt + sitemap.xml for the public pages (absolute URLs from site.json). */
 function writeSitemap(pageEntries, posts) {
-  const order = (loc) => (loc === '' ? 0 : loc === 'news.html' ? 1 : 2);
+  const order = (loc) => (loc === '' ? 0 : loc === 'news.html' ? 1 : loc === 'releases.html' ? 2 : 3);
   const entries = [
     ...pageEntries,
     { loc: 'news.html', lastmod: maxDate(posts[0].modified, gitDate('src/templates/news-template.html')) },
+    { loc: 'releases.html', lastmod: maxDate(...posts.filter((p) => p.kind === 'release').map((p) => p.modified), gitDate('src/templates/releases-template.html')) },
     ...posts.map((p) => ({ loc: p.output, lastmod: p.modified })),
   ].sort((a, b) => order(a.loc) - order(b.loc));
   const urls = entries
@@ -581,7 +732,9 @@ function main() {
   const pageEntries = renderPages({ posts, faq });
   posts.forEach(renderPost);
   renderNews(posts);
+  const releases = renderReleases(posts);
   writeFeed(posts);
+  writeReleasesFeed(releases);
   writeSitemap(pageEntries, posts);
   console.log('✓ Build complete');
 }
