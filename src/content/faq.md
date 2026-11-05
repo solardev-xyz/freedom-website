@@ -16,9 +16,11 @@ HOW TO EDIT THE FAQ
 
 ## How is Freedom different from Brave, and why switch?
 
-Freedom runs its own Swarm and IPFS nodes, so decentralized sites load straight from the network instead of through someone else's gateway. ENS names like *freedombrowser.eth* open without an extension, a wallet is built in, and you can publish a website to Swarm from the browser itself. Freedom Agent can even build, publish and name a site for you from one prompt.
+Brave is a privacy-focused browser for today's web. Freedom is built for the decentralized web. It runs its own Swarm and IPFS nodes inside the browser, so .eth sites and other decentralized content load straight from the peer-to-peer network instead of through a company's gateway. Brave dropped its built-in IPFS support in 2024.
 
-<!-- DRAFT: the answer above only uses facts already on the site. Florian to add the direct comparison with Brave. -->
+ENS names open natively, a wallet is built in, and you can publish a website to Swarm, give it a name and keep it online with no hosting company involved. Freedom Agent can even build, publish and name a site for you from a single prompt.
+
+Like Brave, Freedom is built on Chromium, so everyday browsing works the same, with ad blocking and Tor built in. Freedom is fully open source, with no ads, no token and no data collection.
 
 ## Should I use Freedom as my everyday browser, or next to Brave or another browser?
 
