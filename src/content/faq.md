@@ -24,9 +24,7 @@ Like Brave, Freedom is built on Chromium, so everyday browsing works the same, w
 
 ## Should I use Freedom as my everyday browser, or next to Brave or another browser?
 
-Freedom is built on Chromium, so regular websites work as you expect, with ad blocking, Tor, video calls, tabs, bookmarks and automatic updates built in. Since version 0.8.5 it is meant to be usable as your only browser. It is still a technical preview, so keeping another browser around for the odd site is fine.
-
-<!-- DRAFT: Florian to confirm the recommendation. -->
+Yes, you can use Freedom as your everyday browser. It is built on Chromium, so regular websites work as you'd expect, and ad blocking, Tor, video calls, tabs, bookmarks and automatic updates are all built in. Since version 0.8.5 it has been designed to be your only browser. It is still a technical preview, so if a site ever misbehaves, keeping another browser around is fine, and please [report it](https://github.com/solardev-xyz/freedom-browser/issues) so we can fix it.
 
 ## Is there a token or reward mechanism like Brave's?
 
