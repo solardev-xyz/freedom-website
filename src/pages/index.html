@@ -1,42 +1,19 @@
+<!--
+title: Freedom Browser — Web3 browser for ENS, IPFS and Swarm
+ogTitle: Freedom Browser — the browser for a user-owned internet
+description: Freedom Browser is a free, open-source decentralized Web3 browser with built-in Swarm and IPFS nodes, ENS names, a crypto wallet and an AI agent.
+imageAlt: Freedom Browser 0.8.8 with Freedom Agent building a website on Swarm, next to the Freedom wordmark
+-->
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Freedom — The browser for a user-owned internet</title>
-  <meta name="freedom-version" content="{{version}}">
-  <meta name="description" content="Open the decentralized web directly. No extensions, no gatekeepers.">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Freedom">
-  <meta property="og:title" content="Freedom — The browser for a user-owned internet">
-  <meta property="og:description" content="Open the decentralized web directly. No extensions, no gatekeepers.">
-  <meta property="og:url" content="{{url}}">
-  <meta property="og:image" content="{{url}}images/freedom-0.8.5-og.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="{{url}}images/freedom-0.8.5-og.jpg">
-  <link rel="icon" href="assets/freedom_icon.svg">
-  <link rel="preload" href="assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/site.css">
+{{> head}}  <meta name="freedom-version" content="{{version}}">
 </head>
-<body data-dither="grain" data-px="1" data-strength=".5">
+<body>
 
-<nav class="top">
-  <div class="wrap">
-    <a class="brand" href="./" aria-label="Freedom home">
-      <img class="logo-light" src="assets/freedom-logo-black.svg" alt="freedom:">
-      <img class="logo-dark" src="assets/freedom-logo-white.svg" alt="freedom:">
-    </a>
-    <div class="menu" id="menu">
-      <a href="#features">Features</a>
-      <a href="#how">How it works</a>
-      <a href="news.html">News</a>
-    </div>
-    <a class="btn sm" href="#download"><span class="lbl">Download</span></a>
-    <button class="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span></span></button>
-  </div>
-</nav>
+{{> nav}}
 
-<div class="top" data-from="#173637" data-to="#005a5d">
+<div class="top">
 <header class="hero wrap">
   <h1>The browser for a user-owned internet</h1>
   <p class="lead">Open the decentralized web directly. No extensions, no gatekeepers.</p>
@@ -46,7 +23,7 @@
 </header>
 
 <div class="shot wrap">
-  <img src="images/freedom-0.8.5-screenshot.webp" alt="Freedom browser showing a website loaded from Swarm" width="1172" height="750">
+  <img src="images/freedom-0.8.8-hero.webp" srcset="images/freedom-0.8.8-hero-560.webp 560w, images/freedom-0.8.8-hero.webp 1121w" sizes="(max-width: 640px) calc(100vw - 48px), 560px" width="1121" height="1280" fetchpriority="high" alt="Freedom Browser 0.8.8: Freedom Agent has built a personal website, published it to Swarm and registered littlecorner.gwei, with the wallet receipts in the agent panel">
 </div>
 
 <div class="proof wrap">
@@ -56,7 +33,7 @@
 </div>
 </div>
 
-<section class="block" data-from="#9c4330" data-to="#79271a" id="features">
+<section class="block copper" id="features">
   <div class="wrap">
     <h2>Everything the next internet needs, in one browser</h2>
     <div class="grid">
@@ -80,11 +57,22 @@
         <h3>Publish without permission</h3>
         <p>Put a website or file on the network straight from the browser. No hosting company, no one who can take it down.</p>
       </div>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18.5 9.5l-4.7 1.9L12 16l-1.8-4.6L5.5 9.5l4.7-1.9z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>
+        <h3>An agent that builds with you</h3>
+        <p>Freedom Agent researches, reads pages and steers the browser. Ask for a website and it builds it, publishes it to Swarm and registers a <i>.eth</i> name. Anything that spends or publishes waits for your approval.</p>
+      </div>
+      <div class="card">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M11 6l1.5-1.5a4.2 4.2 0 0 1 6 6L17 12"/><path d="M13 18l-1.5 1.5a4.2 4.2 0 0 1-6-6L7 12"/></svg>
+        <h3>No gateway in between</h3>
+        <p>Links to eth.limo, eth.link and bzz.link pages can open straight from Swarm and IPFS, one click from the address bar or by default.</p>
+      </div>
     </div>
+    <p class="more">The agent is off by default and works with the model you choose, including local ones through Ollama. <a href="freedom-0-8-8-agent.html">Read about Freedom Agent&nbsp;→</a></p>
   </div>
 </section>
 
-<section class="block" data-from="#173637" data-to="#005a5d">
+<section class="block teal">
   <div class="wrap">
     <h2>Fast, familiar, and ready for the rest of the web</h2>
     <div class="everyday">
@@ -94,28 +82,31 @@
       <div><b>Tabs, sidebar, bookmarks</b><span>Everything where you'd look for it.</span></div>
       <div><b>Tor built in</b><span>Open .onion sites when you need them.</span></div>
       <div><b>Automatic updates</b><span>New features arrive on their own.</span></div>
+      <div><b>Recently closed</b><span>A History menu brings back the pages you closed.</span></div>
+      <div><b>Tab shortcuts</b><span>Cmd+1 to Cmd+9 switches tabs (Ctrl on Windows and Linux).</span></div>
+      <div><b>Full screen</b><span>Hide every toolbar and keep just the page.</span></div>
     </div>
   </div>
 </section>
 
-<section class="block how" data-from="#9c4330" data-to="#79271a" id="how">
+<section class="block how copper" id="how">
   <div class="wrap">
     <h2>You don't visit the network, you become part of it</h2>
     <p class="sub">Other browsers reach the decentralized web through someone else's gateway. Freedom connects you directly to peers, so there's no gatekeeper to block, track or switch you off.</p>
     <div class="powered">
-      <a href="https://www.ethswarm.org" rel="noopener"><img class="dk" src="assets/logos/swarm.svg" alt="">Swarm</a>
+      <a href="https://www.ethswarm.org" rel="noopener"><img class="dk" src="{{root}}assets/logos/swarm.svg" alt="">Swarm</a>
       <a href="https://ipfs.tech" rel="noopener"><svg class="ipfs" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z"/><path d="M3.5 7.3L12 12l8.5-4.7M12 12v9.5"/></svg>IPFS</a>
-      <a href="https://radicle.xyz" rel="noopener"><img src="assets/logos/radicle.svg" alt="">Radicle</a>
-      <a href="https://ens.domains" rel="noopener"><img class="dk" src="assets/logos/ens.svg" alt="">ENS</a>
-      <a href="https://myotis.eth.limo/" rel="noopener" title="Myotis: trustless Ethereum light client, verified reads straight from the P2P network"><img src="assets/logos/myotis.svg" alt="">Myotis</a>
-      <a href="https://corpuscore.tech" rel="noopener" title="Colibri by corpus.core: verified Ethereum and ENS reads"><img src="assets/logos/colibri.png" alt="">Colibri</a>
-      <a href="https://ethereum.org" rel="noopener"><img class="dk" src="assets/logos/ethereum.svg" alt="">Ethereum</a>
-      <a href="https://www.gnosis.io" rel="noopener"><img class="dk" src="assets/logos/gnosis.svg" alt="">Gnosis</a>
+      <a href="https://radicle.xyz" rel="noopener"><img src="{{root}}assets/logos/radicle.svg" alt="">Radicle</a>
+      <a href="https://ens.domains" rel="noopener"><img class="dk" src="{{root}}assets/logos/ens.svg" alt="">ENS</a>
+      <a href="https://myotis.eth.limo/" rel="noopener" title="Myotis: trustless Ethereum light client, verified reads straight from the P2P network"><img src="{{root}}assets/logos/myotis.svg" alt="">Myotis</a>
+      <a href="https://corpuscore.tech" rel="noopener" title="Colibri by corpus.core: verified Ethereum and ENS reads"><img src="{{root}}assets/logos/colibri.png" alt="">Colibri</a>
+      <a href="https://ethereum.org" rel="noopener"><img class="dk" src="{{root}}assets/logos/ethereum.svg" alt="">Ethereum</a>
+      <a href="https://www.gnosis.io" rel="noopener"><img class="dk" src="{{root}}assets/logos/gnosis.svg" alt="">Gnosis</a>
     </div>
   </div>
 </section>
 
-<section class="block" data-from="#173637" data-to="#005a5d">
+<section class="block teal">
   <div class="wrap mobile">
     <div>
       <h2>Coming to Android and iOS</h2>
@@ -124,7 +115,26 @@
   </div>
 </section>
 
-<section class="block dl" data-from="#9c4330" data-to="#79271a" id="download">
+<section class="block latest copper" id="news">
+  <div class="wrap">
+    <h2>Latest news</h2>
+    <div class="posts">
+{{latestPostsHtml}}
+    </div>
+    <p class="more"><a href="news.html">All news&nbsp;→</a> <a href="feed.xml">RSS feed</a></p>
+  </div>
+</section>
+
+<section class="block faq teal" id="faq">
+  <div class="wrap">
+    <h2>Questions and answers</h2>
+    <div class="qas">
+{{faqHtml}}
+    </div>
+  </div>
+</section>
+
+<section class="block dl copper" id="download">
   <div class="wrap">
     <h2>Get Freedom</h2>
     <p class="sub" style="margin:16px auto 0">Free for macOS, Windows and Linux.</p>
@@ -145,46 +155,7 @@
   </div>
 </section>
 
-<footer class="ft">
-  <div class="wrap">
-    <div class="ft-top">
-      <div class="ft-brand">
-        <img src="assets/freedom-logo-white.svg" alt="freedom:" width="120" height="25">
-        <p>The browser for a user-owned internet</p>
-      </div>
-      <nav class="ft-links" aria-label="Footer">
-        <a class="ft-social" href="news.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg><span>News</span></a>
-        <a class="ft-social" href="https://github.com/solardev-xyz/freedom-browser/issues"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg><span>Report an issue</span></a>
-        <a class="ft-social" href="https://github.com/solardev-xyz/freedom-browser"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.2-1.3-5.2-5.7 0-1.3.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.4-2.7 5.4-5.2 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 23.5 12C23.5 5.7 18.3.5 12 .5z"/></svg><span>GitHub</span></a>
-        <a class="ft-social" href="https://bsky.app/profile/freedombrowser.bsky.social" aria-label="Freedom on Bluesky"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M5.2 3.6c2.4 1.8 5 5.4 5.9 7.4.9-2 3.5-5.6 5.9-7.4 1.8-1.3 4.6-2.3 4.6.9 0 .6-.4 5.3-.6 6.1-.8 2.8-3.6 3.5-6.1 3.1 4.4.7 5.5 3.2 3.1 5.7-4.6 4.7-6.6-1.2-7.1-2.7l-.1-.4-.1.4c-.5 1.5-2.5 7.4-7.1 2.7-2.4-2.5-1.3-5 3.1-5.7-2.5.4-5.3-.3-6.1-3.1C1.6 9.8 1.2 5.1 1.2 4.5c0-3.2 2.8-2.2 4-.9z"/></svg><span>Bluesky</span></a>
-        <a class="ft-social" href="https://t.me/freedom_browser" aria-label="Freedom on Telegram"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.2 13 1.4 11.5c-1-.3-1.1-1 .2-1.5l18.8-7.2c.9-.3 1.7.2 1.5 1.5z"/></svg><span>Telegram</span></a>
-      </nav>
-    </div>
-    <p class="ft-small">
-      <span>© 2026 Freedom GmbH</span>
-      <span>Open source (MPL-2.0)</span>
-      <span>On Swarm: <a href="bzz://freedombrowser.eth">freedombrowser.eth</a></span>
-      <span><a href="logo.html">Logo</a> <i>·</i> <a href="imprint.html">Imprint</a> <i>·</i> <a href="privacy.html">Privacy</a></span>
-    </p>
-  </div>
-</footer>
+{{> footer}}
 
-<script src="assets/os.js"></script>
-<script>(function(){const h=document.getElementById("hero-dl");if(h)h.textContent = "Download Freedom";})();</script>
-<script>
-(function () {
-  const b = document.querySelector('.burger'), m = document.getElementById('menu');
-  const set = open => { b.setAttribute('aria-expanded', open); m.classList.toggle('open', open); };
-  b.addEventListener('click', () => set(b.getAttribute('aria-expanded') !== 'true'));
-  m.addEventListener('click', e => { if (e.target.closest('a')) set(false); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
-  // close on tap outside the menu, and on scroll
-  document.addEventListener('click', e => { if (b.getAttribute('aria-expanded') === 'true' && !m.contains(e.target) && !b.contains(e.target)) set(false); });
-  addEventListener('scroll', () => { if (b.getAttribute('aria-expanded') === 'true') set(false); }, { passive: true });
-})();
-</script>
-<script src="assets/dither.js"></script>
-<script>(function(){const n=document.querySelector("nav.top");const f=()=>n.classList.toggle("scrolled",scrollY>4);addEventListener("scroll",f,{passive:true});f();})();</script>
-<script>(function(){const ua=(navigator.userAgentData?.platform||navigator.platform+" "+navigator.userAgent).toLowerCase();const os=/android|iphone|ipad/.test(ua)?null:ua.includes("mac")?"mac":ua.includes("win")?"win":ua.includes("linux")?"linux":null;document.querySelectorAll(".plat.rec").forEach(e=>e.classList.remove("rec"));const b=os&&document.querySelector(".plat[data-os="+os+"] a.pill");const h=document.getElementById("hero-dl");if(b){b.classList.add("primary");if(h){h.href=b.href;h.setAttribute("download","");}}else if(h){h.href="#download";h.removeAttribute("download");}if(h)h.textContent="Download Freedom";})();</script>
-</body>
+{{> scripts}}</body>
 </html>
