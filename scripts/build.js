@@ -12,6 +12,8 @@
  *     + src/templates/news-template.html
  *   src/developer/*.md    → rendered with      → dist/developer/*.html
  *     + src/templates/docs-template.html
+ *     (tabs, left nav and "On this page" are generated; see DOCS below;
+ *     open-issues.md pulls in src/developer/open-issues.json)
  *
  * src/site.json holds the values that change between releases (version,
  * download stats); any {{key}} in a page or template is replaced with it.
@@ -20,7 +22,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { marked } = require('marked');
+const { marked, Marked } = require('marked');
 
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'src');
@@ -40,35 +42,34 @@ function fillSite(text) {
 }
 
 // Developer docs (markdown under src/developer/, rendered with docs-template).
+// Tabs across the top; each page belongs to one tab and one left-nav group.
+// Title, description, kick and dek come from each page's front matter.
+const DOC_TABS = [
+  { id: 'build', label: 'Build dapps', href: './' },
+  { id: 'api', label: 'API reference', href: 'swarm.html' },
+  { id: 'examples', label: 'Examples', href: 'examples.html' },
+  { id: 'contribute', label: 'Contribute', href: 'contributing.html' },
+];
+
 const DOCS = [
-  {
-    content: 'index.md',
-    output: 'developer/index.html',
-    slug: 'index',
-    kick: 'Developers',
-    dek: 'Build on Swarm and Radicle with Freedom\'s page providers, or contribute to the browser itself.',
-  },
-  {
-    content: 'swarm.md',
-    output: 'developer/swarm.html',
-    slug: 'swarm',
-    kick: 'Provider API',
-    dek: 'Publish, read chunks and feeds, sign, and message through the user\'s Swarm node.',
-  },
-  {
-    content: 'radicle.md',
-    output: 'developer/radicle.html',
-    slug: 'radicle',
-    kick: 'Provider API',
-    dek: 'Seed, sync, disclose identity, and write collaborative objects on the user\'s Radicle node.',
-  },
-  {
-    content: 'contributing.md',
-    output: 'developer/contributing.html',
-    slug: 'contributing',
-    kick: 'Contribute',
-    dek: 'Prerequisites, local setup, tests, project structure, and pull-request conventions.',
-  },
+  { content: 'index.md', output: 'developer/index.html', tab: 'build', group: 'Get started', nav: 'Overview' },
+  { content: 'quickstart.md', output: 'developer/quickstart.html', tab: 'build', group: 'Get started', nav: 'Quickstart' },
+  { content: 'guide-permissions.md', output: 'developer/guide-permissions.html', tab: 'build', group: 'Guides', nav: 'Permissions and identity' },
+  { content: 'guide-feeds.md', output: 'developer/guide-feeds.html', tab: 'build', group: 'Guides', nav: 'Feeds and mutable content' },
+  { content: 'guide-messaging.md', output: 'developer/guide-messaging.html', tab: 'build', group: 'Guides', nav: 'Live messaging' },
+  { content: 'guide-radicle.md', output: 'developer/guide-radicle.html', tab: 'build', group: 'Guides', nav: 'Radicle repos and issues' },
+  { content: 'guide-errors.md', output: 'developer/guide-errors.html', tab: 'build', group: 'Guides', nav: 'Errors and node readiness' },
+  { content: 'guide-swarm-kit.md', output: 'developer/guide-swarm-kit.html', tab: 'build', group: 'Guides', nav: 'swarm-kit' },
+  { content: 'swarm.md', output: 'developer/swarm.html', tab: 'api', group: 'Page providers', nav: 'window.swarm' },
+  { content: 'radicle.md', output: 'developer/radicle.html', tab: 'api', group: 'Page providers', nav: 'window.radicle' },
+  { content: 'rad-urls.md', output: 'developer/rad-urls.html', tab: 'api', group: 'URL schemes', nav: 'rad: URLs' },
+  { content: 'examples.md', output: 'developer/examples.html', tab: 'examples', group: 'Examples', nav: 'Apps and examples' },
+  { content: 'contributing.md', output: 'developer/contributing.html', tab: 'contribute', group: 'Get started', nav: 'Setup' },
+  { content: 'architecture.md', output: 'developer/architecture.html', tab: 'contribute', group: 'Get started', nav: 'Architecture' },
+  { content: 'repositories.md', output: 'developer/repositories.html', tab: 'contribute', group: 'Get started', nav: 'Repositories' },
+  { content: 'workflow.md', output: 'developer/workflow.html', tab: 'contribute', group: 'Get started', nav: 'Workflow and pull requests' },
+  { content: 'open-issues.md', output: 'developer/open-issues.html', tab: 'contribute', group: 'Help wanted', nav: 'Open for contribution' },
+  { content: 'community.md', output: 'developer/community.html', tab: 'contribute', group: 'Help wanted', nav: 'Community and mentorship' },
 ];
 
 // Markdown posts to render. Each entry maps a content file + template to a
@@ -182,6 +183,149 @@ function escapeHtml(s) {
 }
 
 
+// --- developer docs -----------------------------------------------------------
+
+function stripTags(html) {
+  return String(html).replace(/<[^>]+>/g, '');
+}
+
+function slugify(text) {
+  return stripTags(text)
+    .replace(/&[a-z]+;|&#\d+;/g, ' ')
+    .toLowerCase()
+    .replace(/[^a-z0-9_\s-]/g, '')
+    .trim()
+    .replace(/[\s-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'section';
+}
+
+const BADGE_RE = /\s*<(a|span) class="badge[^"]*"[^>]*>[\s\S]*?<\/\1>/g;
+
+/**
+ * Render a doc's markdown with id'd headings. An explicit trailing `{#id}`
+ * wins; a heading that starts with a `swarm_*` / `radicle_*` method name uses
+ * that name; otherwise the text is slugified. h2/h3 are collected for the
+ * "On this page" table of contents.
+ */
+function renderDocMarkdown(md) {
+  const toc = [];
+  const used = new Set();
+  const md2 = new Marked();
+  md2.use({
+    renderer: {
+      heading({ tokens, depth, text }) {
+        let inner = this.parser.parseInline(tokens);
+        let id;
+        const explicit = inner.match(/\s*\{#([A-Za-z0-9_-]+)\}\s*$/);
+        if (explicit) {
+          id = explicit[1];
+          inner = inner.slice(0, explicit.index);
+        } else {
+          const method = String(text).match(/^`((?:swarm|radicle)_\w+)`/);
+          id = method ? method[1] : slugify(inner.replace(BADGE_RE, ''));
+        }
+        let unique = id;
+        for (let n = 2; used.has(unique); n++) unique = `${id}-${n}`;
+        used.add(unique);
+        if (depth === 2 || depth === 3) {
+          toc.push({ depth, id: unique, label: inner.replace(BADGE_RE, '').replace(/<a [^>]*>|<\/a>/g, '').trim() });
+        }
+        return `<h${depth} id="${unique}">${inner}<a class="h-anchor" href="#${unique}" aria-label="Link to this section">#</a></h${depth}>\n`;
+      },
+    },
+  });
+  return { html: md2.parse(md), toc };
+}
+
+function renderToc(toc) {
+  if (toc.length < 2) return '';
+  return toc
+    .map((t) => `<li class="toc-h${t.depth}"><a href="#${t.id}">${t.label}</a></li>`)
+    .join('\n');
+}
+
+function docHref(output) {
+  const base = path.basename(output);
+  return base === 'index.html' ? './' : base;
+}
+
+function renderTabs(current) {
+  return DOC_TABS.map((t) =>
+    `<a href="${t.href}"${t.id === current.tab ? ' aria-current="page"' : ''}>${escapeHtml(t.label)}</a>`
+  ).join('\n        ');
+}
+
+function renderSideNav(current) {
+  const pages = DOCS.filter((d) => d.tab === current.tab);
+  const groups = [];
+  for (const d of pages) {
+    let g = groups.find((x) => x.label === d.group);
+    if (!g) groups.push((g = { label: d.group, pages: [] }));
+    g.pages.push(d);
+  }
+  return groups.map((g) =>
+    `<p class="docs-nav-label">${escapeHtml(g.label)}</p>\n` +
+    g.pages.map((d) =>
+      `<a href="${docHref(d.output)}"${d === current ? ' aria-current="page"' : ''}>${escapeHtml(d.nav)}</a>`
+    ).join('\n')
+  ).join('\n');
+}
+
+const OPEN_ISSUES_PATH = path.join(DEVELOPER_DIR, 'open-issues.json');
+const KIND_LABEL = { bug: 'Bug', dx: 'Developer experience', 'feature-request': 'Feature request' };
+
+function formatDate(iso) {
+  const d = new Date(iso + 'T12:00:00Z');
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
+
+function renderIssueCard(i) {
+  const badges = [`<span class="badge kind-${i.kind}">${KIND_LABEL[i.kind] || i.kind}</span>`];
+  if (i.source === 'community') badges.push('<span class="badge community">Community</span>');
+  if (i.committed === false) badges.push('<span class="badge proposal">Proposal · not on the roadmap</span>');
+  if (i.difficulty) badges.push(`<span class="badge difficulty">${escapeHtml(i.difficulty === 'starter' ? 'Good first issue' : i.difficulty)}</span>`);
+  return `<li class="issue-card">
+  <div class="issue-head"><a class="issue-title" href="${escapeHtml(i.url)}"><span class="issue-num">#${i.number}</span> ${escapeHtml(i.title)}</a></div>
+  <div class="issue-badges">${badges.join(' ')}</div>
+  <p>${escapeHtml(i.summary)}</p>
+  <p class="issue-meta">Opened by ${escapeHtml(i.author)} · checked ${formatDate(i.last_checked)}</p>
+</li>`;
+}
+
+/** Render src/developer/open-issues.json (authored by hand; no API calls at build time). */
+function renderOpenIssues() {
+  const data = JSON.parse(fs.readFileSync(OPEN_ISSUES_PATH, 'utf-8'));
+  const kinds = new Set(Object.keys(KIND_LABEL));
+  for (const i of data.issues) {
+    for (const f of ['number', 'title', 'url', 'area', 'kind', 'summary', 'last_checked']) {
+      if (i[f] === undefined || i[f] === '') throw new Error(`open-issues.json: #${i.number} is missing ${f}`);
+    }
+    if (!kinds.has(i.kind)) throw new Error(`open-issues.json: #${i.number} has unknown kind ${i.kind}`);
+    if (!data.areas.some((a) => a.id === i.area)) throw new Error(`open-issues.json: #${i.number} has unknown area ${i.area}`);
+  }
+  const isProposal = (i) => i.source === 'community' && i.kind === 'feature-request';
+  const order = { bug: 0, dx: 1, 'feature-request': 2 };
+  const sort = (a, b) => (order[a.kind] - order[b.kind]) || (b.number - a.number);
+
+  let html = '';
+  for (const area of data.areas) {
+    const list = data.issues.filter((i) => i.area === area.id && !isProposal(i)).sort(sort);
+    if (!list.length) continue;
+    html += `<h2 id="${area.id}">${escapeHtml(area.label)}<a class="h-anchor" href="#${area.id}" aria-label="Link to this section">#</a></h2>\n<ul class="issue-list">\n${list.map(renderIssueCard).join('\n')}\n</ul>\n`;
+  }
+  const proposals = data.issues.filter(isProposal).sort((a, b) => b.number - a.number);
+  if (proposals.length) {
+    html += `<h2 id="community-proposals">Community proposals<a class="h-anchor" href="#community-proposals" aria-label="Link to this section">#</a></h2>
+<p>Feature ideas from developers outside the core team. They are open for discussion, design and prototypes, but a proposal is not a commitment: items marked <span class="badge proposal">Proposal · not on the roadmap</span> are not on the roadmap. Comment on the issue before you start building.</p>
+<ul class="issue-list">\n${proposals.map(renderIssueCard).join('\n')}\n</ul>\n`;
+  }
+  const toc = data.areas
+    .filter((a) => data.issues.some((i) => i.area === a.id && !isProposal(i)))
+    .map((a) => ({ depth: 2, id: a.id, label: escapeHtml(a.label) }));
+  if (proposals.length) toc.push({ depth: 2, id: 'community-proposals', label: 'Community proposals' });
+  return { html, toc, updated: formatDate(data.last_updated), count: data.issues.length };
+}
+
 function renderDoc(doc) {
   const contentPath = path.join(DEVELOPER_DIR, doc.content);
   const templatePath = path.join(TEMPLATES_DIR, 'docs-template.html');
@@ -191,36 +335,40 @@ function renderDoc(doc) {
 
   const title = meta.title || extractTitle(markdown);
   const description = meta.description || extractDescription(markdown);
-  const kick = meta.kick || doc.kick || 'Developers';
-  const dek = meta.dek || doc.dek || '';
+  const kick = meta.kick || DOC_TABS.find((t) => t.id === doc.tab).label;
+  const dek = meta.dek || '';
 
-  // Drop the leading H1 — the template hero already shows the title.
-  let body = markdown.replace(/^# .+\n+/, '');
-  const html = marked(body);
+  // Drop the leading H1 — the page header already shows the title.
+  const body = markdown.replace(/^# .+\n+/, '');
+  let { html, toc } = renderDocMarkdown(body);
 
-  const escapedTitle = title.replace(/"/g, '&quot;');
-  const escapedDesc = description.replace(/"/g, '&quot;');
-  const escapedKick = kick.replace(/"/g, '&quot;');
-  const escapedDek = dek.replace(/"/g, '&quot;');
-
-  const navAttrs = Object.fromEntries(
-    ['index', 'swarm', 'radicle', 'contributing'].map((slug) => [
-      'nav_' + slug,
-      slug === doc.slug ? ' aria-current="page"' : '',
-    ])
-  );
-
-  let output = template
-    .replace(/\{\{title\}\}/g, escapedTitle)
-    .replace(/\{\{description\}\}/g, escapedDesc)
-    .replace(/\{\{kick\}\}/g, escapedKick)
-    .replace(/\{\{dek\}\}/g, escapedDek)
-    .replace(/\{\{content\}\}/g, html)
-    .replace(/\{\{page\}\}/g, doc.output);
-
-  for (const [key, value] of Object.entries(navAttrs)) {
-    output = output.replaceAll('{{' + key + '}}', value);
+  if (html.includes('{{open_issues}}')) {
+    const issues = renderOpenIssues();
+    html = html
+      .replace(/<p>\{\{open_issues\}\}<\/p>/, issues.html)
+      .replace(/\{\{open_issues_updated\}\}/g, issues.updated)
+      .replace(/\{\{open_issues_count\}\}/g, String(issues.count));
+    toc = toc.concat(issues.toc);
   }
+
+  const source = meta.source
+    ? `<a class="docs-source" href="${escapeHtml(meta.source)}">Source on GitHub</a>`
+    : '';
+  const tocHtml = renderToc(toc);
+
+  const esc = (s) => s.replace(/"/g, '&quot;');
+  const output = template
+    .replace(/\{\{title\}\}/g, esc(title))
+    .replace(/\{\{description\}\}/g, esc(description))
+    .replace(/\{\{kick\}\}/g, esc(kick))
+    .replace(/\{\{dek\}\}/g, esc(dek))
+    .replace(/\{\{tabs\}\}/g, renderTabs(doc))
+    .replace(/\{\{sidenav\}\}/g, renderSideNav(doc))
+    .replace(/\{\{toc\}\}/g, tocHtml)
+    .replace(/\{\{toc_class\}\}/g, tocHtml ? '' : ' no-toc')
+    .replace(/\{\{source\}\}/g, source)
+    .replace(/\{\{page\}\}/g, doc.output)
+    .replace(/\{\{content\}\}/g, () => html);
 
   const outPath = path.join(DIST, doc.output);
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
