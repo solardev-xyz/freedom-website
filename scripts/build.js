@@ -228,7 +228,7 @@ function renderTalks() {
     const curHidden = i === 0 ? ' hidden' : '';
     return [
       `      <a class="talk-rail-item${curClass}" href="${watch(t)}" data-slug="${escapeHtml(t.slug)}"${curAria}${curHidden} rel="noopener noreferrer" target="_blank">`,
-      `        <span class="talk-rail-thumb"><img src="${escapeHtml(talkThumb(t))}" alt="" width="320" height="180" loading="lazy" decoding="async"><span class="talk-play" aria-hidden="true"></span></span>`,
+      `        <span class="talk-rail-thumb"><img src="${escapeHtml(talkThumb(t))}" alt="" width="320" height="180" loading="eager" decoding="async"><span class="talk-play" aria-hidden="true"></span></span>`,
       `        <span class="talk-rail-body">`,
       `          <b>${escapeHtml(t.title)}</b>`,
       `          <span>${escapeHtml(t.event || t.channel || '')}</span>`,
@@ -262,9 +262,9 @@ function renderTalks() {
     `  </div>`,
     `  <aside class="talks-rail-wrap">`,
     `    <h2 class="talks-rail-heading">More talks</h2>`,
-    `    <nav class="talks-rail" id="talks-rail" aria-label="Talk list">`,
+    `    <div class="talks-rail" id="talks-rail" role="list">`,
     railItems,
-    `    </nav>`,
+    `    </div>`,
     `  </aside>`,
     `</div>`,
     dataHtml,
@@ -272,16 +272,20 @@ function renderTalks() {
 
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@graph': talks.map((t) => ({
-      '@type': 'VideoObject',
-      name: t.title,
-      description: t.description,
-      thumbnailUrl: new URL(talkThumb(t), SITE.url).href,
-      uploadDate: t.date,
-      duration: durationIso8601(t.duration),
-      embedUrl: `https://www.youtube-nocookie.com/embed/${t.id}`,
-      contentUrl: watch(t),
-    })),
+    '@graph': talks.map((t) => {
+      const obj = {
+        '@type': 'VideoObject',
+        name: t.title,
+        description: t.description,
+        thumbnailUrl: new URL(talkThumb(t), SITE.url).href,
+        uploadDate: t.date,
+        duration: durationIso8601(t.duration),
+        embedUrl: `https://www.youtube-nocookie.com/embed/${t.id}`,
+        contentUrl: watch(t),
+      };
+      if (t.speaker) obj.author = { '@type': 'Person', name: t.speaker };
+      return obj;
+    }),
   };
   const jsonLdHtml = `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2).replace(/</g, '\\u003c')}\n</script>`;
 

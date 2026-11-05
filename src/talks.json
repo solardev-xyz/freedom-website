@@ -2,13 +2,14 @@
   {
     "id": "2cjETrFsVKw",
     "slug": "writing-the-dweb",
-    "title": "Writing the dweb: Wallet and storage APIs",
+    "title": "Writing the dweb: Wallet and Storage APIs in Freedom Browser",
     "event": "Dappcon Berlin",
     "channel": "Dappcon Berlin",
+    "speaker": "Meinhard Benn",
     "date": "2026-07-03",
     "duration": 5791,
     "thumbnail": "images/talks/2cjETrFsVKw.webp",
-    "description": "Hands-on workshop at Dappcon Berlin on writing to the decentralized web with Freedom Browser. Participants publish content to Swarm and IPFS using the browser’s integrated wallet API and navigator.freedom storage APIs, then resolve it via ENS — without centralized backends or HTTP gateways."
+    "description": "Meinhard Benn leads a hands-on workshop at Dappcon Berlin on writing to the decentralized web with Freedom Browser. Participants publish content to Swarm and IPFS using the browser’s wallet and storage APIs, then resolve it via ENS — without centralized backends or HTTP gateways."
   },
   {
     "id": "03jw02p5AxA",
@@ -28,10 +29,11 @@
     "title": "Freedom: Reinventing the Browser",
     "event": "Dappcon Berlin",
     "channel": "Dappcon Berlin",
+    "speaker": "Florian Glätz",
     "date": "2026-06-17",
     "duration": 1262,
     "thumbnail": "images/talks/OdsB1ctYr_8.webp",
-    "description": "Talk at Dappcon Berlin on rebuilding the web from first principles with Freedom Browser — native ENS resolution, direct IPFS and Swarm access, self-sovereign identity, and no dependency on centralized gateways."
+    "description": "Florian Glätz of Freedom Browser speaks at Dappcon Berlin on rebuilding the web from first principles — native ENS resolution, direct IPFS and Swarm access, self-sovereign identity, and no dependency on centralized gateways."
   },
   {
     "id": "cRFOhhHwQ0U",

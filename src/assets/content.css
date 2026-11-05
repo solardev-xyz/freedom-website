@@ -146,13 +146,22 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
   font-weight: 650;
   letter-spacing: .04em;
   text-transform: uppercase;
-  color: #666;
+  color: #555;
   margin: 0 0 12px;
 }
-.talks-rail {
+/* Not a site nav — reset global `nav` sticky/teal glass if markup uses nav */
+.talks-rail,
+nav.talks-rail {
   display: grid;
   gap: 6px;
+  position: static;
+  top: auto;
+  z-index: auto;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
+.cd .talk-rail-item,
 .talk-rail-item {
   display: grid;
   grid-template-columns: 148px minmax(0, 1fr);
@@ -161,20 +170,19 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
   padding: 8px;
   margin: 0 -8px;
   border-radius: 10px;
+  background: #fff;
   color: #111;
   text-decoration: none;
   font-weight: 400;
   transition: background .15s;
 }
-.talk-rail-item:hover { background: #f3f3f0; }
+.cd .talk-rail-item:hover,
+.talk-rail-item:hover { background: #f3f3f0; color: #111; }
 .talk-rail-item:focus-visible {
   outline: 3px solid #0b6b6d;
   outline-offset: 2px;
 }
-.talk-rail-item.is-current {
-  background: #eef6f6;
-}
-.talk-rail-item.is-current b { color: #0b6b6d; }
+.talk-rail-item[hidden] { display: none !important; }
 .talk-rail-thumb {
   position: relative;
   display: block;
@@ -197,18 +205,22 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 .talk-rail-item:hover .talk-rail-thumb .talk-play {
   background: rgba(11,107,109,.9);
 }
+.cd .talk-rail-body b,
 .talk-rail-body b {
   display: block;
   font-size: .95rem;
   letter-spacing: -0.015em;
   line-height: 1.35;
-  transition: color .15s;
+  font-weight: 600;
+  color: #111;
 }
+.cd .talk-rail-body span,
 .talk-rail-body span {
   display: block;
   margin-top: 4px;
-  color: #666;
+  color: #555;
   font-size: .85rem;
+  font-weight: 400;
 }
 
 @media (max-width: 960px) {
