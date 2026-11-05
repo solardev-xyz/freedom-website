@@ -14,6 +14,9 @@
  *     + src/templates/docs-template.html
  *     (tabs, left nav and "On this page" are generated; see DOCS below;
  *     open-issues.md pulls in src/developer/open-issues.json)
+ *                         → copied (YAML kept) → dist/developer/*.html.md
+ *   src/llms.txt          → copied             → dist/llms.txt
+ *   src/developer/llms.txt→ copied             → dist/developer/llms.txt
  *
  * src/site.json holds the values that change between releases (version,
  * download stats); any {{key}} in a page or template is replaced with it.
@@ -370,6 +373,12 @@ function renderDoc(doc) {
     : '';
   const tocHtml = renderToc(toc);
 
+  // Markdown twin beside the HTML page (llmstxt.org: page.html.md).
+  // Keep YAML front matter from the source; agents fetch this instead of HTML.
+  const mdName = path.basename(doc.output) + '.md';
+  const mdHref = mdName; // same directory as the HTML page
+  const mdOut = path.join(DIST, doc.output + '.md');
+
   const esc = (s) => s.replace(/"/g, '&quot;');
   const output = template
     .replace(/\{\{title\}\}/g, esc(title))
@@ -382,12 +391,15 @@ function renderDoc(doc) {
     .replace(/\{\{toc_class\}\}/g, tocHtml ? '' : ' no-toc')
     .replace(/\{\{source\}\}/g, source)
     .replace(/\{\{page\}\}/g, doc.output)
+    .replace(/\{\{md_href\}\}/g, mdHref)
     .replace(/\{\{content\}\}/g, () => html);
 
   const outPath = path.join(DIST, doc.output);
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, fillSite(output));
+  fs.writeFileSync(mdOut, rawMarkdown);
   console.log(`  rendered  src/developer/${doc.content} → dist/${doc.output}`);
+  console.log(`  twin      src/developer/${doc.content} → dist/${doc.output}.md`);
 }
 
 function renderNews(posts) {
@@ -402,12 +414,30 @@ function renderNews(posts) {
 /** robots.txt + sitemap.xml for the public pages (absolute URLs from site.json). */
 function writeSitemap() {
   const docPaths = DOC_PAGES.map((d) => (d.output === 'developer/index.html' ? 'developer/' : d.output));
+  // Human HTML pages only; llms.txt and .html.md twins are allowed by robots but omitted from the sitemap.
   const pages = ['', 'news.html', ...POSTS.map((p) => p.output), ...docPaths, 'logo.html', 'imprint.html', 'privacy.html'];
   const urls = pages.map((p) => `  <url><loc>${SITE.url}${p}</loc></url>`).join('\n');
   fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
-  fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}sitemap.xml\n`);
+  fs.writeFileSync(
+    path.join(DIST, 'robots.txt'),
+    `User-agent: *\nAllow: /\nAllow: /llms.txt\nAllow: /developer/llms.txt\n\nSitemap: ${SITE.url}sitemap.xml\n`
+  );
   console.log('  wrote     robots.txt, sitemap.xml');
+}
+
+/** Copy curated llms.txt maps (root + developer) into dist/. */
+function copyLlmsTxt() {
+  const rootSrc = path.join(SRC, 'llms.txt');
+  const devSrc = path.join(DEVELOPER_DIR, 'llms.txt');
+  if (!fs.existsSync(rootSrc) || !fs.existsSync(devSrc)) {
+    throw new Error('Missing src/llms.txt or src/developer/llms.txt');
+  }
+  fs.copyFileSync(rootSrc, path.join(DIST, 'llms.txt'));
+  fs.mkdirSync(path.join(DIST, 'developer'), { recursive: true });
+  fs.copyFileSync(devSrc, path.join(DIST, 'developer', 'llms.txt'));
+  console.log('  copied    llms.txt → dist/llms.txt');
+  console.log('  copied    developer/llms.txt → dist/developer/llms.txt');
 }
 
 /** Fill {{…}} site values in every copied HTML page. */
@@ -441,6 +471,7 @@ function main() {
   copyDirInto(IMAGES_DIR, path.join(DIST, 'images'), 'src/images');
   renderNews(POSTS.map(renderPost));
   DOC_PAGES.forEach(renderDoc);
+  copyLlmsTxt();
   writeSitemap();
   console.log('✓ Build complete');
 }
