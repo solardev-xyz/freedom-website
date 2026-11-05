@@ -9,7 +9,7 @@
     "date": "2026-07-03",
     "duration": 5791,
     "thumbnail": "images/talks/2cjETrFsVKw.webp",
-    "description": "Meinhard Benn leads a hands-on workshop at Dappcon Berlin on writing to the decentralized web with Freedom Browser. Participants publish content to Swarm and IPFS using the browser’s wallet and storage APIs, then resolve it via ENS — without centralized backends or HTTP gateways."
+    "description": "Meinhard Benn, co-founder of Freedom Browser, leads a hands-on workshop at Dappcon Berlin on writing to the decentralized web with Freedom Browser. Participants publish content to Swarm and IPFS using the browser’s wallet and storage APIs, then resolve it via ENS — without centralized backends or HTTP gateways."
   },
   {
     "id": "03jw02p5AxA",
@@ -21,7 +21,7 @@
     "date": "2026-06-26",
     "duration": 1557,
     "thumbnail": "images/talks/03jw02p5AxA.webp",
-    "description": "Meinhard Benn of Freedom Browser presents “A Browser for the Decentralized Web” at BREW Privacy Matters 2026 in Berlin, Germany."
+    "description": "Meinhard Benn, co-founder of Freedom Browser, presents “A Browser for the Decentralized Web” at BREW Privacy Matters 2026 in Berlin. BREW Privacy Matters is Brew Berlin’s one-day conference during Berlin Blockchain Week, exploring privacy in decentralized systems — from cryptographic foundations to practical applications. Freedom Browser fits that theme as a desktop browser that treats Swarm, IPFS, and ENS as first-class protocols without centralized gateways."
   },
   {
     "id": "OdsB1ctYr_8",
@@ -29,11 +29,11 @@
     "title": "Freedom: Reinventing the Browser",
     "event": "Dappcon Berlin",
     "channel": "Dappcon Berlin",
-    "speaker": "Florian Glätz",
+    "speaker": "Florian Glatz",
     "date": "2026-06-17",
     "duration": 1262,
     "thumbnail": "images/talks/OdsB1ctYr_8.webp",
-    "description": "Florian Glätz of Freedom Browser speaks at Dappcon Berlin on rebuilding the web from first principles — native ENS resolution, direct IPFS and Swarm access, self-sovereign identity, and no dependency on centralized gateways."
+    "description": "Florian Glatz, co-founder of Freedom Browser, speaks at Dappcon Berlin on rebuilding the web from first principles — native ENS resolution, direct IPFS and Swarm access, self-sovereign identity, and no dependency on centralized gateways."
   },
   {
     "id": "cRFOhhHwQ0U",
@@ -45,7 +45,7 @@
     "date": "2026-05-04",
     "duration": 713,
     "thumbnail": "images/talks/cRFOhhHwQ0U.webp",
-    "description": "In this Web3Privacy Now Academy interview, Meinhard Benn explains how Freedom Browser turns your device into a node for IPFS and Swarm, removing reliance on centralized gateways so access to the decentralized web is simple and direct."
+    "description": "In this Web3Privacy Now Academy interview, Meinhard Benn, co-founder of Freedom Browser, explains how Freedom Browser turns your device into a node for IPFS and Swarm, removing reliance on centralized gateways so access to the decentralized web is simple and direct."
   },
   {
     "id": "MkVhdstQvmE",
@@ -57,7 +57,7 @@
     "date": "2026-04-12",
     "duration": 1081,
     "thumbnail": "images/talks/MkVhdstQvmE.webp",
-    "description": "Meinhard Benn, founder of Freedom Browser, joins Paul Barron Network to discuss the minimalist browser for Swarm and IPFS — direct peer connections without centralized gateways, ENS, publishing, and open-source censorship resistance."
+    "description": "Meinhard Benn, co-founder of Freedom Browser, joins Paul Barron Network to discuss the minimalist browser for Swarm and IPFS — direct peer connections without centralized gateways, ENS, publishing, and open-source censorship resistance."
   },
   {
     "id": "WPsJfHgHTLI",
@@ -69,6 +69,6 @@
     "date": "2026-04-01",
     "duration": 1284,
     "thumbnail": "images/talks/WPsJfHgHTLI.webp",
-    "description": "Meinhard Benn presents Freedom at EthCC: a desktop browser that treats Swarm, IPFS, and ENS as first-class protocols, with integrated peer-to-peer nodes for direct network access without centralized gateways."
+    "description": "Meinhard Benn, co-founder of Freedom Browser, presents Freedom at EthCC: a desktop browser that treats Swarm, IPFS, and ENS as first-class protocols, with integrated peer-to-peer nodes for direct network access without centralized gateways."
   }
 ]
