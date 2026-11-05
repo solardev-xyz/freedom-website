@@ -148,65 +148,71 @@ console.log(bzzUrl);  // bzz://&lt;reference&gt;</code></pre>
   <div class="wrap">
     <p class="kicker amber">Compare</p>
     <h2>How Freedom compares</h2>
-    <p class="sub">A calm look at how Freedom differs from a typical browser with extensions, and from a gateway or hosted dweb browser.</p>
-    <div class="compare-wrap" role="region" aria-label="Comparison of Freedom with other approaches" tabindex="0">
+    <p class="sub">Freedom next to Brave and Helium — two privacy Chromium browsers — on the protocols and pieces that matter for a decentralized daily driver.</p>
+    <div class="compare-wrap" role="region" aria-label="Comparison of Freedom with Brave and Helium" tabindex="0">
       <table class="compare-table">
         <thead>
           <tr>
             <th scope="col"></th>
             <th scope="col">Freedom</th>
-            <th scope="col">Typical browser + extensions</th>
-            <th scope="col">Gateway / hosted dweb browser</th>
+            <th scope="col">Brave</th>
+            <th scope="col">Helium</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <th scope="row">Swarm / IPFS</th>
+            <th scope="row">Swarm</th>
             <td>In-browser node</td>
-            <td>Extension or gateway</td>
-            <td>Company gateway</td>
+            <td>No</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <th scope="row">IPFS</th>
+            <td>In-browser node</td>
+            <td>Gateway only (native node removed 2024)</td>
+            <td>No</td>
           </tr>
           <tr>
             <th scope="row">ENS / <code>.eth</code></th>
             <td>Native</td>
-            <td>Extension</td>
-            <td>Gateway</td>
+            <td>Native (opt-in)</td>
+            <td>No</td>
           </tr>
           <tr>
             <th scope="row">Wallet</th>
             <td>Built-in, keys on device</td>
-            <td>Extension wallet</td>
-            <td>Varies</td>
+            <td>Built-in Brave Wallet</td>
+            <td>No</td>
           </tr>
           <tr>
             <th scope="row">Radicle</th>
             <td>In-browser node</td>
-            <td>N/A</td>
-            <td>N/A</td>
+            <td>No</td>
+            <td>No</td>
           </tr>
           <tr>
             <th scope="row">Tor / <code>.onion</code></th>
             <td>Built-in</td>
-            <td>Separate browser</td>
-            <td>N/A</td>
+            <td>Private Tor windows</td>
+            <td>No</td>
           </tr>
           <tr>
-            <th scope="row">Ad blocking</th>
+            <th scope="row">Ad / tracker blocking</th>
             <td>Built-in</td>
-            <td>Extension</td>
-            <td>Varies</td>
+            <td>Built-in</td>
+            <td>Built-in</td>
           </tr>
           <tr>
             <th scope="row">Backend for dapps</th>
             <td>User’s node (<code>window.swarm</code> / <code>window.radicle</code>)</td>
-            <td>Your servers / RPC</td>
-            <td>Gateway APIs</td>
+            <td>RPC / extensions</td>
+            <td>N/A</td>
           </tr>
           <tr>
             <th scope="row">Open source</th>
             <td>Yes (<a href="https://github.com/solardev-xyz/freedom-browser" rel="noopener">GitHub</a>)</td>
-            <td>Mixed</td>
-            <td>Mixed</td>
+            <td>Yes (Chromium fork)</td>
+            <td>Yes</td>
           </tr>
         </tbody>
       </table>
