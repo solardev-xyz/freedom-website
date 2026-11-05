@@ -10,6 +10,8 @@
  *     + src/templates/post-template.html
  *   POSTS                 → news list with     → dist/news.html
  *     + src/templates/news-template.html
+ *   src/talks.json        → talks list with    → dist/talks.html
+ *     + src/templates/talks-template.html
  *
  * src/site.json holds the values that change between releases (version,
  * download stats); any {{key}} in a page or template is replaced with it.
@@ -156,9 +158,84 @@ function renderNews(posts) {
   console.log('  rendered  news list → dist/news.html');
 }
 
+
+function formatTalkDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${d} ${months[m - 1]} ${y}`;
+}
+
+function formatDuration(seconds) {
+  const s = Math.max(0, Math.floor(Number(seconds) || 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
+  return `${m}:${String(r).padStart(2, '0')}`;
+}
+
+function durationIso8601(seconds) {
+  const s = Math.max(0, Math.floor(Number(seconds) || 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = s % 60;
+  let out = 'PT';
+  if (h) out += `${h}H`;
+  if (m || h) out += `${m}M`;
+  out += `${r}S`;
+  return out;
+}
+
+function renderTalks() {
+  const talksPath = path.join(SRC, 'talks.json');
+  const talks = JSON.parse(fs.readFileSync(talksPath, 'utf-8'))
+    .slice()
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  const template = fs.readFileSync(path.join(TEMPLATES_DIR, 'talks-template.html'), 'utf-8');
+
+  const cards = talks.map((t) => {
+    const url = `https://www.youtube.com/watch?v=${t.id}`;
+    const thumb = `images/talks/${t.id}.webp`;
+    const dateLabel = formatTalkDate(t.date);
+    const durLabel = formatDuration(t.duration);
+    const venue = t.event || t.channel || '';
+    return [
+      `  <a class="talk" href="${url}" rel="noopener noreferrer" target="_blank">`,
+      `    <span class="talk-thumb"><img src="${thumb}" alt="" width="640" height="360" loading="lazy"><span class="talk-play" aria-hidden="true"></span></span>`,
+      `    <span class="talk-body">`,
+      `      <b>${escapeHtml(t.title)}</b>`,
+      `      <span class="talk-meta">${escapeHtml(venue)} · ${escapeHtml(dateLabel)} · ${escapeHtml(durLabel)}</span>`,
+      `    </span>`,
+      `  </a>`,
+    ].join('\n');
+  }).join('\n');
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': talks.map((t) => ({
+      '@type': 'VideoObject',
+      name: t.title,
+      description: t.description,
+      thumbnailUrl: new URL(`images/talks/${t.id}.webp`, SITE.url).href,
+      uploadDate: t.date,
+      duration: durationIso8601(t.duration),
+      embedUrl: `https://www.youtube.com/embed/${t.id}`,
+      contentUrl: `https://www.youtube.com/watch?v=${t.id}`,
+    })),
+  };
+  const jsonLdHtml = `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2).replace(/</g, '\\u003c')}\n</script>`;
+
+  const output = template
+    .replace('{{talks}}', cards)
+    .replace('{{jsonld}}', jsonLdHtml);
+
+  fs.writeFileSync(path.join(DIST, 'talks.html'), fillSite(output));
+  console.log(`  rendered  talks list (${talks.length}) → dist/talks.html`);
+}
+
 /** robots.txt + sitemap.xml for the public pages (absolute URLs from site.json). */
 function writeSitemap() {
-  const pages = ['', 'news.html', ...POSTS.map((p) => p.output), 'developer/', 'logo.html', 'imprint.html', 'privacy.html'];
+  const pages = ['', 'news.html', 'talks.html', ...POSTS.map((p) => p.output), 'developer/', 'logo.html', 'imprint.html', 'privacy.html'];
   const urls = pages.map((p) => `  <url><loc>${SITE.url}${p}</loc></url>`).join('\n');
   fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
@@ -196,6 +273,7 @@ function main() {
   copyDirInto(ASSETS_DIR, path.join(DIST, 'assets'), 'src/assets');
   copyDirInto(IMAGES_DIR, path.join(DIST, 'images'), 'src/images');
   renderNews(POSTS.map(renderPost));
+  renderTalks();
   writeSitemap();
   console.log('✓ Build complete');
 }

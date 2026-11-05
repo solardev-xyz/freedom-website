@@ -1,0 +1,52 @@
+[
+  {
+    "id": "2cjETrFsVKw",
+    "title": "Writing the dweb: Using wallet and storage APIs in Freedom Browser",
+    "channel": "Dappcon Berlin",
+    "date": "2026-07-03",
+    "duration": 5791,
+    "description": "This hands-on workshop focuses on writing to the decentralized web using Freedom Browser. Participants will publish content directly to Swarm and IPFS using a browser-integrated wallet API, aligned with the familiar window.ethereum model, and the navigator.freedom APIs for storage. Instead of relying on centralized backends or HTTP gateways, content is signed, uploaded, and addressed on peer-to-peer networks."
+  },
+  {
+    "id": "03jw02p5AxA",
+    "title": "BREW Privacy Matters 2026 | A Browser for the Decentralized Web — Meinhard Benn, Freedom Browser",
+    "channel": "Brew Berlin",
+    "event": "BREW Privacy Matters 2026",
+    "date": "2026-06-26",
+    "duration": 1557,
+    "description": "Meinhard Benn from Freedom Browser presents \"A Browser for the Decentralized Web\" at BREW Privacy Matters 2026, Berlin, Germany."
+  },
+  {
+    "id": "OdsB1ctYr_8",
+    "title": "Freedom: Reinventing the Browser",
+    "channel": "Dappcon Berlin",
+    "date": "2026-06-17",
+    "duration": 1262,
+    "description": "The old web is dying: algorithms decide what we see; a handful of platforms mediate almost all discourse; LLM-slop is replacing human speech at scale; digital feudalism is extracting rent at every turn. Now government-sanctioned identity-control is becoming mandatory. It doesn’t have to be this way. Freedom Browser is an attempt to rebuild the web from first principles."
+  },
+  {
+    "id": "cRFOhhHwQ0U",
+    "title": "Decentralization Is a Lie (Until This Works). Meinhard Benn - Freedom Browser",
+    "channel": "Web3Privacy Now",
+    "date": "2026-05-04",
+    "duration": 713,
+    "description": "In this Academy interview, Meinhard Benn (Freedom Browser) explains the need for a truly decentralized web interface that removes reliance on centralized gateways and puts control back into users’ hands. He shares how Freedom Browser turns your device into a node, making access to the decentralized web simple and direct."
+  },
+  {
+    "id": "MkVhdstQvmE",
+    "title": "Ethereum Launches War-Proof Browser To Kill Chrome?🌐Freedom Browser INTERVIEW",
+    "channel": "Paul Barron Network",
+    "date": "2026-04-12",
+    "duration": 1081,
+    "description": "Freedom is a minimalist browser for Swarm and IPFS. No centralized gateways. You connect directly to peers and become part of the network."
+  },
+  {
+    "id": "WPsJfHgHTLI",
+    "title": "Meinhard Benn - Freedom: A Browser for the Decentralized Web",
+    "channel": "[EthCC] Livestream 3",
+    "event": "EthCC",
+    "date": "2026-04-01",
+    "duration": 1284,
+    "description": "Freedom is a desktop browser for the decentralized web that treats Swarm, IPFS, and ENS as first-class protocols. It ships with integrated peer-to-peer nodes, enabling direct network access without relying on centralized gateways."
+  }
+]
