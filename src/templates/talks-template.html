@@ -42,14 +42,12 @@
 <header class="hero-in">
   
   <h1>Talks</h1>
-  <p class="dek">Talks and interviews about Freedom Browser. Each card opens on YouTube.</p>
+  <p class="dek">Talks and interviews about Freedom Browser. Thumbnails are self-hosted; YouTube loads only when you hit play.</p>
 </header>
 </div>
 
-<main class="prose-wrap cd">
-<div class="talks">
+<main class="prose-wrap cd talks-wrap">
 {{talks}}
-</div>
 </main>
 
 <footer class="ft">
@@ -91,6 +89,7 @@
   addEventListener('scroll', () => { if (b.getAttribute('aria-expanded') === 'true') set(false); }, { passive: true });
 })();
 </script>
+<script src="assets/talks.js"></script>
 <script src="assets/dither.js"></script>
 <script>(function(){const n=document.querySelector("nav.top");const f=()=>n.classList.toggle("scrolled",scrollY>4);addEventListener("scroll",f,{passive:true});f();})();</script>
 <script>(function(){const ua=(navigator.userAgentData?.platform||navigator.platform+" "+navigator.userAgent).toLowerCase();const os=/android|iphone|ipad/.test(ua)?null:ua.includes("mac")?"mac":ua.includes("win")?"win":ua.includes("linux")?"linux":null;document.querySelectorAll(".plat.rec").forEach(e=>e.classList.remove("rec"));const b=os&&document.querySelector(".plat[data-os="+os+"] a.pill");const h=document.getElementById("hero-dl");if(b){b.classList.add("primary");if(h){h.href=b.href;h.setAttribute("download","");}}else if(h){h.href="./#download";h.removeAttribute("download");}if(h)h.textContent="Download Freedom";})();</script>

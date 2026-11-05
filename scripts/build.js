@@ -186,6 +186,19 @@ function durationIso8601(seconds) {
   return out;
 }
 
+function talkMetaLine(t) {
+  const parts = [];
+  if (t.event) parts.push(t.event);
+  if (t.speaker) parts.push(t.speaker);
+  if (t.date) parts.push(formatTalkDate(t.date));
+  if (t.duration) parts.push(formatDuration(t.duration));
+  return parts.join(' · ');
+}
+
+function talkThumb(t) {
+  return t.thumbnail || `images/talks/${t.id}.webp`;
+}
+
 function renderTalks() {
   const talksPath = path.join(SRC, 'talks.json');
   const talks = JSON.parse(fs.readFileSync(talksPath, 'utf-8'))
@@ -193,22 +206,69 @@ function renderTalks() {
     .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   const template = fs.readFileSync(path.join(TEMPLATES_DIR, 'talks-template.html'), 'utf-8');
 
-  const cards = talks.map((t) => {
-    const url = `https://www.youtube.com/watch?v=${t.id}`;
-    const thumb = `images/talks/${t.id}.webp`;
-    const dateLabel = formatTalkDate(t.date);
-    const durLabel = formatDuration(t.duration);
-    const venue = t.event || t.channel || '';
+  const featured = talks[0];
+  const watch = (t) => `https://www.youtube.com/watch?v=${t.id}`;
+
+  const featuredPlayer = [
+    `      <a class="talk-facade" href="${watch(featured)}" rel="noopener noreferrer" target="_blank" aria-label="Play video: ${escapeHtml(featured.title)}">`,
+    `        <img src="${escapeHtml(talkThumb(featured))}" alt="" width="1280" height="720" decoding="async">`,
+    `        <span class="talk-play" aria-hidden="true"></span>`,
+    `      </a>`,
+  ].join('\n');
+
+  const featuredDetails = [
+    `      <h2 class="talk-title" id="talk-heading">${escapeHtml(featured.title)}</h2>`,
+    `      <p class="talk-meta">${escapeHtml(talkMetaLine(featured))}</p>`,
+    featured.description ? `      <p class="talk-desc">${escapeHtml(featured.description)}</p>` : '',
+  ].filter(Boolean).join('\n');
+
+  const railItems = talks.map((t, i) => {
+    const curClass = i === 0 ? ' is-current' : '';
+    const curAria = i === 0 ? ' aria-current="true"' : '';
+    const curHidden = i === 0 ? ' hidden' : '';
     return [
-      `  <a class="talk" href="${url}" rel="noopener noreferrer" target="_blank">`,
-      `    <span class="talk-thumb"><img src="${thumb}" alt="" width="640" height="360" loading="lazy"><span class="talk-play" aria-hidden="true"></span></span>`,
-      `    <span class="talk-body">`,
-      `      <b>${escapeHtml(t.title)}</b>`,
-      `      <span class="talk-meta">${escapeHtml(venue)} · ${escapeHtml(dateLabel)} · ${escapeHtml(durLabel)}</span>`,
-      `    </span>`,
-      `  </a>`,
+      `      <a class="talk-rail-item${curClass}" href="${watch(t)}" data-slug="${escapeHtml(t.slug)}"${curAria}${curHidden} rel="noopener noreferrer" target="_blank">`,
+      `        <span class="talk-rail-thumb"><img src="${escapeHtml(talkThumb(t))}" alt="" width="320" height="180" loading="lazy" decoding="async"><span class="talk-play" aria-hidden="true"></span></span>`,
+      `        <span class="talk-rail-body">`,
+      `          <b>${escapeHtml(t.title)}</b>`,
+      `          <span>${escapeHtml(t.event || t.channel || '')}</span>`,
+      `        </span>`,
+      `      </a>`,
     ].join('\n');
   }).join('\n');
+
+  const clientData = talks.map((t) => ({
+    id: t.id,
+    slug: t.slug,
+    title: t.title,
+    event: t.event || t.channel || '',
+    speaker: t.speaker || '',
+    date: t.date,
+    duration: t.duration,
+    thumbnail: talkThumb(t),
+    description: t.description || '',
+  }));
+  const dataHtml = `<script type="application/json" id="talks-data">\n${JSON.stringify(clientData).replace(/</g, '\\u003c')}\n</script>`;
+
+  const talksHtml = [
+    `<div class="talks-page" id="talks-app" data-active-slug="${escapeHtml(featured.slug)}">`,
+    `  <div class="talks-stage">`,
+    `    <div class="talk-player" id="talk-player" data-video-id="${escapeHtml(featured.id)}" data-slug="${escapeHtml(featured.slug)}">`,
+    featuredPlayer,
+    `    </div>`,
+    `    <div class="talk-details" id="talk-details">`,
+    featuredDetails,
+    `    </div>`,
+    `  </div>`,
+    `  <aside class="talks-rail-wrap">`,
+    `    <h2 class="talks-rail-heading">More talks</h2>`,
+    `    <nav class="talks-rail" id="talks-rail" aria-label="Talk list">`,
+    railItems,
+    `    </nav>`,
+    `  </aside>`,
+    `</div>`,
+    dataHtml,
+  ].join('\n');
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -216,21 +276,21 @@ function renderTalks() {
       '@type': 'VideoObject',
       name: t.title,
       description: t.description,
-      thumbnailUrl: new URL(`images/talks/${t.id}.webp`, SITE.url).href,
+      thumbnailUrl: new URL(talkThumb(t), SITE.url).href,
       uploadDate: t.date,
       duration: durationIso8601(t.duration),
-      embedUrl: `https://www.youtube.com/embed/${t.id}`,
-      contentUrl: `https://www.youtube.com/watch?v=${t.id}`,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${t.id}`,
+      contentUrl: watch(t),
     })),
   };
   const jsonLdHtml = `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2).replace(/</g, '\\u003c')}\n</script>`;
 
   const output = template
-    .replace('{{talks}}', cards)
+    .replace('{{talks}}', talksHtml)
     .replace('{{jsonld}}', jsonLdHtml);
 
   fs.writeFileSync(path.join(DIST, 'talks.html'), fillSite(output));
-  console.log(`  rendered  talks list (${talks.length}) → dist/talks.html`);
+  console.log(`  rendered  talks page (${talks.length}) → dist/talks.html`);
 }
 
 /** robots.txt + sitemap.xml for the public pages (absolute URLs from site.json). */
