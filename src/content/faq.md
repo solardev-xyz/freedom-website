@@ -32,7 +32,7 @@ Not today. Freedom has no token, no rewards and no ads, and you don't need anyth
 
 ## Is there a mobile app?
 
-Freedom for Android and iOS is in development. Follow along on GitHub: [Android](https://github.com/solardev-xyz/freedom-browser-android) and [iOS](https://github.com/solardev-xyz/freedom-browser-ios).
+Yes. Freedom for Android and iOS is essentially ready, and we are working through the app store review process right now. You can follow along on GitHub: [Android](https://github.com/solardev-xyz/freedom-browser-android) and [iOS](https://github.com/solardev-xyz/freedom-browser-ios). Until the apps are out, Freedom is available for macOS, Windows and Linux.
 
 ## How does Freedom handle the RAM, CPU and bandwidth cost of running P2P nodes?
 
