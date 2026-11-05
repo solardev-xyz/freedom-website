@@ -1,7 +1,7 @@
 ---
 title: Errors and node readiness
 description: Handle window.swarm and window.radicle errors in a Freedom dapp: user rejections, missing grants, node not ready, limits, and when to retry.
-kick: Guide
+kick: Overview
 dek: Errors carry an EIP-1193-style code and usually a data.reason. Most failures fall into four groups, and only some are worth retrying.
 ---
 

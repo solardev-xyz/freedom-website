@@ -1,7 +1,7 @@
 ---
 title: Permissions and identity
 description: How Freedom's consent model works for dapps: origin-keyed grants, permission tiers, permission manifests, and which key signs your feeds and chunks.
-kick: Guide
+kick: Overview
 dek: Grants belong to the address-bar origin, come in tiers, and can be requested up front with a manifest. Signing uses a publisher identity the user picks.
 ---
 

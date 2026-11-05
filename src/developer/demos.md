@@ -1,26 +1,38 @@
 ---
-title: Examples
-description: Open-source apps and example code that use Freedom Browser's window.swarm, window.radicle and rad: APIs, plus Swarm and Radicle tooling from the ecosystem.
-kick: Examples
-dek: Real apps to read, run and copy from. All of them are open source.
+title: Demos
+description: Demo apps and example code that use Freedom Browser's window.swarm, window.radicle and rad: APIs, plus Swarm and Radicle tooling from the ecosystem.
+kick: Demos
+dek: Real apps to read, run and copy from, tagged with the APIs they use. All of them are open source.
 ---
+
+Each demo carries badges for the Freedom APIs it uses, so you can jump
+straight to the ones that match what you are building. The
+[Swarm](swarm-hub.html) and [Radicle](radicle-hub.html) hubs link back here
+for their demos.
+
+| Demo | Kind | Uses |
+| ---- | ---- | ---- |
+| [Canopy](#canopy) | App | `rad:` fetch, `window.radicle` |
+| [Swarmit](#swarmit) | App | `window.swarm`, `window.ethereum` |
+| [Freedom Community](#freedom-community) | App | `window.swarm`, GSOC |
+| [swarm-kit examples](#swarm-kit-examples) | Example pages | `window.swarm` via swarm-kit |
 
 ## Apps
 
 <div class="card-grid">
-<div class="dcard">
+<div class="dcard" id="canopy">
 <h3>Canopy</h3>
 <p>A GitHub-style forge for the Radicle network, served from Swarm and powered entirely by the user's own node. Reads repositories, issues and patches with <code>rad:</code> URLs and writes issues and comments with <code>window.radicle</code>.</p>
 <p><span class="badge ext">rad: fetch</span> <span class="badge ext">window.radicle</span></p>
 <p class="dcard-links"><a href="https://github.com/solardev-xyz/canopy">Repository</a></p>
 </div>
-<div class="dcard">
+<div class="dcard" id="swarmit">
 <h3>Swarmit</h3>
 <p>Discussion boards on Swarm. Posts are immutable Swarm content announced on Gnosis Chain; curators index submissions and publish board and thread views as feeds, and readers pick their curator.</p>
 <p><span class="badge ext">window.swarm</span> <span class="badge ext">window.ethereum</span></p>
 <p class="dcard-links"><a href="https://github.com/flotob/swarmit">App</a> · <a href="https://github.com/flotob/swarmit-curator">Curator service</a></p>
 </div>
-<div class="dcard">
+<div class="dcard" id="freedom-community">
 <h3>Freedom Community</h3>
 <p>Communities on Swarm: a protocol, a reference steward and node deployment for Freedom Browser. Members write to their own feeds; the steward is woken by a GSOC doorbell.</p>
 <p><span class="badge ext">window.swarm</span> <span class="badge ext">GSOC</span></p>
@@ -33,6 +45,8 @@ dek: Real apps to read, run and copy from. All of them are open source.
 The [swarm-kit](guide-swarm-kit.html) repository ships four example pages,
 each a single `index.html` plus the library bundle. Run them with the
 `npm run dev:*` commands in the guide, or upload a folder to Swarm.
+
+<p><span class="badge ext">window.swarm</span> <span class="badge ext">swarm-kit</span></p>
 
 | Example | What it shows |
 | ------- | ------------- |
@@ -60,5 +74,8 @@ templates for it.
 | [dscan](https://github.com/solardev-xyz/dscan) | A single-file Swarm reference scanner: classify references, browse manifests and feeds, check chunk health. It reads from a Swarm gateway |
 | [FreeMap](https://github.com/solardev-xyz/freemap) | A viewer for OpenStreetMap tiles hosted on Swarm, live at `bzz://freemap.eth/` |
 
-Built something? Tell us in the [community](community.html) and we may add
-it here.
+## Add your demo
+
+This page grows with what people build. Built something on `window.swarm`,
+`window.radicle` or `rad:` URLs? Tell us in the [community](community.html)
+and we may add it here.

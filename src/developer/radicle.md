@@ -1,7 +1,7 @@
 ---
 title: window.radicle
 description: Reference for window.radicle in Freedom Browser: seed and sync repositories, disclose the user's Radicle identity, and write issues and comments through the user's own node.
-kick: API reference
+kick: Radicle
 dek: Seed, sync, disclose identity, and write collaborative objects through the user's Radicle node. Repository reads are plain rad: URL fetches.
 source: https://github.com/solardev-xyz/freedom-browser/blob/main/src/main/radicle/radicle-provider-ipc.js
 ---

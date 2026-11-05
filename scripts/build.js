@@ -45,25 +45,38 @@ function fillSite(text) {
 // Tabs across the top; each page belongs to one tab and one left-nav group.
 // Title, description, kick and dek come from each page's front matter.
 const DOC_TABS = [
-  { id: 'build', label: 'Build dapps', href: './' },
-  { id: 'api', label: 'API reference', href: 'swarm.html' },
-  { id: 'examples', label: 'Examples', href: 'examples.html' },
+  { id: 'overview', label: 'Overview', href: './' },
+  { id: 'swarm', label: 'Swarm', href: 'swarm-hub.html' },
+  { id: 'radicle', label: 'Radicle', href: 'radicle-hub.html' },
+  { id: 'demos', label: 'Demos', href: 'demos.html' },
   { id: 'contribute', label: 'Contribute', href: 'contributing.html' },
 ];
 
+// Entries with `link` instead of `content` are left-nav shortcuts only (no page
+// is rendered); "Related demos" uses them to point at the Demos tab.
 const DOCS = [
-  { content: 'index.md', output: 'developer/index.html', tab: 'build', group: 'Get started', nav: 'Overview' },
-  { content: 'quickstart.md', output: 'developer/quickstart.html', tab: 'build', group: 'Get started', nav: 'Quickstart' },
-  { content: 'guide-permissions.md', output: 'developer/guide-permissions.html', tab: 'build', group: 'Guides', nav: 'Permissions and identity' },
-  { content: 'guide-feeds.md', output: 'developer/guide-feeds.html', tab: 'build', group: 'Guides', nav: 'Feeds and mutable content' },
-  { content: 'guide-messaging.md', output: 'developer/guide-messaging.html', tab: 'build', group: 'Guides', nav: 'Live messaging' },
-  { content: 'guide-radicle.md', output: 'developer/guide-radicle.html', tab: 'build', group: 'Guides', nav: 'Radicle repos and issues' },
-  { content: 'guide-errors.md', output: 'developer/guide-errors.html', tab: 'build', group: 'Guides', nav: 'Errors and node readiness' },
-  { content: 'guide-swarm-kit.md', output: 'developer/guide-swarm-kit.html', tab: 'build', group: 'Guides', nav: 'swarm-kit' },
-  { content: 'swarm.md', output: 'developer/swarm.html', tab: 'api', group: 'Page providers', nav: 'window.swarm' },
-  { content: 'radicle.md', output: 'developer/radicle.html', tab: 'api', group: 'Page providers', nav: 'window.radicle' },
-  { content: 'rad-urls.md', output: 'developer/rad-urls.html', tab: 'api', group: 'URL schemes', nav: 'rad: URLs' },
-  { content: 'examples.md', output: 'developer/examples.html', tab: 'examples', group: 'Examples', nav: 'Apps and examples' },
+  { content: 'index.md', output: 'developer/index.html', tab: 'overview', group: 'Get started', nav: 'Overview' },
+  { content: 'guide-permissions.md', output: 'developer/guide-permissions.html', tab: 'overview', group: 'Shared guides', nav: 'Permissions and identity' },
+  { content: 'guide-errors.md', output: 'developer/guide-errors.html', tab: 'overview', group: 'Shared guides', nav: 'Errors and node readiness' },
+
+  { content: 'swarm-hub.md', output: 'developer/swarm-hub.html', tab: 'swarm', group: 'Get started', nav: 'Overview' },
+  { content: 'quickstart.md', output: 'developer/quickstart.html', tab: 'swarm', group: 'Get started', nav: 'Quickstart' },
+  { content: 'guide-feeds.md', output: 'developer/guide-feeds.html', tab: 'swarm', group: 'Guides', nav: 'Feeds and mutable content' },
+  { content: 'guide-messaging.md', output: 'developer/guide-messaging.html', tab: 'swarm', group: 'Guides', nav: 'Live messaging' },
+  { content: 'guide-swarm-kit.md', output: 'developer/guide-swarm-kit.html', tab: 'swarm', group: 'Guides', nav: 'swarm-kit' },
+  { content: 'swarm.md', output: 'developer/swarm.html', tab: 'swarm', group: 'API reference', nav: 'window.swarm' },
+  { link: 'demos.html#swarmit', tab: 'swarm', group: 'Related demos', nav: 'Swarmit' },
+  { link: 'demos.html#freedom-community', tab: 'swarm', group: 'Related demos', nav: 'Freedom Community' },
+  { link: 'demos.html#swarm-kit-examples', tab: 'swarm', group: 'Related demos', nav: 'swarm-kit examples' },
+
+  { content: 'radicle-hub.md', output: 'developer/radicle-hub.html', tab: 'radicle', group: 'Get started', nav: 'Overview' },
+  { content: 'guide-radicle.md', output: 'developer/guide-radicle.html', tab: 'radicle', group: 'Guides', nav: 'Radicle repos and issues' },
+  { content: 'radicle.md', output: 'developer/radicle.html', tab: 'radicle', group: 'API reference', nav: 'window.radicle' },
+  { content: 'rad-urls.md', output: 'developer/rad-urls.html', tab: 'radicle', group: 'API reference', nav: 'rad: URLs' },
+  { link: 'demos.html#canopy', tab: 'radicle', group: 'Related demos', nav: 'Canopy' },
+
+  { content: 'demos.md', output: 'developer/demos.html', tab: 'demos', group: 'Demos', nav: 'Apps and examples' },
+
   { content: 'contributing.md', output: 'developer/contributing.html', tab: 'contribute', group: 'Get started', nav: 'Setup' },
   { content: 'architecture.md', output: 'developer/architecture.html', tab: 'contribute', group: 'Get started', nav: 'Architecture' },
   { content: 'repositories.md', output: 'developer/repositories.html', tab: 'contribute', group: 'Get started', nav: 'Repositories' },
@@ -71,6 +84,7 @@ const DOCS = [
   { content: 'open-issues.md', output: 'developer/open-issues.html', tab: 'contribute', group: 'Help wanted', nav: 'Open for contribution' },
   { content: 'community.md', output: 'developer/community.html', tab: 'contribute', group: 'Help wanted', nav: 'Community and mentorship' },
 ];
+const DOC_PAGES = DOCS.filter((d) => d.content);
 
 // Markdown posts to render. Each entry maps a content file + template to a
 // generated page in dist/. Newest first; the order is also the news list order.
@@ -266,7 +280,7 @@ function renderSideNav(current) {
   return groups.map((g) =>
     `<p class="docs-nav-label">${escapeHtml(g.label)}</p>\n` +
     g.pages.map((d) =>
-      `<a href="${docHref(d.output)}"${d === current ? ' aria-current="page"' : ''}>${escapeHtml(d.nav)}</a>`
+      `<a href="${d.link || docHref(d.output)}"${d === current ? ' aria-current="page"' : ''}>${escapeHtml(d.nav)}</a>`
     ).join('\n')
   ).join('\n');
 }
@@ -387,7 +401,7 @@ function renderNews(posts) {
 
 /** robots.txt + sitemap.xml for the public pages (absolute URLs from site.json). */
 function writeSitemap() {
-  const docPaths = DOCS.map((d) => (d.output === 'developer/index.html' ? 'developer/' : d.output));
+  const docPaths = DOC_PAGES.map((d) => (d.output === 'developer/index.html' ? 'developer/' : d.output));
   const pages = ['', 'news.html', ...POSTS.map((p) => p.output), ...docPaths, 'logo.html', 'imprint.html', 'privacy.html'];
   const urls = pages.map((p) => `  <url><loc>${SITE.url}${p}</loc></url>`).join('\n');
   fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
@@ -426,7 +440,7 @@ function main() {
   copyDirInto(ASSETS_DIR, path.join(DIST, 'assets'), 'src/assets');
   copyDirInto(IMAGES_DIR, path.join(DIST, 'images'), 'src/images');
   renderNews(POSTS.map(renderPost));
-  DOCS.forEach(renderDoc);
+  DOC_PAGES.forEach(renderDoc);
   writeSitemap();
   console.log('✓ Build complete');
 }

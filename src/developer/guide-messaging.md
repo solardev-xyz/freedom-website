@@ -1,7 +1,7 @@
 ---
 title: Live messaging
 description: Real-time features without servers in Freedom dapps: GSOC broadcast rooms, encrypted PSS direct messages, subscriptions, and how to combine them with durable Swarm data.
-kick: Guide
+kick: Swarm
 dek: GSOC rooms and PSS direct messages give your app real-time delivery through the user's node. Keep the truth in feeds; use messages to say something changed.
 ---
 

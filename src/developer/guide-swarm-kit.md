@@ -1,7 +1,7 @@
 ---
 title: swarm-kit
 description: swarm-kit is a TypeScript library of higher-level data structures over Freedom's window.swarm provider: records, feeds, hash chains, multi-writer feeds, encryption and live messaging.
-kick: Guide
+kick: Swarm
 dek: A library of reusable data structures on top of window.swarm, from JSON chunks to multi-writer feeds and live chat rooms. Early prototype, not on npm yet.
 source: https://github.com/solardev-xyz/swarm-kit
 ---

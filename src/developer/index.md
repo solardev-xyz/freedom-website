@@ -1,7 +1,7 @@
 ---
 title: Build dapps on your users' own nodes
 description: Freedom Browser developer docs: build serverless dapps with window.swarm, window.radicle and rad: URLs, which publish, read, sign and message through the user's own Swarm and Radicle nodes.
-kick: Build dapps
+kick: Overview
 dek: Freedom gives every web page a consented line to the user's own Swarm and Radicle nodes. Your app publishes, reads, signs and messages without servers, gateways or API keys.
 ---
 
@@ -77,14 +77,36 @@ deploying your app to Swarm and ENS.
 </div>
 </div>
 
-More in [Examples](examples.html).
+More in [Demos](demos.html).
 
-## Where to go next
+## Pick a protocol
 
-- [Quickstart](quickstart.html): detect Freedom, get access, publish, write a feed, deploy.
-- Guides: [permissions and identity](guide-permissions.html), [feeds](guide-feeds.html),
-  [live messaging](guide-messaging.html), [Radicle](guide-radicle.html),
-  [errors](guide-errors.html), [swarm-kit](guide-swarm-kit.html).
-- API reference: [`window.swarm`](swarm.html), [`window.radicle`](radicle.html), [`rad:` URLs](rad-urls.html).
-- Want to work on the browser itself? Start at [Contribute](contributing.html), or
-  pick something from [Open for contribution](open-issues.html).
+<div class="card-grid">
+<div class="dcard">
+<h3><a href="swarm-hub.html">Swarm</a></h3>
+<p>Publish, keep state in feeds, sign and message with <code>window.swarm</code>. Quickstart, guides for feeds, live messaging and swarm-kit, and the API reference.</p>
+<p><span class="badge community">window.swarm</span></p>
+</div>
+<div class="dcard">
+<h3><a href="radicle-hub.html">Radicle</a></h3>
+<p>Read public repositories with <code>rad:</code> URLs and write issues and comments with <code>window.radicle</code>. A guide and both references.</p>
+<p><span class="badge community">rad: fetch</span> <span class="badge community">window.radicle</span></p>
+</div>
+<div class="dcard">
+<h3><a href="demos.html">Demos</a></h3>
+<p>Open-source apps and example pages to read, run and copy from, tagged with the APIs they use.</p>
+</div>
+<div class="dcard">
+<h3><a href="contributing.html">Contribute</a></h3>
+<p>Work on the browser itself: setup, architecture, workflow, and issues <a href="open-issues.html">open for contribution</a>.</p>
+</div>
+</div>
+
+## Shared guides
+
+These apply to both providers:
+
+- [Permissions and identity](guide-permissions.html): origin-keyed grants,
+  permission tiers, manifests, and which key signs your data.
+- [Errors and node readiness](guide-errors.html): user rejections, missing
+  grants, node not ready, limits, and when to retry.

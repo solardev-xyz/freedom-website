@@ -1,7 +1,7 @@
 ---
 title: Radicle repos and issues
 description: Build a code-collaboration dapp on Radicle in Freedom: read repositories with rad: URLs, get a repository onto the user's node, and write issues and comments with window.radicle.
-kick: Guide
+kick: Radicle
 dek: Read public repositories with fetch('rad:…'), ask the user's node to seed what it does not have, and write issues and comments as the user.
 ---
 

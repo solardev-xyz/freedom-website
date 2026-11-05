@@ -1,7 +1,7 @@
 ---
 title: Quickstart
 description: Build a first Freedom dapp in plain JavaScript: detect Freedom, connect, publish to Swarm, keep state in a feed, and deploy the app to Swarm and ENS.
-kick: Build dapps
+kick: Swarm
 dek: From an empty HTML file to an app served from Swarm, using only window.swarm. No build step, no dependencies.
 ---
 

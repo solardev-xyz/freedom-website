@@ -1,7 +1,7 @@
 ---
 title: Feeds and mutable content
 description: Use Swarm feeds from a Freedom dapp: a stable URL for changing content, append-only data logs, reading other users' feeds, and the current read-shape caveat.
-kick: Guide
+kick: Swarm
 dek: Content on Swarm is immutable. Feeds give you a stable, signed pointer to the latest version, or an append-only log of entries.
 ---
 

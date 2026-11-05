@@ -1,7 +1,7 @@
 ---
 title: rad: URLs
 description: Read public Radicle repositories from any page in Freedom Browser with fetch('rad:<rid>/…'): routes, parameters, pagination and errors.
-kick: API reference
+kick: Radicle
 dek: Any page can fetch public repository data as JSON from the user's own Radicle node. No prompt, no server, no API key.
 source: https://github.com/solardev-xyz/freedom-browser/blob/main/src/main/radicle-api-protocol.js
 ---

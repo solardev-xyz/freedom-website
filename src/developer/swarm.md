@@ -1,7 +1,7 @@
 ---
 title: window.swarm
 description: Reference for window.swarm in Freedom Browser: publish, chunks, feeds, signing and PSS/GSOC messaging through the user's own Swarm node, with per-origin consent and SWIP #94 status per method.
-kick: API reference
+kick: Swarm
 dek: Publish, read chunks and feeds, sign, and message through the user's own Swarm node. Each method notes whether it follows SWIP #94, extends it, or diverges.
 source: https://github.com/solardev-xyz/freedom-browser/blob/main/docs/swarm-provider-api.md
 ---
