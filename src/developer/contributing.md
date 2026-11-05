@@ -106,7 +106,7 @@ If you cannot run a CI-only check locally, say so in the pull request rather tha
 
 ## How to pick issues
 
-1. Browse [open issues](https://github.com/solardev-xyz/freedom-browser/issues) — look for labels that match your skills (bugs, docs, protocol work, UI).
+1. Browse the [issue tracker](https://github.com/solardev-xyz/freedom-browser/issues). When issues are labelled (bugs, docs, protocol, UI), use those labels to find a fit; if nothing open matches, ask in [Telegram](https://t.me/freedom_browser) or open a focused issue.
 2. Comment on the issue you want to take so work is not duplicated.
 3. Prefer well-scoped bugs and docs fixes for a first contribution; large features need an agreed issue first.
 4. New protocol or wallet integrations: discuss in [Telegram](https://t.me/freedom_browser) before writing code.

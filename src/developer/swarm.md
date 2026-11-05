@@ -7,9 +7,7 @@ dek: Publish, read chunks and feeds, sign, and message through the user's own Sw
 
 # window.swarm API
 
-> Documented against **Freedom Browser v0.8.8** (`194a879d`, matching `src/site.json`). Spec version `1.0` (`swarm_getCapabilities().specVersion`). Derived from `docs/swarm-provider-api.md` and the implementation in `src/main/webview-preload.js`, `src/renderer/lib/swarm-provider.js`, and `src/main/swarm/swarm-provider-ipc.js`.
-
-**Spec version:** `1.0` (the `specVersion` returned by `swarm_getCapabilities`)
+> Freedom 0.8.8 · spec 1.0
 
 `window.swarm` lets a web page publish to Swarm, read and write chunks and
 feeds, sign with a publisher identity, and send and receive PSS/GSOC

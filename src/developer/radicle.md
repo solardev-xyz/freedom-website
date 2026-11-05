@@ -7,11 +7,7 @@ dek: Seed, sync, disclose identity, and write collaborative objects through the 
 
 # window.radicle API
 
-> Documented against **Freedom Browser v0.8.8** (`194a879d`). Spec version `0.2`. Derived from `docs/radicle-provider-api.md` and the implementation in `src/main/webview-preload.js`, `src/renderer/lib/radicle-provider.js`, and `src/main/radicle/radicle-provider-ipc.js`. The in-repo doc is still marked draft; where it disagrees with the code, this page follows the code and notes the difference.
-
-**Status:** Draft (first implementation iteration). Spec version returned by
-`radicle_getCapabilities` is **`0.2`**. Follows the Swarm provider's
-request/response pattern, error model, and permission architecture.
+> Freedom 0.8.8 · spec 0.2
 
 ## Summary
 
@@ -83,15 +79,16 @@ provider:
 | 4001   | User rejected the request                                              |
 | 4100   | Unauthorized (no connection grant / grant revoked / tier not granted)  |
 | 4200   | Unknown method                                                         |
-| 4900   | Radicle unavailable (integration disabled, node stopped, or not ready) |
+| 4900   | Radicle unavailable (`data.reason`: `profile-disabled`, `node-stopped`, …) |
 | -32602 | Invalid params (`data.reason` gives a machine-readable cause)          |
 | -32603 | Internal error                                                         |
 
 `data.reason` values observed in the implementation include: `invalid_rid`,
 `invalid_id`, `invalid_title`, `invalid_body`, `invalid_labels`, `not_seeded`,
 `repo_not_found`, `announce_failed`, `payload_too_large`, `seed_failed`,
-`unseed_failed`, `sync_failed`, `status_failed`, `native_failed`, and
-`agent_custody` (a write answered by the signing grant alone while Freedom
+`unseed_failed`, `sync_failed`, `status_failed`, `native_failed`,
+`profile-disabled` (on **4900** when Radicle is disabled for the profile),
+and `agent_custody` (a write answered by the signing grant alone while Freedom
 Agent holds the tab).
 
 ## Permission tiers
@@ -103,21 +100,20 @@ Agent holds the tab).
 2. **Node actions** — `radicle_seed`, `radicle_unseed`, `radicle_sync`,
    `radicle_listSeededRepos`: require connection. `seed` and `unseed`
    present a per-repo prompt (each changes the seeding policy: a
-   disk/bandwidth commitment, or dropping one the user made) unless
-   auto-approve is on. `sync` does not prompt, and is therefore restricted
-   to repos that already have a seeding policy.
+   disk/bandwidth commitment, or dropping one the user made). `sync` does
+   not prompt, and is therefore restricted to repos that already have a
+   seeding policy. The permission record has `autoApprove.{ node, signing }`
+   flags, but **v0.8.8 ships no UI to set them**, so seed/unseed always
+   prompt in this version.
 3. **Identity & writes** — `radicle_getIdentity` and all COB writes:
    require a separate **signing grant** (analog of the Swarm feed tier).
-   First call MAY prompt; rejection → 4001. Writes sign with the user's
-   node identity — there are no per-origin sub-identities in v1 (a forge
-   wants you to be _you_; see Design decisions).
-   On a tab Freedom Agent holds, the grant does not answer a write on its
-   own: each write prompts with its content, and main refuses one the
-   renderer reports as grant-answered (`4100`, reason `agent_custody`).
-
-Auto-approve per origin and per tier MAY be offered, revocable at any
-time, mirroring the Swarm provider's `{ publish, feeds, signing }` model
-with `{ node, signing }`.
+   The first call that needs the grant prompts; rejection → 4001. Writes
+   sign with the user's node identity — there are no per-origin
+   sub-identities in v1 (a forge wants you to be _you_; see Design
+   decisions). On a tab Freedom Agent holds, the grant does not answer a
+   write on its own: each write prompts with its content, and main refuses
+   one the renderer reports as grant-answered (`4100`, reason
+   `agent_custody`).
 
 ## Methods
 
@@ -139,11 +135,14 @@ Emits the `disconnect` provider event.
 {
   specVersion: '0.2',
   canUseNode: boolean,        // connected AND node running
-  reason: string | null,      // 'not-connected' | 'profile-disabled' |
-                              // 'node-stopped' | 'node-not-ready'
+  reason: string | null,      // 'not-connected' | 'node-stopped' |
+                              // 'node-not-ready'
   writes: ['issue', 'issueComment', 'issueState', 'patchComment']
 }
 ```
+
+When Radicle is disabled for the profile, this call fails with **4900** and
+`data.reason: 'profile-disabled'` instead of returning a capability object.
 
 ### `radicle_getNodeStatus` → node status (connection tier)
 
@@ -184,11 +183,12 @@ is the gateway action for browsing repos the node doesn't have yet.
 `unseed` removes the policy (and cancels any fetch in flight), resolving
 `{ rid, seeded: false }`.
 
-Both prompt per repository (unless the origin's `node` auto-approve is
-on): seeding commits disk and bandwidth, and unseeding drops a policy the
-user chose — a connected origin can already enumerate what to target with
-`radicle_listSeededRepos`. A rejected prompt returns 4001 and the node is
-never touched.
+Both prompt per repository: seeding commits disk and bandwidth, and
+unseeding drops a policy the user chose — a connected origin can already
+enumerate what to target with `radicle_listSeededRepos`. A rejected prompt
+returns 4001 and the node is never touched. (The permission model has a
+`node` auto-approve flag, but v0.8.8 has no UI to enable it, so these
+prompts always appear in this version.)
 
 ### `radicle_getSeedStatus { rid }` (connection tier)
 
@@ -250,7 +250,8 @@ The user's Radicle identity. Bootstrap path for the signing grant, like
 
 ### `radicle_commentPatch { rid, patchId, body, revisionId? }` (signing tier)
 
-→ `{ id }`. Defaults to the latest revision.
+→ `{ id }`. When `revisionId` is omitted, comments on the **first**
+revision (the patch id doubles as that revision's id).
 
 ## Backend mapping (implementation note)
 
