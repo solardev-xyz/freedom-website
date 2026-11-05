@@ -1,6 +1,6 @@
 ---
 title: Open for contribution
-description: Freedom Browser issues we would like help with, from developer feedback on window.swarm, window.radicle and publishing to DX and hardening. Updated regularly.
+description: Freedom Browser issues we would like help with, from developer feedback on window.swarm, window.radicle and publishing to DX. Updated regularly.
 kick: Contribute
 dek: Bugs and rough edges that developers building on Freedom reported, plus community proposals. Each one is scoped so someone outside the core team can pick it up.
 ---
@@ -8,8 +8,8 @@ dek: Bugs and rough edges that developers building on Freedom reported, plus com
 <p class="issues-updated">Last updated {{open_issues_updated}} · {{open_issues_count}} issues</p>
 
 Many of these came from developers building on Freedom's APIs; others from
-security reviews of the providers and from our own docs audit. We review the
-list regularly: closed issues drop off, and new feedback that fits is
+our own docs audit. Security-sensitive findings stay on GitHub only. We review
+the list regularly: closed issues drop off, and new feedback that fits is
 added with a short summary.
 
 ## Picking one up

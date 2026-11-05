@@ -68,4 +68,4 @@ port 1633 are blocked, so pages reach the node only through the provider.
 - Nodes run locally by default; external endpoints are explicit per-profile
   settings.
 
-Report vulnerabilities privately; see [Community](community.html#security).
+File security findings publicly on GitHub; see [Community](community.html#security).
