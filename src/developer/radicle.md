@@ -1,294 +1,380 @@
 ---
-title: window.radicle API
-description: Freedom Browser Radicle provider API — seed, sync, identity, and collaborative-object writes with per-origin consent.
-kick: Provider API
-dek: Seed, sync, disclose identity, and write collaborative objects through the user's Radicle node.
+title: window.radicle
+description: Reference for window.radicle in Freedom Browser: seed and sync repositories, disclose the user's Radicle identity, and write issues and comments through the user's own node.
+kick: API reference
+dek: Seed, sync, disclose identity, and write collaborative objects through the user's Radicle node. Repository reads are plain rad: URL fetches.
+source: https://github.com/solardev-xyz/freedom-browser/blob/main/src/main/radicle/radicle-provider-ipc.js
 ---
 
-# window.radicle API
+`window.radicle` lets a web page perform **actions** against the user's
+Radicle node: seed repositories, sync them, disclose the user's Radicle
+identity, and write collaborative objects (issues, issue comments, issue
+state changes and patch comments). Every action is scoped to the page's
+origin and gated by the user's consent. The provider reports
+`specVersion: '0.2'`.
 
-> Freedom 0.8.8 · spec 0.2
+## Reads are rad: URL fetches
 
-## Summary
+The provider has **no read methods** for repository data. Freedom resolves
+the `rad:` URL scheme itself, so any page can `fetch()` repository metadata,
+trees, files, commits, issues and patches as JSON from the user's own node
+without a prompt. See [rad: URLs](rad-urls.html) for the routes.
 
-A browser-injected JavaScript provider (`window.radicle`) that lets web
-applications perform **actions** against the user's local Radicle node —
-seeding repositories, syncing, disclosing the user's Radicle identity, and
-writing collaborative objects (issues, comments, state changes) — with user
-consent and origin-scoped permissions.
+Two limits apply: only **public** repositories are served (a private one is
+`403`), and file, tree and commit routes take a full 40-character commit SHA,
+not a branch name.
 
-## Scope: actions only — reads are URL fetches
+The provider exists for everything that is not a public read:
 
-Unlike `window.swarm`, this provider deliberately has **no read methods**
-for repository data. Freedom Browser resolves the `rad:` URL scheme
-directly: any page can `fetch('rad:<rid>/tree/<sha>/…')` and receive JSON
-from the user's in-process Radicle storage (repo-scoped, `GET`/`HEAD` only,
-CORS-open — see `src/main/radicle/rad-protocol.js`). Public
-repo data needs no consent: it is world-readable P2P content, and the same
-bytes are obtainable from any seed.
-
-The provider exists for everything that is **not** a public read:
-
-| Concern                                          | Why it needs consent                                                |
-| ------------------------------------------------ | ------------------------------------------------------------------- |
-| Seeding                                          | Commits the user's disk + bandwidth indefinitely; node-state change |
-| Syncing                                          | Consumes bandwidth on demand                                        |
-| Identity disclosure                              | The user's DID is a persistent cross-site identifier                |
-| COB writes                                       | Sign with the user's key; irrevocable once gossiped                 |
-| Node introspection (seeded-repo list, node info) | Private information about the user                                  |
+| Concern | Why it needs consent |
+| ------- | -------------------- |
+| Seeding | Commits the user's disk and bandwidth indefinitely |
+| Syncing | Uses bandwidth on demand |
+| Identity disclosure | The user's DID is a persistent cross-site identifier |
+| COB writes | Signed with the user's key; cannot be taken back once gossiped |
+| Node introspection | The seeded-repo list and node details are private information about the user |
 
 ## Provider object
 
-Installed in the page's main world of every web page's top frame before any
-of the page's own scripts run, alongside `window.swarm` and `window.ethereum`.
-A page's Content Security Policy does not affect it. It is not installed in
-private windows, in sub-frames, or on Freedom's internal pages.
+`window.radicle` is installed in the page's main world of every web page's
+top frame before any of the page's own scripts run, alongside `window.swarm`
+and `window.ethereum`. A page's Content Security Policy does not affect it.
+It is not installed in private windows, in sub-frames, or on Freedom's
+internal pages. Detect it with `window.radicle?.isFreedomBrowser === true`.
 
 ```javascript
 window.radicle.request({ method: string, params?: object }): Promise<any>
 ```
 
-plus convenience wrappers (one per method below), and EIP-1193-style events:
+Every method also has a convenience wrapper without the `radicle_` prefix,
+for example `window.radicle.seed({ rid })` or `window.radicle.getCapabilities()`.
+
+### Events
 
 ```javascript
-window.radicle.on('connect' | 'disconnect' | 'seedStatus', handler);
-window.radicle.removeListener(event, handler);
+window.radicle.on(event, handler)              // also addListener
+window.radicle.removeListener(event, handler)
+window.radicle.removeAllListeners(event?)
 ```
 
-`connect` fires on access grant, `disconnect` on revocation, and `seedStatus`
-streams replication transitions for seed/sync actions started by this origin.
+| Event | Payload | When |
+| ----- | ------- | ---- |
+| `connect` | `{ origin }` | The origin is granted access **for the first time** (a repeat `radicle_requestAccess` does not emit it) |
+| `disconnect` | `{ origin }` | **Only** after the page's own [`radicle_disconnect`](#radicle_disconnect) call |
+| `seedStatus` | a [seed status](#radicle_getSeedStatus) object | Replication progress for seed and sync actions this origin started |
+
+Freedom v0.8.8 has no settings screen that lists or revokes Radicle grants,
+so there is no user-side revocation that would emit `disconnect`. Treat a
+`4100` from a later call as the reliable signal that access is gone.
 
 ### Timeouts
 
 The page shim rejects unanswered requests with
-`{ code: -32603, message: 'Request timed out' }` after **300 s** for methods
-that can open a consent prompt (`radicle_requestAccess`, `radicle_seed`,
-`radicle_getIdentity`, and the COB write methods) and **60 s** for everything
-else — including `radicle_unseed`, which still prompts in the chrome (see
-`NODE_METHODS` in `radicle-provider.js`) but uses the shorter shim budget.
-A timed-out page promise does not cancel a grant or write that already
-reached the main process; retry carefully for COB writes.
+`{ code: -32603, message: 'Request timed out' }` after:
 
-### Errors
+- **300 s** for methods that can open a consent prompt:
+  `radicle_requestAccess`, `radicle_seed`, `radicle_getIdentity` and the four
+  COB writes;
+- **60 s** for everything else, **including `radicle_unseed`**, which does
+  prompt. A user who takes longer than a minute to answer the unseed prompt
+  gets a timeout on the page even though the decision still takes effect.
+  This is a bug, tracked in
+  [#1001](https://github.com/solardev-xyz/freedom-browser/issues/1001).
 
-JSON-RPC error objects `{ code, message, data? }`, aligned with the Swarm
-provider:
+A timed-out promise does not cancel a grant or write that already reached
+the node, so retry COB writes carefully. A response that arrives after the
+tab navigated to another document is dropped, and the request rejects with
+`4900`.
 
-| Code   | Meaning                                                                |
-| ------ | ---------------------------------------------------------------------- |
-| 4001   | User rejected the request                                              |
-| 4100   | Unauthorized (no connection grant / grant revoked / tier not granted)  |
-| 4200   | Unknown method                                                         |
-| 4900   | Radicle unavailable (`data.reason`: `profile-disabled`, `node-stopped`, …) |
-| -32602 | Invalid params (`data.reason` gives a machine-readable cause)          |
-| -32603 | Internal error                                                         |
+## Errors
 
-`data.reason` values observed in the implementation include: `invalid_rid`,
-`invalid_id`, `invalid_title`, `invalid_body`, `invalid_labels`, `not_seeded`,
-`repo_not_found`, `announce_failed`, `payload_too_large`, `seed_failed`,
-`unseed_failed`, `sync_failed`, `status_failed`, `native_failed`,
-`profile-disabled` (on **4900** when Radicle is disabled for the profile),
-and `agent_custody` (a write answered by the signing grant alone while Freedom
-Agent holds the tab).
+Rejections are `{ code, message, data? }`, aligned with `window.swarm`:
 
-## Permission tiers
+| Code | Meaning | `data.reason` |
+| ---- | ------- | ------------- |
+| `4001` | The user rejected the prompt | — |
+| `4100` | Not authorized | `not_connected` (no connection grant), `signing_not_granted` (a signing-tier method without the signing grant), `agent_custody` (see [Consent](#consent-and-permission-tiers)) |
+| `4200` | Unknown method | — |
+| `4900` | Radicle unavailable | `profile-disabled` (on every method, including `radicle_getCapabilities`), `node-stopped` (the node is not running **or still starting**) |
+| `-32602` | Invalid params | `invalid_rid`, `invalid_id`, `invalid_title`, `invalid_body`, `invalid_labels`, `invalid_state`, `payload_too_large`, `not_seeded` |
+| `-32603` | Internal or node error | `repo_not_found`, `announce_failed`, `native_failed`, `seed_failed`, `unseed_failed`, `sync_failed`, `status_failed` |
 
-1. **Connection** — `radicle_requestAccess`, persisted per normalized
-   origin (same origin normalization as the Swarm provider: derived from
-   the user-visible URL; `bzz://<ref>`, `ens name`, `rad://<rid>` and
-   `https://host` origins each map to a stable key).
-2. **Node actions** — `radicle_seed`, `radicle_unseed`, `radicle_sync`,
-   `radicle_listSeededRepos`: require connection. `seed` and `unseed`
-   present a per-repo prompt (each changes the seeding policy: a
-   disk/bandwidth commitment, or dropping one the user made). `sync` does
-   not prompt, and is therefore restricted to repos that already have a
-   seeding policy. The permission record has `autoApprove.{ node, signing }`
-   flags, but **v0.8.8 ships no UI to set them**, so seed/unseed always
-   prompt in this version.
-3. **Identity & writes** — `radicle_getIdentity` and all COB writes:
-   require a separate **signing grant** (analog of the Swarm feed tier).
-   The first call that needs the grant prompts; rejection → 4001. Writes
-   sign with the user's node identity — there are no per-origin
-   sub-identities in v1 (a forge wants you to be _you_; see Design
-   decisions). On a tab Freedom Agent holds, the grant does not answer a
-   write on its own: each write prompts with its content, and main refuses
-   one the renderer reports as grant-answered (`4100`, reason
-   `agent_custody`).
+The checks run in this order: unknown method (`4200`), Radicle disabled for
+the profile (`4900 profile-disabled`), then for every method except
+`radicle_getCapabilities`: no connection grant (`4100 not_connected`),
+signing tier without the signing grant (`4100 signing_not_granted`), and
+node not running (`4900 node-stopped`). Only `radicle_getNodeStatus`,
+`radicle_requestAccess` and `radicle_disconnect` work while the node is
+stopped.
 
-## Methods
+Note the asymmetry while the node is starting: method calls fail with
+`node-stopped`, while `radicle_getCapabilities` reports
+`reason: 'node-not-ready'`.
 
-### `radicle_requestAccess` → `{ connected, origin, capabilities }`
+## Consent and permission tiers
 
-Prompt (once) for connection. Repeat calls return existing state. Emits
-`connect`.
+Grants are keyed by the origin of the tab's address bar, derived by Freedom
+and never by anything the page controls. The key rules are the same as for
+`window.swarm`; see its [origin key table](swarm.html#permission-tiers).
 
-### `radicle_disconnect` → `{ connected: false }` (connection tier)
+| Tier | Methods | Prompt |
+| ---- | ------- | ------ |
+| None | `radicle_getCapabilities` | never |
+| Connection | `radicle_requestAccess` | once per origin |
+| | `radicle_getNodeStatus`, `radicle_listSeededRepos`, `radicle_sync`, `radicle_getSeedStatus`, `radicle_disconnect` | never (need the connection grant) |
+| | `radicle_seed`, `radicle_unseed` | every call, per repository |
+| Signing | `radicle_getIdentity`, `radicle_createIssue`, `radicle_commentIssue`, `radicle_editIssueState`, `radicle_commentPatch` | the first call asks for the signing grant; later writes do not prompt |
 
-The inverse of `requestAccess`: the origin relinquishes its own grant
-(connection AND signing, plus auto-approvals). No consent prompt — an
-origin may always drop its own access. Works while the node is stopped.
-Emits the `disconnect` provider event.
+- `seed` and `unseed` always prompt: one commits disk and bandwidth, the
+  other drops a policy the user chose. The permission record has
+  `autoApprove` flags, but v0.8.8 ships no UI to set them.
+- `sync` does not prompt, so it only accepts repositories that already have a
+  seeding policy (`-32602 not_seeded` otherwise).
+- Writes sign with the user's **node identity**. There are no per-origin
+  sub-identities: a forge needs the user to be the same author everywhere.
+- On a tab that Freedom Agent holds, the signing grant does not answer a
+  write on its own: each write prompts with its content, and a write
+  answered only by the grant is refused with `4100 agent_custody`.
+- There is no per-origin rate limit on writes in v0.8.8.
 
-### `radicle_getCapabilities` → capability object (no permission)
+## Input rules
+
+- **Repository ids** (`rid`) are accepted as `rad:z…`, `rad://z…` or a bare
+  `z…`, where the `z…` part is 20 to 60 base58 characters. They are
+  normalized to `rad:z…`. Anything else is `invalid_rid`.
+- **COB ids** (`issueId`, `patchId`, `revisionId`, `replyTo`) are 6 to 40
+  lowercase hex characters (`invalid_id`).
+- **Text**: titles, descriptions, comment bodies and labels must be
+  non-empty after trimming whitespace.
+- **Sizes**: title at most 200 bytes, description and body at most
+  65,536 bytes (`payload_too_large`), each label at most 100 bytes, at most
+  10 labels (`invalid_labels`).
+
+## Methods at a glance
+
+| Method | Tier | Returns |
+| ------ | ---- | ------- |
+| [`radicle_requestAccess`](#radicle_requestAccess) | connection | `{ connected, origin, capabilities }` |
+| [`radicle_disconnect`](#radicle_disconnect) | connection | `{ connected: false }` |
+| [`radicle_getCapabilities`](#radicle_getCapabilities) | none | capability object |
+| [`radicle_getNodeStatus`](#radicle_getNodeStatus) | connection | node status |
+| [`radicle_listSeededRepos`](#radicle_listSeededRepos) | connection | seeded repositories |
+| [`radicle_seed`](#radicle_seed) | connection, prompts | `{ rid, seeded: true, status }` |
+| [`radicle_unseed`](#radicle_unseed) | connection, prompts | `{ rid, seeded: false }` |
+| [`radicle_getSeedStatus`](#radicle_getSeedStatus) | connection | seed status |
+| [`radicle_sync`](#radicle_sync) | connection | `{ rid, status }` |
+| [`radicle_getIdentity`](#radicle_getIdentity) | signing | `{ did, nid, alias }` |
+| [`radicle_createIssue`](#radicle_createIssue) | signing | `{ id }` |
+| [`radicle_commentIssue`](#radicle_commentIssue) | signing | `{ id }` |
+| [`radicle_editIssueState`](#radicle_editIssueState) | signing | `{ id, state }` |
+| [`radicle_commentPatch`](#radicle_commentPatch) | signing | `{ id }` |
+
+## Connection
+
+### `radicle_requestAccess`
+
+**Params** none · **Returns** `{ connected: true, origin, capabilities }` · **Tier** connection (prompts once)
+
+Prompts the user to connect the origin. Repeat calls return the current
+state without a prompt. `capabilities` is the
+[`radicle_getCapabilities`](#radicle_getCapabilities) object. Works while the
+node is stopped. Emits `connect` on the first grant only.
+
+### `radicle_disconnect`
+
+**Params** none · **Returns** `{ connected: false }` · **Tier** connection
+
+The page gives up its own access: the connection grant, the signing grant
+and any auto-approvals. No prompt. Works while the node is stopped. Emits
+`disconnect`.
+
+### `radicle_getCapabilities`
+
+**Params** none · **Returns** capability object · **Tier** none
 
 ```javascript
 {
   specVersion: '0.2',
-  canUseNode: boolean,        // connected AND node running
-  reason: string | null,      // 'not-connected' | 'node-stopped' |
-                              // 'node-not-ready'
+  canUseNode: boolean,   // connected AND node running
+  reason: null | 'not-connected' | 'node-not-ready' | 'node-stopped',
   writes: ['issue', 'issueComment', 'issueState', 'patchComment']
 }
 ```
 
-When Radicle is disabled for the profile, this call fails with **4900** and
-`data.reason: 'profile-disabled'` instead of returning a capability object.
+When Radicle is disabled for the profile, this call fails with
+`4900 profile-disabled` instead of returning an object.
 
-### `radicle_getNodeStatus` → node status (connection tier)
+## Node
 
-Coarse node state for UI. Shape from the implementation:
+### `radicle_getNodeStatus`
+
+**Params** none · **Returns** node status · **Tier** connection
 
 ```javascript
 {
-  running: boolean,          // status === 'running'
-  status: string,            // the node's lifecycle status
-  peers?: number,            // included when running and connections succeed
-  alias?: string,            // public node alias when running
-  nid?: string               // only when the origin also has the signing grant
+  running: boolean,   // status === 'running'
+  status: string,     // the node's lifecycle status
+  peers?: number,     // when running and the connection count can be read
+  alias?: string,     // the public node alias, when running
+  nid?: string        // only when the origin also has the signing grant
 }
 ```
 
-`nid` is identifying, so it stays behind the signing grant. `alias` is
-gossiped network-wide and is visible to a connected origin once the node is
-running.
+`nid` identifies the user, so it stays behind the signing grant. `alias` is
+gossiped network-wide anyway.
 
-### `radicle_listSeededRepos` → `[{ rid, name?, description? }]` (connection tier)
+### `radicle_listSeededRepos`
 
-The repos the user's node is configured to seed, including an allow policy
-whose first fetch has not succeeded yet (metadata is absent until it lands).
-Unlike `swarm_listFeeds` this is NOT
-permission-free: the seeded-repo list is private information about the
-user, not data the origin could compute itself.
+**Params** none · **Returns** the repositories the node seeds · **Tier** connection
 
-### `radicle_seed { rid }` / `radicle_unseed { rid }` (node tier, per-repo prompt)
+The repositories the user's node has a seeding policy for, including one
+whose first fetch has not finished yet. The list comes straight from the
+native Radicle library; expect at least each repository's `rid`, and treat
+metadata such as `name` and `description` as optional (it is missing until
+the first fetch lands). Unlike `swarm_listFeeds`, this needs a connection:
+the list is private information about the user.
 
-`seed` writes the seeding policy and starts a **background** network
-fetch, resolving immediately with `{ rid, seeded: true, status }` where
-`status` is the same shape `radicle_getSeedStatus` returns. Policy and
-replication are deliberately separate: the fetch can take seconds, fail
-per-seed, or never complete, so its outcome is reported asynchronously rather
-than awaited. Subscribe to `seedStatus` before starting the action; use
-`radicle_getSeedStatus` to restore the latest snapshot after a page reload. This
-is the gateway action for browsing repos the node doesn't have yet.
-`unseed` removes the policy (and cancels any fetch in flight), resolving
-`{ rid, seeded: false }`.
+### `radicle_seed`
 
-Both prompt per repository: seeding commits disk and bandwidth, and
-unseeding drops a policy the user chose — a connected origin can already
-enumerate what to target with `radicle_listSeededRepos`. A rejected prompt
-returns 4001 and the node is never touched. (The permission model has a
-`node` auto-approve flag, but v0.8.8 has no UI to enable it, so these
-prompts always appear in this version.)
+**Params** `{ rid }` · **Returns** `{ rid, seeded: true, status }` · **Tier** connection, prompts per repository
 
-### `radicle_getSeedStatus { rid }` (connection tier)
+Writes the seeding policy and starts a **background** fetch from the
+network. It resolves straight away; `status` has the
+[`radicle_getSeedStatus`](#radicle_getSeedStatus) shape. Subscribe to
+`seedStatus` before you call it, and use `radicle_getSeedStatus` to restore
+the latest snapshot after a reload. This is how a page gets a repository the
+node does not have yet. A rejected prompt is `4001` and the node is not
+touched. Errors: `invalid_rid`, `seed_failed`.
 
-Honest replication-status snapshot for a repo. Live transitions are pushed as
-`seedStatus` events whose payload has this same shape.
-Resolves:
+### `radicle_unseed`
 
-```
+**Params** `{ rid }` · **Returns** `{ rid, seeded: false }` · **Tier** connection, prompts per repository
+
+Removes the seeding policy and cancels any fetch in flight. Errors:
+`invalid_rid`, `unseed_failed`. Mind the
+[60 s timeout](#timeouts).
+
+### `radicle_getSeedStatus`
+
+**Params** `{ rid }` · **Returns** seed status · **Tier** connection
+
+A replication snapshot. `seedStatus` events carry the same shape.
+
+```javascript
 {
   rid,
   state: 'fetched' | 'fetching' | 'failed' | 'cancelled' | 'idle',
-  inStorage: boolean,       // ground truth: repo is served locally
-  seedersKnown: number|null, // network seeders discovered for the fetch
+  inStorage: boolean,           // the repo is served locally
+  seedersKnown: number | null,  // network seeders found for the fetch
   attemptCount: number,
   recentAttempts: [{ nid, ok, error?, at }],  // last 5 per-seed results
-  progress: { phase, candidates?, nid?, addr?, index?, total?, reason? }|null,
-  lastError: string|null,
-  startedAt: number|null,
-  finishedAt: number|null
+  progress: { phase, candidates?, nid?, addr?, index?, total?, reason? } | null,
+  lastError: string | null,
+  startedAt: number | null,
+  finishedAt: number | null
 }
 ```
 
 `progress.phase` is one of `starting`, `resolving`, `connecting`,
-`fetching`, `peer-failed`, `done`, `failed`, or `cancelled`. Peer-level
-events are streamed by the embedded node; byte-level percentages are not
-currently available from Heartwood's fetch transport.
+`fetching`, `peer-failed`, `done`, `failed` or `cancelled`. There are no
+byte-level percentages. `idle` means nothing is known about the repository
+this session. A `failed` repository can still turn `fetched` later, because
+the node keeps retrying in the background. Errors: `invalid_rid`,
+`status_failed`.
 
-`idle` means nothing is known this session (not tracked, not stored).
-A `failed` repo may still flip to `fetched` later — the node keeps
-retrying in the background on refs announcements.
+### `radicle_sync`
 
-### `radicle_sync { rid }` (node tier)
+**Params** `{ rid }` · **Returns** `{ rid, status }` · **Tier** connection
 
-(Re)start the background fetch for an already-seeded repo — the retry
-path after `state: 'failed'`, without a second consent prompt. Resolves
-immediately with `{ rid, status }`; follow `seedStatus` events for progress.
+Restarts the background fetch for a repository that already has a seeding
+policy, for example after `state: 'failed'`, without a second prompt.
+Follow `seedStatus` for progress. Errors: `invalid_rid`, `not_seeded`,
+`sync_failed`.
 
-Only repos the node already has a seeding policy for are accepted: the
-fetch writes that policy as it replicates, so allowing an unknown RID
-here would be a promptless `radicle_seed`. An unseeded RID rejects with
--32602 and `data.reason: 'not_seeded'`.
+## Identity and writes
 
-### `radicle_getIdentity` → `{ did, nid, alias }` (signing tier)
+### `radicle_getIdentity`
 
-The user's Radicle identity. Bootstrap path for the signing grant, like
-`swarm_getSigningIdentity`.
+**Params** none · **Returns** `{ did, nid, alias }` · **Tier** signing
 
-### `radicle_createIssue { rid, title, description, labels? }` (signing tier)
+The user's Radicle identity. The first call asks for the signing grant, so
+this is the natural way to request it before the first write.
 
-→ `{ id }`. Title ≤ 200 bytes, description ≤ 64 KiB.
+### `radicle_createIssue`
 
-### `radicle_commentIssue { rid, issueId, body, replyTo? }` (signing tier)
+**Params** `{ rid, title, description, labels? }` · **Returns** `{ id }` · **Tier** signing
 
-→ `{ id }`.
+Opens an issue signed by the user and announces it to the network before
+resolving. Errors: `invalid_rid`, `invalid_title`, `invalid_body`,
+`invalid_labels`, `payload_too_large`, `repo_not_found`, `announce_failed`,
+`native_failed`.
 
-### `radicle_editIssueState { rid, issueId, state }` (signing tier)
+### `radicle_commentIssue`
 
-`state` ∈ `'open' | 'closed' | 'solved'`. → `{ id, state }`.
+**Params** `{ rid, issueId, body, replyTo? }` · **Returns** `{ id }` · **Tier** signing
 
-### `radicle_commentPatch { rid, patchId, body, revisionId? }` (signing tier)
+Comments on an issue, optionally as a reply to the comment `replyTo`.
+Errors as `radicle_createIssue`, plus `invalid_id`.
 
-→ `{ id }`. When `revisionId` is omitted, comments on the **first**
-revision (the patch id doubles as that revision's id).
+### `radicle_editIssueState`
 
-## Backend mapping (implementation note)
+**Params** `{ rid, issueId, state }` · **Returns** `{ id, state }` · **Tier** signing
 
-Every method calls the `libradicle` napi addon. Repository reads and lists,
-seed policy changes, network fetches, identity disclosure, and COB writes all
-operate against the profile's in-process node and storage. No Radicle CLI,
-HTTP daemon, loopback port, output parsing, or executable fallback is involved.
-Successful COB mutations announce their updated refs before returning.
+`state` is `'open'`, `'closed'` or `'solved'` (`invalid_state` otherwise).
 
-## Design decisions (v1)
+### `radicle_commentPatch`
 
-- **Single identity.** All origins act as the user's one Radicle identity
-  once granted the signing tier. Rationale: a code forge is a reputation
-  system; per-origin sub-identities (the Swarm app-scoped model) would
-  fragment the user into unlinkable authors and break the delegate/ACL
-  model. The identity is only disclosed behind the signing grant.
-- **Patch creation is out of scope.** Creating a patch requires commits
-  and a managed working copy. The
-  recommended future design is browser-managed bare checkouts under the
-  profile directory with a high-level
-  `radicle_commitAndPush({ rid, changes[] })`, but v1 ships COB writes
-  only (issues + patch comments cover the collaboration loop around
-  existing patches).
-- **Private repos** are invisible to the public `rad:` URL scheme. v1 does
-  not expose them through the provider either.
-- **No repo creation** (`rad init`) in v1 — it needs a working copy and
-  raises squatting/spam questions; revisit with patch creation.
+**Params** `{ rid, patchId, body, revisionId? }` · **Returns** `{ id }` · **Tier** signing
 
-## Security considerations
+Comments on a patch revision. Without `revisionId`, the comment goes on the
+patch's **first** revision (the patch id doubles as that revision's id).
 
-- Origin identification comes from the browser's display URL, never from
-  page-controlled values (same trust model as the Swarm provider).
-- The provider MUST validate RIDs (`z` + base58, 20–60 chars) and COB ids
-  (hex, 6–40 chars) before crossing the addon boundary.
-- Writes are irrevocable once announced. The signing-grant prompt MUST
-  make clear that the site will be able to author content as the user on
-  the Radicle network.
-- Rate-limit write methods per origin to protect the network and the
-  user's reputation from runaway dApps.
+## Not in this version
 
+- Creating patches or repositories (`rad init`): both need a working copy.
+  Issues and patch comments cover the collaboration around existing patches.
+- Private repositories, through `rad:` URLs or the provider.
+- A settings screen to list or revoke Radicle grants, or to turn on
+  auto-approval.
+- Per-origin write rate limits.
+
+<details>
+<summary>Design notes</summary>
+
+**One identity.** Every origin with the signing grant acts as the user's
+single Radicle identity. A code forge is a reputation system: per-origin
+sub-identities, as `window.swarm` uses for feeds, would split the user into
+unlinkable authors and break Radicle's delegate model. The identity is only
+disclosed behind the signing grant.
+
+**Policy and replication are separate.** A fetch can take seconds, fail per
+seed, or never complete, so `radicle_seed` resolves once the policy is
+written and reports replication through `seedStatus`.
+
+**In-process node.** Every method calls Freedom's embedded Radicle library
+against the profile's own node and storage. No Radicle CLI, HTTP daemon or
+local port is involved. See [Architecture](architecture.html).
+
+</details>
+
+## Example {#example}
+
+```javascript
+if (!window.radicle?.isFreedomBrowser) throw new Error('Open this app in Freedom');
+
+const rid = 'rad:z…';  // your repository id
+
+window.radicle.on('seedStatus', (status) => {
+  if (status.rid === rid) console.log(status.state, status.progress?.phase);
+});
+
+await window.radicle.requestAccess();        // prompts once
+await window.radicle.seed({ rid });          // prompts for this repo
+
+await window.radicle.getIdentity();          // asks for the signing grant
+const { id } = await window.radicle.createIssue({
+  rid,
+  title: 'Typo in README',
+  description: 'Second paragraph, "teh" should be "the".',
+});
+```

@@ -1,13 +1,10 @@
 ---
-title: window.swarm API
-description: Freedom Browser Swarm provider API — publish, feeds, chunks, signing, and PSS/GSOC messaging with per-origin consent.
-kick: Provider API
-dek: Publish, read chunks and feeds, sign, and message through the user's own Swarm node.
+title: window.swarm
+description: Reference for window.swarm in Freedom Browser: publish, chunks, feeds, signing and PSS/GSOC messaging through the user's own Swarm node, with per-origin consent and SWIP #94 status per method.
+kick: API reference
+dek: Publish, read chunks and feeds, sign, and message through the user's own Swarm node. Each method notes whether it follows SWIP #94, extends it, or diverges.
+source: https://github.com/solardev-xyz/freedom-browser/blob/main/docs/swarm-provider-api.md
 ---
-
-# window.swarm API
-
-> Freedom 0.8.8 · spec 1.0
 
 `window.swarm` lets a web page publish to Swarm, read and write chunks and
 feeds, sign with a publisher identity, and send and receive PSS/GSOC
@@ -23,17 +20,18 @@ downloaded bytes against the requested address before returning them (see
 whole blob (the counterpart of `GET /bytes/<ref>`), use `swarm_readData`: the
 node joins it and checks every chunk it fetches.
 
-This document describes the code as it is. The sources of truth are:
+`window.swarm` is Freedom's implementation of the provider API proposed in
+[SWIP #94](https://github.com/ethersphere/SWIPs/pull/94) (core and messaging
+drafts, still open). Each method below carries a status badge:
 
-| Layer           | File                                                                                                                                                       | Role                                                                            |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Page shim       | `src/main/webview-preload.js` (the `window.swarm` block)                                                                                                   | Request ids, timeouts, convenience wrappers, events                             |
-| Chrome renderer | `src/renderer/lib/swarm-provider.js`                                                                                                                       | Feature gate, permission manifest check, consent prompts                        |
-| Main process    | `src/main/swarm/swarm-provider-ipc.js`                                                                                                                     | The authority: re-checks grants, validates params, limits, pre-flight, dispatch |
-| Services        | `src/main/swarm/{publish,chunk,feed,messaging}-service.js`, `feed-store.js`, `swarm-permissions.js`, `subscription-registry.js`, `permission-manifests.js` | Node calls, identities, grants, subscriptions                                   |
+- <span class="badge swip">SWIP</span> specified in SWIP #94 and implemented as written;
+- <span class="badge ext">Freedom extension</span> not in SWIP #94 (or adds fields to it);
+- <span class="badge diverges">Diverges</span> behaves differently from the draft; see
+  [Divergences from SWIP #94](#divergences-from-swip-94).
 
-The method list is `KNOWN_METHODS` in `swarm-provider-ipc.js`; behaviour is
-pinned by `swarm-provider-ipc.test.js`.
+To check another implementation, or your assumptions about this one, run
+swarm-kit's [provider-compliance example](https://github.com/solardev-xyz/swarm-kit/tree/main/examples)
+(`npm run dev:provider-compliance`).
 
 ## Availability
 
@@ -147,7 +145,7 @@ and no `data`.
 
 | Reason                                | Raised when                                                                                                                                                                 |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `node-stopped`                        | The node is not running or does not answer (reads probe `/node` with a 5 s timeout)                                                                                         |
+| `node-stopped`                        | The node is not running or does not answer (reads probe `/node` with a 5 s timeout). This also happens for a short while right after the user unlocks, while Freedom restarts the node ([#988](https://github.com/solardev-xyz/freedom-browser/issues/988)): retry with backoff |
 | `node-not-ready`                      | The node is still connecting to Gnosis Chain or to peers, is still looking for the wallet's existing storage, or a batch bought moments ago is not yet known to the network |
 | `ultra-light-mode`                    | The node runs in ultra-light mode (no Gnosis Chain connection) and cannot publish                                                                                           |
 | `no-usable-stamps`                    | No postage batch with room for the write                                                                                                                                    |
@@ -201,6 +199,10 @@ The key is path-insensitive:
 | `bzz://<ref>/page`                            | `bzz://<ref>`             |
 | `bzz://myapp.eth/page`, `ens://myapp.eth/#/x` | `myapp.eth`               |
 | `ipfs://<cid>/docs`                           | `ipfs://<cid>`            |
+| `ipns://<name or key>/x`                      | `ipns://<key>`, or the bare name for an ENS/`.tez` host |
+| `name.box`, `.wei`, `.gwei`, `.tez`           | the bare lowercase name, as for `.eth` |
+| `rad://<rid>/…`                               | `rad://<rid>`             |
+| `web3://0x<address>.eip155-<chain>/…` or `web3://0x<address>:<chain>/…` | `web3://0x<address>:<chain>` (lowercase address; no suffix on chain 1) |
 | `https://app.example.com/x`                   | `https://app.example.com` |
 
 A content-addressed `bzz://<ref>` origin changes with every redeploy. An app
@@ -399,14 +401,62 @@ Not reported there:
   counts as 2), no `/`, no characters below U+0020.
 - **Messaging topics**: 1–256 UTF-8 bytes, no control characters.
 
-## Methods
+## Divergences from SWIP #94
+
+Checked against the SWIP #94 drafts (core and messaging) as of their last
+update on 22 July 2026. The draft is still open and may change.
+
+| Area | SWIP #94 | Freedom |
+| ---- | -------- | ------- |
+| [`swarm_readData`](#swarm_readData) | Not specified | Extension: joins and verifies a whole blob by root reference |
+| [`swarm_getCapabilities`](#swarm_getCapabilities) | Core fields | Adds `publisherIdentityModes` and `extensions`; `features` lists `messaging` |
+| [`swarm_readFeedEntry`](#swarm_readFeedEntry) with `index` | `nextIndex` is `null` | `nextIndex` is always `index + 1` |
+| [`swarm_writeFeedEntry`](#swarm_writeFeedEntry) | — | No upfront payload-size check; a payload too large for the node to wrap is `payload_too_large` |
+| [`swarm_subscribe`](#swarm_subscribe) `history` | PSS mailbox delivery when `true` | Ignored: only live traffic is delivered |
+| `maxMessageBytes` | 3584 recommended | 4000. The messaging draft requires the true usable maximum to be advertised, so read it from `limits` |
+| Permissions | Connection, publish, feed and messaging tiers | Same tiers, plus [permission manifests](#permission-manifests), [publisher identity modes](#identity-model) and `-32002` while a hardware-wallet signature is pending |
+| Read budgets | "MUST be rate-limited" | Concrete per-origin budgets, see [Limits](#limits) |
+
+Developer feedback on this surface is tracked in the open, for example
+[#989](https://github.com/solardev-xyz/freedom-browser/issues/989) (feed read
+shapes) and [#988](https://github.com/solardev-xyz/freedom-browser/issues/988)
+(`node-stopped` right after unlock). See [Open for contribution](open-issues.html).
+
+## Methods at a glance
 
 Hex strings are case-insensitive and have no `0x` prefix unless noted
-(owners accept an optional `0x`). A _reference_ is 64 hex characters.
+(owners accept an optional `0x`). A _reference_ is 64 hex characters. Every
+method can also be called through its wrapper, e.g. `window.swarm.publishData(params)`.
 
-### Connection and capabilities
+| Method | Tier | SWIP #94 status |
+| ------ | ---- | --------------- |
+| [`swarm_requestAccess`](#swarm_requestAccess) | connection | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_getCapabilities`](#swarm_getCapabilities) | public | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> <a class="badge ext" href="#divergences-from-swip-94" title="Not in SWIP #94">Freedom extension</a> |
+| [`swarm_publishData`](#swarm_publishData) | publish | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_publishFiles`](#swarm_publishFiles) | publish | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_getUploadStatus`](#swarm_getUploadStatus) | connection | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_publishChunk`](#swarm_publishChunk) | publish | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_readChunk`](#swarm_readChunk) | public | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_readData`](#swarm_readData) | public | <a class="badge ext" href="#divergences-from-swip-94" title="Not in SWIP #94">Freedom extension</a> |
+| [`swarm_writeSingleOwnerChunk`](#swarm_writeSingleOwnerChunk) | signing | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_readSingleOwnerChunk`](#swarm_readSingleOwnerChunk) | public | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_createFeed`](#swarm_createFeed) | feeds | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_updateFeed`](#swarm_updateFeed) | feeds | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_writeFeedEntry`](#swarm_writeFeedEntry) | feeds | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> <a class="badge diverges" href="#divergences-from-swip-94" title="Behaves differently from SWIP #94">Diverges</a> |
+| [`swarm_readFeedEntry`](#swarm_readFeedEntry) | public | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> <a class="badge diverges" href="#divergences-from-swip-94" title="Behaves differently from SWIP #94">Diverges</a> |
+| [`swarm_listFeeds`](#swarm_listFeeds) | public | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_getSigningIdentity`](#swarm_getSigningIdentity) | signing | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_getMessagingIdentity`](#swarm_getMessagingIdentity) | messaging | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_sendPss`](#swarm_sendPss) | messaging tier, prompts per send | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_sendGsoc`](#swarm_sendGsoc) | messaging tier, prompts per send | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
+| [`swarm_subscribe`](#swarm_subscribe) | messaging | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> <a class="badge diverges" href="#divergences-from-swip-94" title="Behaves differently from SWIP #94">Diverges</a> |
+| [`swarm_unsubscribe`](#swarm_unsubscribe) | connection tier, never prompts | <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> |
 
-#### `swarm_requestAccess` → `{ connected: true, origin, capabilities: ['publish'] }`
+## Connection and capabilities
+
+### `swarm_requestAccess` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** none · **Returns** `{ connected: true, origin, capabilities: ['publish'] }` · **Tier** connection (prompts once per origin)
 
 Prompts the user to connect the origin (once). Calling it again when already
 connected returns the same shape without a prompt. Rejection: `4001`.
@@ -427,7 +477,9 @@ it serves a [permission manifest](#permission-manifests):
   read `swarm_getCapabilities` rather than assuming the manifest's
   capabilities were granted.
 
-#### `swarm_getCapabilities` → capability object (public)
+### `swarm_getCapabilities` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> <a class="badge ext" href="#divergences-from-swip-94" title="Not in SWIP #94">Freedom extension</a>
+
+**Params** none · **Returns** capability object · **Tier** public
 
 ```javascript
 {
@@ -447,15 +499,19 @@ it serves a [permission manifest](#permission-manifests):
 `reason` is `not-connected` whenever the origin is not connected, regardless
 of node state.
 
-### Publishing
+## Publishing
 
-#### `swarm_publishData { data, contentType, name? }` → `{ reference, bzzUrl }` (publish tier)
+### `swarm_publishData` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ data, contentType, name? }` · **Returns** `{ reference, bzzUrl }` · **Tier** publish
 
 Uploads one blob. `contentType` is required (`missing_content_type`). `name`
 labels the entry in the user's publish history. `bzzUrl` is
 `bzz://<reference>`.
 
-#### `swarm_publishFiles { files, indexDocument? }` → `{ reference, bzzUrl, tagUid }` (publish tier)
+### `swarm_publishFiles` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ files, indexDocument? }` · **Returns** `{ reference, bzzUrl, tagUid }` · **Tier** publish
 
 Uploads a directory as a manifest. `files` is an array of
 `{ path, bytes, contentType? }`, where `bytes` is a `Uint8Array` or
@@ -465,7 +521,9 @@ must be one of the paths. Errors: `empty_files`, `too_many_files`,
 `invalid_path`, `duplicate_path` (+ `path`), `invalid_index_document`,
 `payload_too_large`.
 
-#### `swarm_getUploadStatus { tagUid }` → tag status (connection tier)
+### `swarm_getUploadStatus` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ tagUid }` · **Returns** tag status · **Tier** connection
 
 `tagUid` is a positive integer from `swarm_publishFiles`. Returns:
 
@@ -480,16 +538,20 @@ indefinitely on a light node. Only the origin that created the tag may query
 it, and only until it reports `done` (see
 [Origin isolation](#origin-isolation-guarantees)).
 
-### Chunks
+## Chunks
 
-#### `swarm_publishChunk { data, span?, options? }` → `{ reference }` (publish tier)
+### `swarm_publishChunk` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ data, span?, options? }` · **Returns** `{ reference }` · **Tier** publish
 
 Uploads one content-addressed chunk (CAC). `data` is 1–4096 bytes. `span`
 defaults to the payload length; pass a non-negative integer (or `BigInt` up
 to 2^64−1) to build an intermediate chunk of a larger file. `options` must be
 absent or `{}`.
 
-#### `swarm_readChunk { reference, options? }` → `{ data, encoding: 'base64', span }` (public)
+### `swarm_readChunk` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ reference, options? }` · **Returns** `{ data, encoding: 'base64', span }` · **Tier** public
 
 Downloads a CAC and verifies that its bytes hash to `reference`. `span` is a
 number, or a `BigInt` above `Number.MAX_SAFE_INTEGER`. Errors:
@@ -497,7 +559,9 @@ number, or a `BigInt` above `Number.MAX_SAFE_INTEGER`. Errors:
 not a valid CAC for that address, e.g. it is a SOC), `rate_limited`. This is
 the supported route for verified raw chunk reads.
 
-#### `swarm_readData { reference, options? }` → `{ data, encoding: 'base64' }` (public)
+### `swarm_readData` <a class="badge ext" href="#divergences-from-swip-94" title="Not in SWIP #94">Freedom extension</a>
+
+**Params** `{ reference, options? }` · **Returns** `{ data, encoding: 'base64' }` · **Tier** public
 
 Downloads a whole blob, as published by `swarm_publishData` or uploaded to
 `/bytes`, by its root reference. The node joins it (`GET /bytes/<ref>`): it
@@ -520,13 +584,17 @@ encrypted 64-byte one is `invalid_reference`. Errors: `invalid_reference`,
 root is not a CAC for that address), `data_too_large`, `rate_limited`. The
 page shim allows it 300 s (see [Timeouts](#timeouts)).
 
-#### `swarm_writeSingleOwnerChunk { identifier, data, span?, options? }` → `{ reference, owner, identifier }` (signing tier)
+### `swarm_writeSingleOwnerChunk` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ identifier, data, span?, options? }` · **Returns** `{ reference, owner, identifier }` · **Tier** signing
 
 Signs a single-owner chunk with the origin's active publisher identity and
 uploads it. `identifier` is 32 bytes of hex. `data` is 1–4096 bytes. `owner`
 is the checksummed `0x` signer address; `reference` is the SOC address.
 
-#### `swarm_readSingleOwnerChunk { address } | { owner, identifier }, options?` → SOC (public)
+### `swarm_readSingleOwnerChunk` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ address } | { owner, identifier }, options?` · **Returns** SOC · **Tier** public
 
 Pass either the SOC `address`, or `owner` (40 hex, optional `0x`) plus
 `identifier`, not both. Returns:
@@ -538,14 +606,16 @@ Pass either the SOC `address`, or `owner` (40 hex, optional `0x`) plus
 The signature is verified against `reference` before returning. Errors as
 `swarm_readChunk`, plus `invalid_owner` and `invalid_identifier`.
 
-### Feeds
+## Feeds
 
 A feed is a sequence of entries at indexes `0, 1, 2, …` under a topic, signed
 by one owner. Freedom derives the topic from the origin and the feed name (see
 [Origin isolation](#origin-isolation-guarantees)) and keeps the feed's
 metadata in its feed store.
 
-#### `swarm_createFeed { name }` → `{ feedId, owner, topic, manifestReference, bzzUrl, identityMode }` (feeds tier)
+### `swarm_createFeed` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ name }` · **Returns** `{ feedId, owner, topic, manifestReference, bzzUrl, identityMode }` · **Tier** feeds
 
 Creates a feed and its feed manifest, signed by the origin's active identity.
 `feedId` is `name`. `bzzUrl` (`bzz://<manifestReference>`) always resolves to
@@ -553,13 +623,17 @@ the content the feed currently points at. **Idempotent**: if the origin already
 has a feed with this name, its stored metadata is returned and nothing is
 written.
 
-#### `swarm_updateFeed { feedId, reference }` → `{ feedId, reference, bzzUrl, index }` (feeds tier)
+### `swarm_updateFeed` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ feedId, reference }` · **Returns** `{ feedId, reference, bzzUrl, index }` · **Tier** feeds
 
 Points the feed at a Swarm `reference` by writing the next entry. Signed with
 the identity that created the feed. Errors: `invalid_reference`,
 `feed_not_found`.
 
-#### `swarm_writeFeedEntry { name, data, index? }` → `{ index }` (feeds tier)
+### `swarm_writeFeedEntry` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> <a class="badge diverges" href="#divergences-from-swip-94" title="Behaves differently from SWIP #94">Diverges</a>
+
+**Params** `{ name, data, index? }` · **Returns** `{ index }` · **Tier** feeds
 
 Writes an arbitrary payload as a feed entry. Without `index`, it is written at
 the next free index; with an explicit `index`, an existing entry is never
@@ -568,7 +642,9 @@ call `swarm_createFeed` first). Payloads larger than one chunk are uploaded and
 wrapped by the node; one too large for that is `payload_too_large`. Writes to
 one feed are serialized, so concurrent writes get distinct indexes.
 
-#### `swarm_readFeedEntry { name | topic, owner?, index? }` → `{ data, encoding: 'base64', index, nextIndex }` (public)
+### `swarm_readFeedEntry` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> <a class="badge diverges" href="#divergences-from-swip-94" title="Behaves differently from SWIP #94">Diverges</a>
+
+**Params** `{ name | topic, owner?, index? }` · **Returns** `{ data, encoding: 'base64', index, nextIndex }` · **Tier** public
 
 Pass exactly one of:
 
@@ -586,35 +662,49 @@ without `index`, or read without `index` first. Errors: `feed_empty` (no entries
 `entry_not_found` (no entry at `index`), `invalid_topic`, `invalid_owner`,
 `invalid_feed_name`, `rate_limited`.
 
-#### `swarm_listFeeds` → `[{ name, topic, owner, manifestReference, bzzUrl, createdAt, lastUpdated, lastReference }]` (public)
+> Developer feedback in [#989](https://github.com/solardev-xyz/freedom-browser/issues/989)
+> reports that a read without `index` returns the content the latest entry
+> references, while a read with `index` returns the raw entry bytes (an
+> 8-byte timestamp plus a 32-byte reference). Until that is settled, check
+> which one you got before decoding it.
+
+### `swarm_listFeeds` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** none · **Returns** `[{ name, topic, owner, manifestReference, bzzUrl, createdAt, lastUpdated, lastReference }]` · **Tier** public
 
 The caller's own feeds, from Freedom's feed store; `[]` if none. Takes no
 params. Works without a connection, including after the user disconnected the
 origin (feed records are kept).
 
-### Signing identity
+## Signing identity
 
-#### `swarm_getSigningIdentity` → `{ owner, identityMode }` (signing tier)
+### `swarm_getSigningIdentity` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** none · **Returns** `{ owner, identityMode }` · **Tier** signing
 
 The address (`owner`, checksummed with `0x`) that `swarm_writeSingleOwnerChunk`
 and newly created feeds will be signed with, and its kind. Does not need the
 node to be running. This is the way to obtain the signing grant before the
 first write.
 
-### Messaging
+## Messaging
 
 PSS sends an encrypted message to one node; GSOC is a broadcast room that
 anyone who knows the topic can write to and subscribe to. Both need the
 messaging grant (see [Permission tiers](#permission-tiers)) and are ephemeral:
 they spend postage like any write.
 
-#### `swarm_getMessagingIdentity` → `{ pssPublicKey, pssTarget, identityMode: 'bee-wallet' }` (messaging tier)
+### `swarm_getMessagingIdentity` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** none · **Returns** `{ pssPublicKey, pssTarget, identityMode: 'bee-wallet' }` · **Tier** messaging
 
 `pssPublicKey` is the node's compressed secp256k1 key (66 hex) that peers
 encrypt to; `pssTarget` is the 2-byte (4 hex) overlay prefix they send
 toward. Share both with a correspondent so they can `swarm_sendPss` to you.
 
-#### `swarm_sendPss { topic, recipient, targets, data, options? }` → `{ sent: true }` (messaging tier, prompts per send)
+### `swarm_sendPss` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ topic, recipient, targets, data, options? }` · **Returns** `{ sent: true }` · **Tier** messaging, prompts per send
 
 - `topic`: the channel string (hashed on the wire).
 - `recipient`: the peer's `pssPublicKey` (66 hex starting `02` or `03`, optional `0x`).
@@ -624,7 +714,9 @@ toward. Share both with a correspondent so they can `swarm_sendPss` to you.
 Errors: `invalid_topic`, `invalid_recipient`, `invalid_target`,
 `payload_too_large`.
 
-#### `swarm_sendGsoc { topic, data, options? }` → `{ sent: true, address }` (messaging tier, prompts per send)
+### `swarm_sendGsoc` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ topic, data, options? }` · **Returns** `{ sent: true, address }` · **Tier** messaging, prompts per send
 
 Broadcasts `data` (1–4000 bytes; empty is `invalid_payload`) to the topic's
 room. `address` is the room's GSOC address, the same one `swarm_subscribe`
@@ -633,7 +725,9 @@ the signing key is mined from the topic, so the topic is required. The first
 use of a topic mines its key (typically well under a second, up to 15 s);
 see the new-topic limit under [Limits](#limits).
 
-#### `swarm_subscribe { kind, topic | address, options? }` → `{ subscriptionId, kind, key }` (messaging tier)
+### `swarm_subscribe` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a> <a class="badge diverges" href="#divergences-from-swip-94" title="Behaves differently from SWIP #94">Diverges</a>
+
+**Params** `{ kind, topic | address, options? }` · **Returns** `{ subscriptionId, kind, key }` · **Tier** messaging
 
 Opens a long-lived subscription; messages arrive as `message` events.
 
@@ -650,7 +744,9 @@ once the node accepts the subscription (bounded at 30 s). Errors:
 [Origin isolation](#origin-isolation-guarantees) for when subscriptions end on
 their own.
 
-#### `swarm_unsubscribe { subscriptionId }` → `{ unsubscribed: true }` (connection tier, never prompts)
+### `swarm_unsubscribe` <a class="badge swip" href="https://github.com/ethersphere/SWIPs/pull/94" title="Specified in SWIP #94">SWIP</a>
+
+**Params** `{ subscriptionId }` · **Returns** `{ unsubscribed: true }` · **Tier** connection, never prompts
 
 Closes one of the caller's subscriptions. `subscription_not_found` if the id
 is unknown or not the caller's.
@@ -679,7 +775,7 @@ own; it is not emitted when only one tier is revoked (e.g. messaging in
 Settings) or when a manifest change withdraws a grant. Do not treat the events as the only source of truth: a call
 failing with `4100` means the grant is gone.
 
-## Example
+## Example {#example}
 
 ```javascript
 if (!window.swarm?.isFreedomBrowser) throw new Error('Open this app in Freedom');
