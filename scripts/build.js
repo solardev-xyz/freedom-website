@@ -10,6 +10,8 @@
  *     + src/templates/post-template.html
  *   POSTS                 → news list with     → dist/news.html
  *     + src/templates/news-template.html
+ *   src/developer/*.md    → rendered with      → dist/developer/*.html
+ *     + src/templates/docs-template.html
  *
  * src/site.json holds the values that change between releases (version,
  * download stats); any {{key}} in a page or template is replaced with it.
@@ -29,6 +31,7 @@ const IMAGES_DIR = path.join(SRC, 'images');
 const CONTENT_DIR = path.join(SRC, 'content');
 const TEMPLATES_DIR = path.join(SRC, 'templates');
 const ASSETS_DIR = path.join(SRC, 'assets');
+const DEVELOPER_DIR = path.join(SRC, 'developer');
 const SITE = JSON.parse(fs.readFileSync(path.join(SRC, 'site.json'), 'utf-8'));
 
 /** Replace {{key}} with values from src/site.json. */
@@ -36,9 +39,40 @@ function fillSite(text) {
   return text.replace(/\{\{(\w+)\}\}/g, (m, key) => (key in SITE ? SITE[key] : m));
 }
 
+// Developer docs (markdown under src/developer/, rendered with docs-template).
+const DOCS = [
+  {
+    content: 'index.md',
+    output: 'developer/index.html',
+    slug: 'index',
+    kick: 'Developers',
+    dek: 'Build on Swarm and Radicle with Freedom\'s page providers, or contribute to the browser itself.',
+  },
+  {
+    content: 'swarm.md',
+    output: 'developer/swarm.html',
+    slug: 'swarm',
+    kick: 'Provider API',
+    dek: 'Publish, read chunks and feeds, sign, and message through the user\'s Swarm node.',
+  },
+  {
+    content: 'radicle.md',
+    output: 'developer/radicle.html',
+    slug: 'radicle',
+    kick: 'Provider API',
+    dek: 'Seed, sync, disclose identity, and write collaborative objects on the user\'s Radicle node.',
+  },
+  {
+    content: 'contributing.md',
+    output: 'developer/contributing.html',
+    slug: 'contributing',
+    kick: 'Contribute',
+    dek: 'Prerequisites, local setup, tests, project structure, and pull-request conventions.',
+  },
+];
+
 // Markdown posts to render. Each entry maps a content file + template to a
-// generated page in dist/.
-// Newest first; the order is also the order of the news list.
+// generated page in dist/. Newest first; the order is also the news list order.
 const POSTS = [
   {
     content: 'freedom-0-8-8-agent.md',
@@ -147,6 +181,53 @@ function escapeHtml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+
+function renderDoc(doc) {
+  const contentPath = path.join(DEVELOPER_DIR, doc.content);
+  const templatePath = path.join(TEMPLATES_DIR, 'docs-template.html');
+  const template = fs.readFileSync(templatePath, 'utf-8');
+  const rawMarkdown = fs.readFileSync(contentPath, 'utf-8');
+  const { meta, content: markdown } = parseFrontmatter(rawMarkdown);
+
+  const title = meta.title || extractTitle(markdown);
+  const description = meta.description || extractDescription(markdown);
+  const kick = meta.kick || doc.kick || 'Developers';
+  const dek = meta.dek || doc.dek || '';
+
+  // Drop the leading H1 — the template hero already shows the title.
+  let body = markdown.replace(/^# .+\n+/, '');
+  const html = marked(body);
+
+  const escapedTitle = title.replace(/"/g, '&quot;');
+  const escapedDesc = description.replace(/"/g, '&quot;');
+  const escapedKick = kick.replace(/"/g, '&quot;');
+  const escapedDek = dek.replace(/"/g, '&quot;');
+
+  const navAttrs = Object.fromEntries(
+    ['index', 'swarm', 'radicle', 'contributing'].map((slug) => [
+      'nav_' + slug,
+      slug === doc.slug ? ' aria-current="page"' : '',
+    ])
+  );
+
+  let output = template
+    .replace(/\{\{title\}\}/g, escapedTitle)
+    .replace(/\{\{description\}\}/g, escapedDesc)
+    .replace(/\{\{kick\}\}/g, escapedKick)
+    .replace(/\{\{dek\}\}/g, escapedDek)
+    .replace(/\{\{content\}\}/g, html)
+    .replace(/\{\{page\}\}/g, doc.output);
+
+  for (const [key, value] of Object.entries(navAttrs)) {
+    output = output.replaceAll('{{' + key + '}}', value);
+  }
+
+  const outPath = path.join(DIST, doc.output);
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.writeFileSync(outPath, fillSite(output));
+  console.log(`  rendered  src/developer/${doc.content} → dist/${doc.output}`);
+}
+
 function renderNews(posts) {
   const template = fs.readFileSync(path.join(TEMPLATES_DIR, 'news-template.html'), 'utf-8');
   const list = posts
@@ -158,7 +239,8 @@ function renderNews(posts) {
 
 /** robots.txt + sitemap.xml for the public pages (absolute URLs from site.json). */
 function writeSitemap() {
-  const pages = ['', 'news.html', ...POSTS.map((p) => p.output), 'developer/', 'logo.html', 'imprint.html', 'privacy.html'];
+  const docPaths = DOCS.map((d) => (d.output === 'developer/index.html' ? 'developer/' : d.output));
+  const pages = ['', 'news.html', ...POSTS.map((p) => p.output), ...docPaths, 'logo.html', 'imprint.html', 'privacy.html'];
   const urls = pages.map((p) => `  <url><loc>${SITE.url}${p}</loc></url>`).join('\n');
   fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
@@ -196,6 +278,7 @@ function main() {
   copyDirInto(ASSETS_DIR, path.join(DIST, 'assets'), 'src/assets');
   copyDirInto(IMAGES_DIR, path.join(DIST, 'images'), 'src/images');
   renderNews(POSTS.map(renderPost));
+  DOCS.forEach(renderDoc);
   writeSitemap();
   console.log('✓ Build complete');
 }
