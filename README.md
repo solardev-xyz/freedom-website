@@ -196,3 +196,19 @@ the post carries the story. Link the changelog pinned to the release branch
   buttons at the visitor's platform.
 - The output in `dist/` is a plain static site — serve it with any static
   file host.
+
+## Release digests
+
+The download section shows SHA-256 digests for the current Freedom Browser
+release. They come from the GitHub Releases API (`assets[].digest`), not from
+invented hashes. Refresh them when bumping `version` in `src/site.json`:
+
+```bash
+npm run digests   # writes src/data/release-digests.json
+npm run build     # injects the verify panel and writes dist/SHA256SUMS
+```
+
+If the upstream release later publishes `SHA256SUMS` or detached signatures,
+prefer linking those; until then the site surfaces GitHub's attested digests
+and says so in the UI.
+

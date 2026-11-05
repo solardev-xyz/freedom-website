@@ -1,0 +1,82 @@
+{
+  "version": "0.8.8",
+  "tag": "v0.8.8",
+  "release_url": "https://github.com/solardev-xyz/freedom-browser/releases/tag/v0.8.8",
+  "fetched_at": "2026-11-05T21:35:06Z",
+  "source": "GitHub Releases API assets[].digest (sha256)",
+  "signatures_published": false,
+  "sha256sums_published": false,
+  "note": "No SHA256SUMS, .sig, or .asc files are attached to this release. Digests below are GitHub-attested asset digests from the Releases API.",
+  "assets": [
+    {
+      "name": "Freedom-0.8.8-arm64-mac.zip",
+      "size": 231944072,
+      "digest": "sha256:06dd884af4bcc236dbe5fbd4396231136aabf147be287404c81f740cbb90ae61",
+      "sha256": "06dd884af4bcc236dbe5fbd4396231136aabf147be287404c81f740cbb90ae61",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/Freedom-0.8.8-arm64-mac.zip"
+    },
+    {
+      "name": "Freedom-0.8.8-arm64.AppImage",
+      "size": 234563009,
+      "digest": "sha256:6691816383409e49b7d3ec69a5ccae4fdaf25a83850fe9aca83c02d851966870",
+      "sha256": "6691816383409e49b7d3ec69a5ccae4fdaf25a83850fe9aca83c02d851966870",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/Freedom-0.8.8-arm64.AppImage"
+    },
+    {
+      "name": "Freedom-0.8.8-arm64.dmg",
+      "size": 240185803,
+      "digest": "sha256:c07d8003f6b85cab0b4348bb0016a193fd7c84bc7a8563448d917a11db6b54ab",
+      "sha256": "c07d8003f6b85cab0b4348bb0016a193fd7c84bc7a8563448d917a11db6b54ab",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/Freedom-0.8.8-arm64.dmg"
+    },
+    {
+      "name": "Freedom-0.8.8-win.zip",
+      "size": 280222033,
+      "digest": "sha256:c550a0dadf62ee7431a3220a41a923ca830b63bcdef7b10f2e961de129f8e02e",
+      "sha256": "c550a0dadf62ee7431a3220a41a923ca830b63bcdef7b10f2e961de129f8e02e",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/Freedom-0.8.8-win.zip"
+    },
+    {
+      "name": "Freedom-0.8.8.AppImage",
+      "size": 242591230,
+      "digest": "sha256:c94c45264ee0baa2f451a1525059e494a7720ce875ba48d84a121fb52852284f",
+      "sha256": "c94c45264ee0baa2f451a1525059e494a7720ce875ba48d84a121fb52852284f",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/Freedom-0.8.8.AppImage"
+    },
+    {
+      "name": "freedom-browser_0.8.8_amd64.deb",
+      "size": 198539528,
+      "digest": "sha256:d22ca015850202b2b15d79ca848ee5da2aa2d761e4470d5a8daf3d3706e2dd96",
+      "sha256": "d22ca015850202b2b15d79ca848ee5da2aa2d761e4470d5a8daf3d3706e2dd96",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/freedom-browser_0.8.8_amd64.deb"
+    },
+    {
+      "name": "freedom-browser_0.8.8_arm64.deb",
+      "size": 185495492,
+      "digest": "sha256:517ee7eb97eb99a066c195dbf6593319945aeb052a2e8fea0cbafc40e08eeb07",
+      "sha256": "517ee7eb97eb99a066c195dbf6593319945aeb052a2e8fea0cbafc40e08eeb07",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/freedom-browser_0.8.8_arm64.deb"
+    },
+    {
+      "name": "freedom-browser-0.8.8-aarch64.pacman",
+      "size": 165690760,
+      "digest": "sha256:01b77c0fcb88a9fdfeb6ab539bbc66885e437ccb25de4506b7cc65db24a65634",
+      "sha256": "01b77c0fcb88a9fdfeb6ab539bbc66885e437ccb25de4506b7cc65db24a65634",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/freedom-browser-0.8.8-aarch64.pacman"
+    },
+    {
+      "name": "freedom-browser-0.8.8.pacman",
+      "size": 176817028,
+      "digest": "sha256:74f72b4ba13fc268e867f10cbc4a87bf4240ea085f8ea66a4f1464f2344f59a3",
+      "sha256": "74f72b4ba13fc268e867f10cbc4a87bf4240ea085f8ea66a4f1464f2344f59a3",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/freedom-browser-0.8.8.pacman"
+    },
+    {
+      "name": "Freedom-Setup-0.8.8.exe",
+      "size": 214373709,
+      "digest": "sha256:5e8f6ffa602c283f30e4fa1137ab763b0310ea3acb20692595de0eb1ceb00371",
+      "sha256": "5e8f6ffa602c283f30e4fa1137ab763b0310ea3acb20692595de0eb1ceb00371",
+      "url": "https://github.com/solardev-xyz/freedom-browser/releases/download/v0.8.8/Freedom-Setup-0.8.8.exe"
+    }
+  ]
+}
