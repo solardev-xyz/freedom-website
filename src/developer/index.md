@@ -1,39 +1,90 @@
 ---
-title: Developers
-description: Freedom Browser developer documentation — window.swarm, window.radicle, and contributing to the open-source browser.
-kick: Developers
-dek: Build on Swarm and Radicle with Freedom's page providers, or contribute to the browser itself.
+title: Build dapps on your users' own nodes
+description: Freedom Browser developer docs: build serverless dapps with window.swarm, window.radicle and rad: URLs, which publish, read, sign and message through the user's own Swarm and Radicle nodes.
+kick: Build dapps
+dek: Freedom gives every web page a consented line to the user's own Swarm and Radicle nodes. Your app publishes, reads, signs and messages without servers, gateways or API keys.
 ---
 
-# Developers
+Freedom Browser runs a Swarm node and, if the user enables it, a Radicle
+node inside the browser. Two page providers, [`window.swarm`](swarm.html)
+and [`window.radicle`](radicle.html), plus the [`rad:` URL scheme](rad-urls.html)
+let an ordinary web page use those nodes with the user's consent.
 
-Freedom injects two page providers into ordinary web pages so decentralized apps can use the user's own nodes — with consent — instead of talking to a remote gateway.
+## Why build on Freedom
 
-| Provider | What it does | Docs |
-| --- | --- | --- |
-| [`window.swarm`](swarm.html) | Publish to Swarm, read and write chunks and feeds, sign, and send PSS/GSOC messages | [API reference](swarm.html) |
-| [`window.radicle`](radicle.html) | Seed and sync repositories, disclose Radicle identity, write issues and comments | [API reference](radicle.html) |
+<div class="card-grid">
+<div class="dcard">
+<h3>Your user's node is the backend</h3>
+<p>Pages publish, read and sign through the user's own Swarm and Radicle nodes. No servers, no gateways, no API keys, and no exposing the node's HTTP API to <code>localhost</code>.</p>
+</div>
+<div class="dcard">
+<h3>Wallet-grade consent for data</h3>
+<p>An EIP-1193-style API with origin-scoped grants and tiered prompts, from connecting to publishing, feeds, messaging and signing. Size limits and read budgets are enforced by the browser, not trusted to the page.</p>
+</div>
+<div class="dcard">
+<h3>Serverless end to end</h3>
+<p>Ship the app on <code>bzz://</code> or an ENS name, keep its state in Swarm feeds and single-owner chunks, and collaborate through Radicle issues and comments signed with the user's own identity.</p>
+</div>
+<div class="dcard">
+<h3>Real time without servers</h3>
+<p>PSS and GSOC messaging with <code>swarm_subscribe</code>, <code>swarm_sendPss</code> and <code>swarm_sendGsoc</code>, while durable Swarm structures stay the source of truth.</p>
+</div>
+<div class="dcard">
+<h3>An open standard</h3>
+<p><code>window.swarm</code> is proposed as <a href="https://github.com/ethersphere/SWIPs/pull/94">SWIP #94</a>, and swarm-kit's provider-compliance page checks an implementation against it.</p>
+</div>
+</div>
 
-Both providers:
+## Publish from a page in ten lines
 
-- are installed in the **top frame** of every ordinary web page before the page's own scripts run;
-- are **not** present in private windows, iframes, or Freedom's internal `freedom://` pages;
-- expose `request({ method, params })`, convenience wrappers, and EIP-1193-style events;
-- set `isFreedomBrowser: true` so a page can detect Freedom.
+```javascript
+if (!window.swarm?.isFreedomBrowser) throw new Error('Open this page in Freedom');
 
-Public Swarm and Radicle **reads** that need no consent stay outside the providers: open `bzz://…` / `ipfs://…` / `rad:…` URLs, or `fetch` them. The providers cover everything that changes node state, spends postage, signs, or discloses identity.
+await window.swarm.requestAccess();              // the user connects this site once
 
-Documented against **Freedom Browser v0.8.8** (the release matching this site's `version` in `src/site.json`).
+const { bzzUrl } = await window.swarm.publishData({
+  data: '<!doctype html><h1>Hello from my own node</h1>',
+  contentType: 'text/html',
+});                                              // the user approves the publish
 
-## Contribute to Freedom
+console.log(bzzUrl);                             // bzz://<reference>, open it in Freedom
+```
 
-Want to work on the browser itself? See [Contribute](contributing.html) for prerequisites, clone and install steps, how to run a development build and tests, the project layout, how to pick issues, PR conventions, and where to ask questions.
+The [Quickstart](quickstart.html) takes this further: feeds, reading, and
+deploying your app to Swarm and ENS.
 
-- Source: [solardev-xyz/freedom-browser](https://github.com/solardev-xyz/freedom-browser) (MPL-2.0)
-- Issues: [GitHub Issues](https://github.com/solardev-xyz/freedom-browser/issues)
-- Chat: [Telegram](https://t.me/freedom_browser)
-- Community: [freedom.davinci.space](https://freedom.davinci.space)
+## Built with Freedom
 
-## Related tooling
+<div class="card-grid">
+<div class="dcard">
+<h3>Canopy</h3>
+<p>A GitHub-style forge for the Radicle network, served from Swarm and powered by the user's own node.</p>
+<p><span class="badge community">rad: fetch</span> <span class="badge community">window.radicle</span></p>
+<p class="dcard-links"><a href="https://github.com/solardev-xyz/canopy">Source on GitHub</a></p>
+</div>
+<div class="dcard">
+<h3>Swarmit</h3>
+<p>Discussion boards on Swarm: posts are Swarm content, announced on Gnosis Chain and ranked by curator feeds.</p>
+<p><span class="badge community">window.swarm</span> <span class="badge community">window.ethereum</span></p>
+<p class="dcard-links"><a href="https://github.com/flotob/swarmit">Source on GitHub</a></p>
+<p class="dcard-links">In Freedom: <code>ens://app.swarmit.eth</code></p>
+</div>
+<div class="dcard">
+<h3>swarm-kit chat</h3>
+<p>A chat example built on swarm-kit's live messaging primitives over PSS and GSOC.</p>
+<p><span class="badge community">window.swarm</span> <span class="badge community">messaging</span></p>
+<p class="dcard-links"><a href="https://github.com/solardev-xyz/swarm-kit/tree/main/examples">Examples on GitHub</a></p>
+</div>
+</div>
 
-[`@freedom/swarm-kit`](https://github.com/solardev-xyz/swarm-kit) is an early TypeScript helper library built on `window.swarm` (chunk helpers and higher-level structures). It is public but still marked private on npm — treat it as experimental and always prefer the provider API docs here when the two differ.
+More in [Examples](examples.html).
+
+## Where to go next
+
+- [Quickstart](quickstart.html): detect Freedom, get access, publish, write a feed, deploy.
+- Guides: [permissions and identity](guide-permissions.html), [feeds](guide-feeds.html),
+  [live messaging](guide-messaging.html), [Radicle](guide-radicle.html),
+  [errors](guide-errors.html), [swarm-kit](guide-swarm-kit.html).
+- API reference: [`window.swarm`](swarm.html), [`window.radicle`](radicle.html), [`rad:` URLs](rad-urls.html).
+- Want to work on the browser itself? Start at [Contribute](contributing.html), or
+  pick something from [Open for contribution](open-issues.html).
