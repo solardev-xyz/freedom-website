@@ -1448,6 +1448,42 @@ function copyDirInto(srcDir, destDir, label) {
   }
 }
 
+/**
+ * Cache busting: append ?v=<content hash> to every link to a CSS or JS file
+ * under assets/ in the built HTML. nginx sends these files without
+ * Cache-Control, so browsers keep old copies for days on their own; a new
+ * hash per deploy makes them fetch the new file. Runs last, on dist/ itself.
+ */
+function fingerprintAssets() {
+  const hashes = new Map();
+  const hashOf = (rel) => {
+    if (!hashes.has(rel)) {
+      const file = path.join(DIST, rel);
+      hashes.set(rel, fs.existsSync(file)
+        ? require('crypto').createHash('sha256').update(fs.readFileSync(file)).digest('hex').slice(0, 8)
+        : null);
+    }
+    return hashes.get(rel);
+  };
+  let pages = 0;
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) { walk(full); continue; }
+      if (!entry.name.endsWith('.html')) continue;
+      const html = fs.readFileSync(full, 'utf-8');
+      const out = html.replace(/((?:href|src)=")([^"?#]*?assets\/[\w.-]+\.(?:css|js))(")/g, (m, pre, url, post) => {
+        const target = url.startsWith('/') ? url.slice(1) : path.relative(DIST, path.resolve(path.dirname(full), url));
+        const hash = hashOf(target.split(path.sep).join('/'));
+        return hash ? `${pre}${url}?v=${hash}${post}` : m;
+      });
+      if (out !== html) { fs.writeFileSync(full, out); pages += 1; }
+    }
+  };
+  walk(DIST);
+  console.log(`  versioned assets/*.css|js links in ${pages} pages`);
+}
+
 function main() {
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
@@ -1473,6 +1509,7 @@ function main() {
   writeSearchIndex();
   renderTalks();
   checkLlmsLinks();
+  fingerprintAssets();
   console.log('✓ Build complete');
 }
 
