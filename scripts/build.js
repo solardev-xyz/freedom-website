@@ -446,6 +446,10 @@ function pageVars(pagePath, meta) {
     root,
     homeHref: root || './',
     homeAnchor: pagePath === '' ? '' : root || './',
+    // Top-nav current-page cue; every developer/ page sits under "Developers".
+    navNewsCurrentHtml: pagePath === 'news.html' ? ' aria-current="page"' : '',
+    navTalksCurrentHtml: pagePath === 'talks.html' ? ' aria-current="page"' : '',
+    navDevelopersCurrentHtml: pagePath.startsWith('developer/') ? ' aria-current="page"' : '',
   };
 }
 
