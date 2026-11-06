@@ -790,7 +790,7 @@ function renderDoc(doc) {
   Object.assign(vars, {
     docTitle: title,
     kick,
-    dek,
+    dekHtml: dek ? `<p class="docs-dek">${escapeHtml(dek)}</p>` : '',
     tabsHtml: renderTabs(doc),
     sidenavHtml: renderSideNav(doc),
     tocHtml,
