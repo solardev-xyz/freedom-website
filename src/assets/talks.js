@@ -147,6 +147,9 @@
   rail.addEventListener('click', function (e) {
     const item = e.target.closest('[data-slug]');
     if (!item || !rail.contains(item)) return;
+    // Let modified / non-primary clicks through so Cmd/Ctrl/Shift-click still
+    // opens the YouTube link in a new tab or window as the browser intends.
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     selectTalk(item.getAttribute('data-slug'));
     revealPlayer();
