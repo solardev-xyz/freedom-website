@@ -249,6 +249,16 @@ const POSTS = [
   },
 ];
 
+// The homepage "What's new" link follows SITE.version: the release post when
+// one is tagged with that version, otherwise the changelog pinned to the
+// release branch. Derived here (not stored in site.json) so a version bump can
+// never leave the link pointing at the previous release.
+const releasePost = POSTS.find((p) => p.version === SITE.version);
+SITE.whats_new_href = releasePost
+  ? releasePost.output
+  : `https://github.com/solardev-xyz/freedom-browser/blob/release/${SITE.version}/CHANGELOG.md`;
+SITE.whats_new_label = `What's new in ${SITE.version}`;
+
 // --- small helpers -------------------------------------------------------------
 
 function escapeHtml(s) {
@@ -1327,6 +1337,11 @@ function loadReleaseDigests() {
   if (!Array.isArray(digests.assets) || !digests.assets.length) {
     throw new Error('release-digests.json has no assets');
   }
+  // Checksum lists and signatures are not installers; never list them as such
+  // (older or hand-edited data files may still carry them).
+  digests.assets = digests.assets.filter(
+    (a) => !/^sha256sums/i.test(a.name) && !/\.(sig|asc)$/i.test(a.name),
+  );
   for (const a of digests.assets) {
     if (!a.sha256 || !/^[a-f0-9]{64}$/i.test(a.sha256)) {
       throw new Error(`Invalid sha256 for ${a.name}`);
@@ -1369,13 +1384,21 @@ function renderVerifyBlock(digests) {
   const primaryRows = primary.map((n) => row(byName[n])).join('\n');
   const extraRows = extras.map(row).join('\n');
 
-  const sigNote = digests.signatures_published
-    ? ''
-    : '<p class="verify-note">This release does not publish detached signatures (<code>.sig</code> / <code>.asc</code>) or a <code>SHA256SUMS</code> file. The hashes below are the <strong>GitHub Releases API</strong> <code>assets[].digest</code> values for <a href="' +
+  // Only claim what is actually missing from the release.
+  const missing = [];
+  if (!digests.signatures_published) {
+    missing.push('detached signatures (<code>.sig</code> / <code>.asc</code>)');
+  }
+  if (!digests.sha256sums_published) missing.push('a <code>SHA256SUMS</code> file');
+  const sigNote = missing.length
+    ? '<p class="verify-note">This release does not publish ' +
+      missing.join(' or ') +
+      '. The hashes below are the <strong>GitHub Releases API</strong> <code>assets[].digest</code> values for <a href="' +
       escapeAttr(digests.release_url) +
       '" rel="noopener">tag ' +
       escapeHtml(digests.tag) +
-      '</a>.</p>';
+      '</a>.</p>'
+    : '';
 
   return `<details class="verify">
       <summary>Verify download · SHA-256</summary>
@@ -1383,7 +1406,8 @@ function renderVerifyBlock(digests) {
         ${sigNote}
         <p class="verify-how">After downloading, check the file hash matches:</p>
         <ul class="verify-cmds">
-          <li><span>macOS / Linux</span> <code>shasum -a 256 &lt;file&gt;</code></li>
+          <li><span>macOS</span> <code>shasum -a 256 &lt;file&gt;</code></li>
+          <li><span>Linux</span> <code>sha256sum &lt;file&gt;</code></li>
           <li><span>Windows PowerShell</span> <code>Get-FileHash -Algorithm SHA256 .\\&lt;file&gt;</code></li>
         </ul>
         <div class="verify-table-wrap">
