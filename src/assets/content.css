@@ -69,8 +69,6 @@ body { display: flex; flex-direction: column; min-height: 100vh; }
 
 /* Talks page: YouTube-style stage + rail, privacy-first facades */
 .prose-wrap.cd.talks-wrap { padding: 40px 0 96px; }
-/* Line the hero up with the talks grid below (same max-width and gutter) */
-.page-top .hero-in.talks-hero { max-width: 1180px; }
 .talks-page {
   max-width: 1180px;
   margin: 0 auto;
