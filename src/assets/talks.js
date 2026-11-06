@@ -54,6 +54,8 @@
     a.rel = 'noopener noreferrer';
     a.target = '_blank';
     a.setAttribute('aria-label', 'Play video: ' + t.title);
+    // The YouTube notice (#talk-consent) is static markup below the player.
+    a.setAttribute('aria-describedby', 'talk-consent');
 
     const img = document.createElement('img');
     img.src = t.thumbnail;
