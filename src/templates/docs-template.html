@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+{{> head}}  <link rel="stylesheet" href="{{root}}assets/content.css">
+  <link rel="stylesheet" href="{{root}}assets/docs.css">
+</head>
+<body>
+
+{{> nav}}
+
+<div class="top page-top docs-band">
+  <div class="docs-band-in">
+    <div class="docs-band-row">
+      <a class="docs-home" href="./">Developer docs</a>
+      <p class="docs-stamp">Documented against <a href="https://github.com/solardev-xyz/freedom-browser/tree/{{docs_commit_full}}">main @ {{docs_commit}}</a> ({{docs_dev_version}}, {{docs_checked}}) · latest release v{{version}}</p>
+    </div>
+    <nav class="docs-tabs" aria-label="Developer docs sections">
+        {{tabsHtml}}
+    </nav>
+  </div>
+</div>
+
+<main class="docs-shell{{toc_class}}">
+  <button class="docs-menu-btn" type="button" aria-expanded="false" aria-controls="docs-side"><span class="docs-menu-icon" aria-hidden="true"></span>Pages in this section</button>
+  <nav class="docs-side" id="docs-side" aria-label="Pages in this section">
+{{sidenavHtml}}
+  </nav>
+  <article class="docs-main">
+    <header class="docs-head">
+      <p class="docs-kick">{{kick}}</p>
+      <h1>{{docTitle}}</h1>
+      <p class="docs-dek">{{dek}}</p>
+      {{sourceHtml}}
+    </header>
+    <details class="toc-mobile">
+      <summary>On this page</summary>
+      <ul>
+{{tocHtml}}
+      </ul>
+    </details>
+    <div class="prose docs-prose">
+{{contentHtml}}
+    </div>
+  </article>
+  <aside class="docs-toc" aria-label="On this page">
+    <p class="docs-nav-label">On this page</p>
+    <ul>
+{{tocHtml}}
+    </ul>
+  </aside>
+</main>
+
+{{> footer}}
+
+{{> scripts}}<script>
+(function () {
+  // Left nav toggle under 1024px.
+  var shell = document.querySelector('.docs-shell'), btn = document.querySelector('.docs-menu-btn');
+  shell.classList.add('js');
+  btn.addEventListener('click', function () {
+    var open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', open);
+    shell.classList.toggle('nav-open', open);
+  });
+  // Copy buttons on code blocks.
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    var t = document.createElement('textarea');
+    t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); } finally { document.body.removeChild(t); }
+    return Promise.resolve();
+  }
+  document.querySelectorAll('.docs-prose pre').forEach(function (pre) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'copy-btn'; b.textContent = 'Copy';
+    b.addEventListener('click', function () {
+      var code = pre.querySelector('code');
+      copy((code || pre).innerText).then(function () {
+        b.textContent = 'Copied';
+        setTimeout(function () { b.textContent = 'Copy'; }, 1500);
+      });
+    });
+    var w = document.createElement('div');
+    w.className = 'code-wrap';
+    pre.parentNode.insertBefore(w, pre);
+    w.appendChild(pre);
+    w.appendChild(b);
+  });
+})();
+</script>
+</body>
+</html>
