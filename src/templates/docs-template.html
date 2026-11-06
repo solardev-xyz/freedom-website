@@ -162,7 +162,7 @@
     b.addEventListener('click', function () {
       copy((code || pre).innerText.replace(/\n$/, '')).then(
         function () { flash(b, 'Copy', 'Copied', 'ok'); },
-        function () { flash(b, 'Copy', 'Press Ctrl+C', 'err'); var r = document.createRange(); r.selectNodeContents(code || pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+        function () { flash(b, 'Copy', /Mac|iPhone|iPad/.test((navigator.platform || '') + ' ' + navigator.userAgent) ? 'Press ⌘C' : 'Press Ctrl+C', 'err'); var r = document.createRange(); r.selectNodeContents(code || pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
       );
     });
     var w = document.createElement('div');

@@ -5,25 +5,35 @@
   var form = document.querySelector('.docs-search');
   if (!form) return;
   var input = form.querySelector('input'), list = form.querySelector('.docs-search-results');
-  var index = null, loading = null, items = [], active = -1;
+  var index = null, loading = null, failed = false, items = [], active = -1;
 
   function load() {
     if (index || loading) return loading;
-    loading = fetch('search-index.json').then(function (r) { return r.json(); }).then(function (j) {
+    failed = false;
+    loading = fetch('search-index.json').then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (j) {
       index = j.map(function (e) {
         return { e: e, p: e.p.toLowerCase(), h: e.h.toLowerCase(), t: e.t.toLowerCase() };
       });
-    }).catch(function () { loading = null; });
+    }).catch(function () { loading = null; failed = true; }); // next keystroke/focus retries
     return loading;
   }
 
   function esc(s) { return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  // Highlight all terms in one pass over the raw text, escaping each piece
+  // afterwards, so a term can never match inside an earlier <mark> or entity.
   function mark(s, terms) {
-    var out = esc(s);
-    terms.forEach(function (t) {
-      out = out.replace(new RegExp('(' + esc(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>');
-    });
-    return out;
+    var alts = terms.slice().sort(function (a, b) { return b.length - a.length; })
+      .map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); });
+    if (!alts.length) return esc(s);
+    var re = new RegExp(alts.join('|'), 'gi'), out = '', last = 0, m;
+    while ((m = re.exec(s))) {
+      out += esc(s.slice(last, m.index)) + '<mark>' + esc(m[0]) + '</mark>';
+      last = re.lastIndex;
+    }
+    return out + esc(s.slice(last));
   }
   function snippet(text, terms) {
     var low = text.toLowerCase(), at = -1;
@@ -63,7 +73,7 @@
     active = -1;
     if (!q) { close(); return; }
     if (!items.length) {
-      list.innerHTML = '<li class="docs-search-empty">' + (index ? 'No matches for “' + esc(q) + '”' : 'Loading…') + '</li>';
+      list.innerHTML = '<li class="docs-search-empty">' + (index ? 'No matches for “' + esc(q) + '”' : failed ? 'Search is unavailable right now' : 'Loading…') + '</li>';
     } else {
       list.innerHTML = items.map(function (r, i) {
         var e = r.x;
@@ -102,7 +112,7 @@
   document.addEventListener('keydown', function (e) {
     var tag = (e.target.tagName || '').toLowerCase();
     var typing = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
-    if ((e.key === '/' && !typing) || (e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey))) {
+    if ((e.key === '/' && !typing) || (typeof e.key === 'string' && e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey))) {
       e.preventDefault(); input.focus(); input.select();
     }
   });
