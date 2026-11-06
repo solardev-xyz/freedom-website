@@ -7,7 +7,7 @@ description: Freedom 0.7.3 updates the bundled Bee node to 2.8.0, a breaking pee
 
 *26 May 2026*
 
-Freedom 0.7.3 is a small security release. The bundled Bee node moves from 2.7.1 to 2.8.0 — a breaking p2p upgrade, so older Bee nodes can no longer peer with the network.
+Freedom 0.7.3 is a small security release. The bundled Bee node moves from 2.7.1 to 2.8.0, a breaking p2p upgrade, so older Bee nodes can no longer peer with the network.
 
 ## Links
 
