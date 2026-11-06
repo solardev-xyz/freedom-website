@@ -43,6 +43,8 @@
  *
  * src/site.json holds the values that change between releases (version,
  * download stats, site url).
+ * src/data/release-digests.json holds GitHub asset SHA-256 digests for the
+ * current version (refresh with `npm run digests`).
  *
  * Run with `npm run build`. `dist/` is git-ignored and reproducible from src/
  * (dates come from the posts and from git, never from the clock).
@@ -1163,6 +1165,121 @@ function copyLlmsTxt() {
   console.log('  copied    developer/llms.txt → dist/developer/llms.txt');
 }
 
+
+// --- release digests (GitHub API assets[].digest, committed under src/data/) --
+
+const DIGESTS_PATH = path.join(SRC, 'data', 'release-digests.json');
+
+/** Primary installers shown on the homepage download cards, in display order. */
+const PRIMARY_ASSETS = [
+  `Freedom-${SITE.version}-arm64.dmg`,
+  `Freedom-Setup-${SITE.version}.exe`,
+  `freedom-browser_${SITE.version}_amd64.deb`,
+  `Freedom-${SITE.version}.AppImage`,
+  `freedom-browser-${SITE.version}.pacman`,
+  `freedom-browser_${SITE.version}_arm64.deb`,
+  `Freedom-${SITE.version}-arm64.AppImage`,
+  `freedom-browser-${SITE.version}-aarch64.pacman`,
+];
+
+function loadReleaseDigests() {
+  if (!fs.existsSync(DIGESTS_PATH)) {
+    throw new Error('Missing src/data/release-digests.json — run: node scripts/fetch-release-digests.js');
+  }
+  const digests = JSON.parse(fs.readFileSync(DIGESTS_PATH, 'utf-8'));
+  if (digests.version !== SITE.version) {
+    throw new Error(
+      `release-digests.json is for ${digests.version} but site.json is ${SITE.version}. ` +
+        'Run: node scripts/fetch-release-digests.js',
+    );
+  }
+  if (!Array.isArray(digests.assets) || !digests.assets.length) {
+    throw new Error('release-digests.json has no assets');
+  }
+  for (const a of digests.assets) {
+    if (!a.sha256 || !/^[a-f0-9]{64}$/i.test(a.sha256)) {
+      throw new Error(`Invalid sha256 for ${a.name}`);
+    }
+  }
+  return digests;
+}
+
+function writeChecksumArtifacts(digests) {
+  const lines = digests.assets.map((a) => `${a.sha256}  ${a.name}`);
+  const sums = [
+    `# SHA-256 digests for Freedom Browser ${digests.tag}`,
+    `# Source: ${digests.source}`,
+    `# Release: ${digests.release_url}`,
+    `# Fetched: ${digests.fetched_at}`,
+    `# ${digests.note}`,
+    ...lines,
+    '',
+  ].join('\n');
+  fs.writeFileSync(path.join(DIST, 'SHA256SUMS'), sums);
+  fs.writeFileSync(path.join(DIST, 'checksums.json'), `${JSON.stringify(digests, null, 2)}\n`);
+  console.log('  wrote     SHA256SUMS, checksums.json');
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function renderVerifyBlock(digests) {
+  const byName = Object.fromEntries(digests.assets.map((a) => [a.name, a]));
+  const primary = PRIMARY_ASSETS.filter((n) => byName[n]);
+  const extras = digests.assets.filter((a) => !PRIMARY_ASSETS.includes(a.name));
+
+  const row = (a) => `        <tr>
+          <td><code class="fname">${escapeHtml(a.name)}</code></td>
+          <td><code class="hash" data-hash="${escapeAttr(a.sha256)}">${escapeHtml(a.sha256)}</code>
+            <button type="button" class="copyhash" data-hash="${escapeAttr(a.sha256)}" aria-label="Copy SHA-256 for ${escapeAttr(a.name)}">Copy</button></td>
+        </tr>`;
+
+  const primaryRows = primary.map((n) => row(byName[n])).join('\n');
+  const extraRows = extras.map(row).join('\n');
+
+  const sigNote = digests.signatures_published
+    ? ''
+    : '<p class="verify-note">This release does not publish detached signatures (<code>.sig</code> / <code>.asc</code>) or a <code>SHA256SUMS</code> file. The hashes below are the <strong>GitHub Releases API</strong> <code>assets[].digest</code> values for <a href="' +
+      escapeAttr(digests.release_url) +
+      '" rel="noopener">tag ' +
+      escapeHtml(digests.tag) +
+      '</a>.</p>';
+
+  return `<details class="verify">
+      <summary>Verify download · SHA-256</summary>
+      <div class="verify-body">
+        ${sigNote}
+        <p class="verify-how">After downloading, check the file hash matches:</p>
+        <ul class="verify-cmds">
+          <li><span>macOS / Linux</span> <code>shasum -a 256 &lt;file&gt;</code></li>
+          <li><span>Windows PowerShell</span> <code>Get-FileHash -Algorithm SHA256 .\\&lt;file&gt;</code></li>
+        </ul>
+        <div class="verify-table-wrap">
+          <table class="verify-table">
+            <thead><tr><th>File</th><th>SHA-256</th></tr></thead>
+            <tbody>
+${primaryRows}
+${extraRows ? '              <!-- additional release assets -->\n' + extraRows : ''}
+            </tbody>
+          </table>
+        </div>
+        <p class="verify-files"><a href="SHA256SUMS">SHA256SUMS</a><a href="checksums.json">checksums.json</a><a href="${escapeAttr(digests.release_url)}" rel="noopener">GitHub release</a></p>
+      </div>
+    </details>`;
+}
+
+function injectVerifyBlock(digests) {
+  const indexPath = path.join(DIST, 'index.html');
+  let html = fs.readFileSync(indexPath, 'utf-8');
+  if (!html.includes('<!--VERIFY_BLOCK-->')) {
+    throw new Error('dist/index.html missing <!--VERIFY_BLOCK--> marker');
+  }
+  html = html.replace('<!--VERIFY_BLOCK-->', renderVerifyBlock(digests));
+  fs.writeFileSync(indexPath, html);
+  console.log('  injected  download verify block');
+}
+
 // --- build --------------------------------------------------------------------
 
 function copyDirInto(srcDir, destDir, label) {
@@ -1180,11 +1297,14 @@ function main() {
 
   console.log('Building site → dist/');
   copyDirInto(STATIC_DIR, DIST, 'src/static');
+  const digests = loadReleaseDigests();
   copyDirInto(ASSETS_DIR, path.join(DIST, 'assets'), 'src/assets');
   copyDirInto(IMAGES_DIR, path.join(DIST, 'images'), 'src/images');
   const posts = POSTS.map(loadPost);
   const faq = loadFaq();
   const pageEntries = renderPages({ posts, faq });
+  injectVerifyBlock(digests);
+  writeChecksumArtifacts(digests);
   posts.forEach(renderPost);
   renderNews(posts);
   const releases = renderReleases(posts);
