@@ -943,10 +943,16 @@ function renderNews(posts) {
   console.log('  rendered  news list → dist/news.html');
 }
 
-function releaseListHtml(posts) {
-  return posts
-    .map((p) => '  <a class="post" href="' + p.output + '"><time datetime="' + p.iso + '">' + escapeHtml(p.date) + '</time><div><span class="post-ver">' + escapeHtml(p.version) + '</span><h2 class="post-title">' + escapeHtml(p.title) + '</h2><span>' + escapeHtml(p.summary) + '</span></div></a>')
-    .join('\n');
+/**
+ * Title for release listings (releases.html, releases.xml). Most release titles
+ * start with "Freedom X.Y.Z"; prefix the version on any that do not (e.g.
+ * "Introducing Freedom" for 0.6.0) so every entry shows it. The version must
+ * appear as a whole token: "0.8.10" in a title does not count for 0.8.1.
+ */
+function releaseTitle(p) {
+  const v = p.version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const hasVersion = new RegExp(`(?<![\\d.])${v}(?!\\.?\\d)`).test(p.title);
+  return hasVersion ? p.title : `Freedom ${p.version}: ${p.title}`;
 }
 
 function renderReleases(posts) {
@@ -980,7 +986,7 @@ function renderReleases(posts) {
     organization(),
     breadcrumbs([['Home', SITE.url], ['Releases', vars.canonical]]),
   ));
-  vars.postsHtml = releaseListHtml(releases);
+  vars.postsHtml = postListHtml(releases.map((p) => ({ ...p, title: releaseTitle(p) })), 'h2');
   fs.writeFileSync(path.join(DIST, 'releases.html'), render(template, vars, 'releases-template.html'));
   console.log('  rendered  releases list → dist/releases.html');
   return releases;
@@ -1020,7 +1026,7 @@ function writeReleasesFeed(releases) {
   if (!releases.length) return;
   const absolutize = (html) => html.replace(/\s(src|href)="(?![a-z][a-z0-9+.-]*:|#|\/\/)([^"]+)"/gi, (m, attr, url) => ` ${attr}="${abs(url)}"`);
   const items = releases.map((p) => `    <item>
-      <title>${escapeXml(p.title)}</title>
+      <title>${escapeXml(releaseTitle(p))}</title>
       <link>${abs(p.output)}</link>
       <guid isPermaLink="true">${abs(p.output)}</guid>
       <pubDate>${rfc822(p.iso)}</pubDate>
