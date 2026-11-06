@@ -260,6 +260,25 @@ the post carries the story. Link the changelog pinned to the release branch
   page). It is a reference and is not applied by anything in this repo.
 - The output in `dist/` is a plain static site — serve it with any static
   file host.
+- Agent-readable files: `llms.txt`, `developer/llms.txt` and a Markdown twin
+  of every docs page (`developer/<page>.html.md`, placeholders filled and
+  doc links pointing at other twins). The host must serve `.md` as
+  `text/markdown; charset=utf-8` and `.txt` as `text/plain; charset=utf-8`,
+  not `application/octet-stream`. Bee takes the type from the extension (Go's
+  `mime` table plus `/etc/mime.types`, which lists `md`); `deploy:swarm`
+  prints the type it reads back for both and flags anything that is not
+  `text/*`. freedom.baby runs nginx, whose stock `mime.types` has no `md`
+  entry: include `deploy/nginx-markdown.conf` inside the server's
+  `location / { }` block (a nested regex location, so it keeps that block's
+  root and headers; a scoped `types` so the other extensions keep their
+  types), then check with
+  `curl -sI https://freedom.baby/developer/index.html.md`.
+- Links in both `llms.txt` files are relative, like the pages, so an agent
+  that reads the map from a Swarm gateway stays on Swarm. The build fails if
+  one points at freedom.baby or at a file missing from `dist/`. Each file
+  still names its canonical URL (`https://freedom.baby/llms.txt`,
+  `https://freedom.baby/developer/llms.txt`) in prose as the base for an
+  agent that has the text without its source URL; the build checks that too.
 
 ## Release digests
 
