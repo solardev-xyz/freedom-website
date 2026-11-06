@@ -14,9 +14,11 @@
  *     + src/templates/docs-template.html
  *     (tabs, left nav and "On this page" are generated; see DOCS below;
  *     open-issues.md pulls in src/developer/open-issues.json)
- *                         → copied (YAML kept) → dist/developer/*.html.md
+ *                         → twin (YAML kept,   → dist/developer/*.html.md
+ *                           placeholders filled, doc links → twins)
  *   src/llms.txt          → copied             → dist/llms.txt
  *   src/developer/llms.txt→ copied             → dist/developer/llms.txt
+ *   src/developer/open-issues.json → copied    → dist/developer/open-issues.json
  *
  * src/site.json holds the values that change between releases (version,
  * download stats); any {{key}} in a page or template is replaced with it.
@@ -309,8 +311,8 @@ function renderIssueCard(i) {
 </li>`;
 }
 
-/** Render src/developer/open-issues.json (authored by hand; no API calls at build time). */
-function renderOpenIssues() {
+/** Load and validate src/developer/open-issues.json (authored by hand; no API calls at build time). */
+function loadOpenIssues() {
   const data = JSON.parse(fs.readFileSync(OPEN_ISSUES_PATH, 'utf-8'));
   const kinds = new Set(Object.keys(KIND_LABEL));
   for (const i of data.issues) {
@@ -323,24 +325,80 @@ function renderOpenIssues() {
   const isProposal = (i) => i.source === 'community' && i.kind === 'feature-request';
   const order = { bug: 0, dx: 1, 'feature-request': 2 };
   const sort = (a, b) => (order[a.kind] - order[b.kind]) || (b.number - a.number);
-
-  let html = '';
-  for (const area of data.areas) {
-    const list = data.issues.filter((i) => i.area === area.id && !isProposal(i)).sort(sort);
-    if (!list.length) continue;
-    html += `<h2 id="${area.id}">${escapeHtml(area.label)}<a class="h-anchor" href="#${area.id}" aria-label="Link to this section">#</a></h2>\n<ul class="issue-list">\n${list.map(renderIssueCard).join('\n')}\n</ul>\n`;
-  }
+  const areas = data.areas
+    .map((area) => ({ ...area, issues: data.issues.filter((i) => i.area === area.id && !isProposal(i)).sort(sort) }))
+    .filter((a) => a.issues.length);
   const proposals = data.issues.filter(isProposal).sort((a, b) => b.number - a.number);
+  return { areas, proposals, updated: formatDate(data.last_updated), count: data.issues.length };
+}
+
+const PROPOSALS_INTRO = 'Feature ideas from developers outside the core team. They are open for discussion, design and prototypes, but a proposal is not a commitment: items marked %BADGE% are not on the roadmap. Comment on the issue before you start building.';
+
+/** Open issues as HTML cards for the docs page. */
+function renderOpenIssues() {
+  const { areas, proposals, updated, count } = loadOpenIssues();
+  let html = '';
+  for (const area of areas) {
+    html += `<h2 id="${area.id}">${escapeHtml(area.label)}<a class="h-anchor" href="#${area.id}" aria-label="Link to this section">#</a></h2>\n<ul class="issue-list">\n${area.issues.map(renderIssueCard).join('\n')}\n</ul>\n`;
+  }
   if (proposals.length) {
     html += `<h2 id="community-proposals">Community proposals<a class="h-anchor" href="#community-proposals" aria-label="Link to this section">#</a></h2>
-<p>Feature ideas from developers outside the core team. They are open for discussion, design and prototypes, but a proposal is not a commitment: items marked <span class="badge proposal">Proposal · not on the roadmap</span> are not on the roadmap. Comment on the issue before you start building.</p>
+<p>${PROPOSALS_INTRO.replace('%BADGE%', '<span class="badge proposal">Proposal · not on the roadmap</span>')}</p>
 <ul class="issue-list">\n${proposals.map(renderIssueCard).join('\n')}\n</ul>\n`;
   }
-  const toc = data.areas
-    .filter((a) => data.issues.some((i) => i.area === a.id && !isProposal(i)))
-    .map((a) => ({ depth: 2, id: a.id, label: escapeHtml(a.label) }));
+  const toc = areas.map((a) => ({ depth: 2, id: a.id, label: escapeHtml(a.label) }));
   if (proposals.length) toc.push({ depth: 2, id: 'community-proposals', label: 'Community proposals' });
-  return { html, toc, updated: formatDate(data.last_updated), count: data.issues.length };
+  return { html, toc, updated, count };
+}
+
+/** Open issues as a Markdown list for the page's .html.md twin. */
+function renderOpenIssuesMarkdown() {
+  const { areas, proposals, updated, count } = loadOpenIssues();
+  const item = (i) => {
+    const tags = [KIND_LABEL[i.kind] || i.kind];
+    if (i.source === 'community') tags.push('Community');
+    if (i.committed === false) tags.push('Proposal, not on the roadmap');
+    if (i.difficulty) tags.push(i.difficulty === 'starter' ? 'Good first issue' : i.difficulty);
+    return `- [#${i.number} ${i.title}](${i.url}) (${tags.join(', ')})\n  ${i.summary}\n  Opened by ${i.author} · checked ${formatDate(i.last_checked)}`;
+  };
+  let md = areas.map((a) => `## ${a.label}\n\n${a.issues.map(item).join('\n')}`).join('\n\n');
+  if (proposals.length) {
+    md += `\n\n## Community proposals\n\n${PROPOSALS_INTRO.replace('%BADGE%', '**Proposal · not on the roadmap**')}\n\n${proposals.map(item).join('\n')}`;
+  }
+  return { md, updated, count };
+}
+
+// Doc pages by HTML file name, for pointing twin links at other twins.
+const DOC_BASENAMES = new Set(DOC_PAGES.map((d) => path.basename(d.output)));
+
+/**
+ * Build the .html.md twin: the source markdown (YAML front matter kept) with
+ * build-time placeholders filled, and relative links to other doc pages
+ * pointed at their twins (`swarm.html#x` → `swarm.html.md#x`, `./` →
+ * `index.html.md`). Fenced code is left alone.
+ */
+function renderDocTwin(rawMarkdown) {
+  let md = rawMarkdown;
+  if (md.includes('{{open_issues}}')) {
+    const issues = renderOpenIssuesMarkdown();
+    md = md
+      .replace(/^\{\{open_issues\}\}$/m, () => issues.md)
+      .replace(/\{\{open_issues_updated\}\}/g, issues.updated)
+      .replace(/\{\{open_issues_count\}\}/g, String(issues.count));
+  }
+  const twin = (target) => {
+    const m = target.match(/^(\.\/|[\w.-]+\.html)(#[\w-]*)?$/);
+    if (!m) return null;
+    const file = m[1] === './' ? 'index.html' : m[1];
+    return DOC_BASENAMES.has(file) ? `${file}.md${m[2] || ''}` : null;
+  };
+  md = md
+    .split(/(^```[\s\S]*?^```)/m)
+    .map((part, n) => (n % 2 ? part : part
+      .replace(/\]\(([^)\s]+)\)/g, (all, t) => (twin(t) ? `](${twin(t)})` : all))
+      .replace(/href="([^"]+)"/g, (all, t) => (twin(t) ? `href="${twin(t)}"` : all))))
+    .join('');
+  return fillSite(md);
 }
 
 function renderDoc(doc) {
@@ -397,7 +455,7 @@ function renderDoc(doc) {
   const outPath = path.join(DIST, doc.output);
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, fillSite(output));
-  fs.writeFileSync(mdOut, rawMarkdown);
+  fs.writeFileSync(mdOut, renderDocTwin(rawMarkdown));
   console.log(`  rendered  src/developer/${doc.content} → dist/${doc.output}`);
   console.log(`  twin      src/developer/${doc.content} → dist/${doc.output}.md`);
 }
@@ -421,7 +479,7 @@ function writeSitemap() {
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`);
   fs.writeFileSync(
     path.join(DIST, 'robots.txt'),
-    `User-agent: *\nAllow: /\nAllow: /llms.txt\nAllow: /developer/llms.txt\n\nSitemap: ${SITE.url}sitemap.xml\n`
+    `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}sitemap.xml\n`
   );
   console.log('  wrote     robots.txt, sitemap.xml');
 }
@@ -438,6 +496,9 @@ function copyLlmsTxt() {
   fs.copyFileSync(devSrc, path.join(DIST, 'developer', 'llms.txt'));
   console.log('  copied    llms.txt → dist/llms.txt');
   console.log('  copied    developer/llms.txt → dist/developer/llms.txt');
+  // llms.txt points agents at the raw issue data beside the page.
+  fs.copyFileSync(OPEN_ISSUES_PATH, path.join(DIST, 'developer', 'open-issues.json'));
+  console.log('  copied    developer/open-issues.json → dist/developer/open-issues.json');
 }
 
 /** Fill {{…}} site values in every copied HTML page. */

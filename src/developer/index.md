@@ -10,7 +10,7 @@ node inside the browser. Two page providers, [`window.swarm`](swarm.html)
 and [`window.radicle`](radicle.html), plus the [`rad:` URL scheme](rad-urls.html)
 let an ordinary web page use those nodes with the user's consent.
 
-Building with an agent? Start at [`/llms.txt`](https://freedom.baby/llms.txt).
+Building with an agent? Start at [`/llms.txt`](../llms.txt).
 
 ## Why build on Freedom
 

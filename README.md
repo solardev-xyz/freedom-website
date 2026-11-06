@@ -196,3 +196,14 @@ the post carries the story. Link the changelog pinned to the release branch
   buttons at the visitor's platform.
 - The output in `dist/` is a plain static site — serve it with any static
   file host.
+- Agent-readable files: `llms.txt`, `developer/llms.txt` and a Markdown twin
+  of every docs page (`developer/<page>.html.md`, placeholders filled and
+  doc links pointing at other twins). The host must serve `.md` as
+  `text/markdown; charset=utf-8` and `.txt` as `text/plain; charset=utf-8`,
+  not `application/octet-stream`. Bee takes the type from the extension (Go's
+  `mime` table plus `/etc/mime.types`, which lists `md`); `deploy:swarm`
+  prints the type it reads back for both and flags anything that is not
+  `text/*`. freedom.baby runs nginx, whose stock `mime.types` has no `md`
+  entry: add `location ~ \.md$ { types { } default_type "text/markdown; charset=utf-8"; }`
+  to its server block (a scoped `types` so the other extensions keep their
+  types), then check with `curl -sI https://freedom.baby/developer/index.html.md`.

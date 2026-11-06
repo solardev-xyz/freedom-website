@@ -62,7 +62,7 @@ const die = (msg) => {
 async function api(path, init) {
   const res = await fetch(`${API}${path}`, { signal: AbortSignal.timeout(300000), ...init });
   const text = await res.text();
-  return { ok: res.ok, status: res.status, text };
+  return { ok: res.ok, status: res.status, text, type: res.headers.get('content-type') || '' };
 }
 
 /** Point the site feed at `ref`; returns the feed manifest and update index. */
@@ -162,6 +162,14 @@ async function main() {
   console.log(`readback   ${check.status}${served ? ' — serves the built index' : ' — could not confirm the index'}`);
   // Never point the feed at a manifest that does not serve its own index.
   if (!served) die('not updating the feed.');
+
+  // Agents read llms.txt and the .html.md twins; Bee picks each file's
+  // content type from its extension, so check they come back as text.
+  for (const f of ['llms.txt', 'developer/index.html.md']) {
+    const r = await api(`/bzz/${ref}/${f}`);
+    const ok = r.ok && /^text\//.test(r.type);
+    console.log(`${ok ? 'text' : '⚠ type'}     ${f} → ${r.status} ${r.type || '(no content-type)'}`);
+  }
 
   if (EXPECT && ref !== EXPECT) {
     die(`reference changed: expected ${EXPECT}, got ${ref}.
