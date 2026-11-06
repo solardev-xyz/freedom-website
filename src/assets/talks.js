@@ -32,30 +32,6 @@
       '?autoplay=1&rel=0';
   }
 
-  function formatDate(iso) {
-    const [y, m, d] = iso.split('-').map(Number);
-    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    return d + ' ' + months[m - 1] + ' ' + y;
-  }
-
-  function formatDuration(seconds) {
-    const s = Math.max(0, Math.floor(Number(seconds) || 0));
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const r = s % 60;
-    if (h > 0) return h + ':' + String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
-    return m + ':' + String(r).padStart(2, '0');
-  }
-
-  function metaLine(t) {
-    const parts = [];
-    if (t.event) parts.push(t.event);
-    if (t.speaker) parts.push(t.speaker);
-    if (t.date) parts.push(formatDate(t.date));
-    if (t.duration) parts.push(formatDuration(t.duration));
-    return parts.join(' · ');
-  }
-
   function setRailCurrent(slug) {
     rail.querySelectorAll('[data-slug]').forEach((el) => {
       const on = el.getAttribute('data-slug') === slug;
@@ -125,7 +101,7 @@
 
     const meta = document.createElement('p');
     meta.className = 'talk-meta';
-    meta.textContent = metaLine(t);
+    meta.textContent = t.meta || '';  // pre-formatted by scripts/build.js
     details.appendChild(meta);
 
     if (t.description) {
@@ -158,16 +134,28 @@
     return h && bySlug[h] ? h : talks[0].slug;
   }
 
+  // On narrow screens the rail sits below the player, so the swapped-in talk
+  // would be off-screen; bring the stage back into view.
+  function revealPlayer() {
+    const stage = player.parentElement || player;
+    const r = stage.getBoundingClientRect();
+    if (r.top >= 0 && r.top < window.innerHeight / 2) return;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    stage.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+  }
+
   rail.addEventListener('click', function (e) {
     const item = e.target.closest('[data-slug]');
     if (!item || !rail.contains(item)) return;
     e.preventDefault();
     selectTalk(item.getAttribute('data-slug'));
+    revealPlayer();
   });
 
   window.addEventListener('hashchange', function () {
     selectTalk(slugFromHash(), { updateHash: false });
   });
 
-  selectTalk(slugFromHash(), { replace: true });
+  // Leave a bare talks.html URL alone so shared links keep showing the newest talk.
+  selectTalk(slugFromHash(), { updateHash: false });
 })();
