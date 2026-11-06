@@ -392,19 +392,16 @@ section.block .plat.rec { box-shadow: inset 0 0 0 2px #fff !important; }
 .powered a img[src*="myotis"] { width: 30px; height: 30px; }
 
 /* Download trust / verify panel */
+/* The bottom row of the download box, across all columns */
 #download .verify {
-  margin: 28px auto 0;
-  max-width: 1120px;
+  grid-column: 1 / -1;
   text-align: left;
-  background: #1b1b1b;
-  border-radius: 12px;
-  box-shadow: 0 0 0 1px #3a3a3a;
-  overflow: hidden;
+  border-top: 1px solid #3a3a3a;
 }
 #download .verify > summary {
   list-style: none;
   cursor: pointer;
-  padding: 14px 18px;
+  padding: 16px 24px;
   font-weight: 650;
   font-size: .92rem;
   color: #fff;
@@ -425,8 +422,7 @@ section.block .plat.rec { box-shadow: inset 0 0 0 2px #fff !important; }
 }
 #download .verify[open] > summary::before { transform: rotate(45deg); vertical-align: .05em; }
 #download .verify-body {
-  padding: 0 18px 18px;
-  border-top: 1px solid #3a3a3a;
+  padding: 0 24px 22px;
 }
 #download .verify-note,
 #download .verify-how {
