@@ -38,6 +38,8 @@
  *                         → copied (YAML kept) → dist/developer/*.html.md
  *   src/llms.txt          → copied             → dist/llms.txt
  *   src/developer/llms.txt→ copied             → dist/developer/llms.txt
+ *   src/talks.json        → talks list with    → dist/talks.html
+ *     + src/templates/talks-template.html
  *
  * src/site.json holds the values that change between releases (version,
  * download stats, site url).
@@ -983,12 +985,154 @@ function renderPages(ctx) {
   return entries;
 }
 
+function formatTalkDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${d} ${months[m - 1]} ${y}`;
+}
+
+function formatDuration(seconds) {
+  const s = Math.max(0, Math.floor(Number(seconds) || 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
+  return `${m}:${String(r).padStart(2, '0')}`;
+}
+
+function durationIso8601(seconds) {
+  const s = Math.max(0, Math.floor(Number(seconds) || 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = s % 60;
+  let out = 'PT';
+  if (h) out += `${h}H`;
+  if (m || h) out += `${m}M`;
+  out += `${r}S`;
+  return out;
+}
+
+function talkMetaLine(t) {
+  const parts = [];
+  if (t.event) parts.push(t.event);
+  if (t.speaker) parts.push(t.speaker);
+  if (t.date) parts.push(formatTalkDate(t.date));
+  if (t.duration) parts.push(formatDuration(t.duration));
+  return parts.join(' · ');
+}
+
+function talkThumb(t) {
+  return t.thumbnail || `images/talks/${t.id}.webp`;
+}
+
+function renderTalks() {
+  const talksPath = path.join(SRC, 'talks.json');
+  const talks = JSON.parse(fs.readFileSync(talksPath, 'utf-8'))
+    .slice()
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  const template = fs.readFileSync(path.join(TEMPLATES_DIR, 'talks-template.html'), 'utf-8');
+
+  const featured = talks[0];
+  const watch = (t) => `https://www.youtube.com/watch?v=${t.id}`;
+
+  const featuredPlayer = [
+    `      <a class="talk-facade" href="${watch(featured)}" rel="noopener noreferrer" target="_blank" aria-label="Play video: ${escapeHtml(featured.title)}">`,
+    `        <img src="${escapeHtml(talkThumb(featured))}" alt="" width="1280" height="720" decoding="async">`,
+    `        <span class="talk-play" aria-hidden="true"></span>`,
+    `      </a>`,
+  ].join('\n');
+
+  const featuredDetails = [
+    `      <h2 class="talk-title" id="talk-heading">${escapeHtml(featured.title)}</h2>`,
+    `      <p class="talk-meta">${escapeHtml(talkMetaLine(featured))}</p>`,
+    featured.description ? `      <p class="talk-desc">${escapeHtml(featured.description)}</p>` : '',
+  ].filter(Boolean).join('\n');
+
+  const railItems = talks.map((t, i) => {
+    const curClass = i === 0 ? ' is-current' : '';
+    const curAria = i === 0 ? ' aria-current="true"' : '';
+    const curHidden = i === 0 ? ' hidden' : '';
+    return [
+      `      <a class="talk-rail-item${curClass}" href="${watch(t)}" data-slug="${escapeHtml(t.slug)}"${curAria}${curHidden} rel="noopener noreferrer" target="_blank">`,
+      `        <span class="talk-rail-thumb"><img src="${escapeHtml(talkThumb(t))}" alt="" width="320" height="180" loading="eager" decoding="async"><span class="talk-play" aria-hidden="true"></span></span>`,
+      `        <span class="talk-rail-body">`,
+      `          <b>${escapeHtml(t.title)}</b>`,
+      `          <span>${escapeHtml(t.event || t.channel || '')}</span>`,
+      `        </span>`,
+      `      </a>`,
+    ].join('\n');
+  }).join('\n');
+
+  const clientData = talks.map((t) => ({
+    id: t.id,
+    slug: t.slug,
+    title: t.title,
+    event: t.event || t.channel || '',
+    speaker: t.speaker || '',
+    date: t.date,
+    duration: t.duration,
+    thumbnail: talkThumb(t),
+    description: t.description || '',
+  }));
+  const dataHtml = `<script type="application/json" id="talks-data">\n${JSON.stringify(clientData).replace(/</g, '\\u003c')}\n</script>`;
+
+  const talksHtml = [
+    `<div class="talks-page" id="talks-app" data-active-slug="${escapeHtml(featured.slug)}">`,
+    `  <div class="talks-stage">`,
+    `    <div class="talk-player" id="talk-player" data-video-id="${escapeHtml(featured.id)}" data-slug="${escapeHtml(featured.slug)}">`,
+    featuredPlayer,
+    `    </div>`,
+    `    <div class="talk-details" id="talk-details">`,
+    featuredDetails,
+    `    </div>`,
+    `  </div>`,
+    `  <aside class="talks-rail-wrap">`,
+    `    <h2 class="talks-rail-heading">More talks</h2>`,
+    `    <div class="talks-rail" id="talks-rail" role="list">`,
+    railItems,
+    `    </div>`,
+    `  </aside>`,
+    `</div>`,
+    dataHtml,
+  ].join('\n');
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': talks.map((t) => {
+      const obj = {
+        '@type': 'VideoObject',
+        name: t.title,
+        description: t.description,
+        thumbnailUrl: new URL(talkThumb(t), SITE.url).href,
+        uploadDate: t.date,
+        duration: durationIso8601(t.duration),
+        embedUrl: `https://www.youtube-nocookie.com/embed/${t.id}`,
+        contentUrl: watch(t),
+      };
+      if (t.speaker) obj.author = { '@type': 'Person', name: t.speaker };
+      return obj;
+    }),
+  };
+  const jsonLdHtml = `<script type="application/ld+json">\n${JSON.stringify(jsonLd, null, 2).replace(/</g, '\\u003c')}\n</script>`;
+
+  const vars = pageVars('talks.html', {
+    title: 'Talks — Freedom Browser',
+    ogTitle: 'Freedom Browser talks',
+    description: 'Talks and interviews about Freedom Browser.',
+  });
+  vars.jsonLdHtml = `  ${jsonLdHtml}\n`;
+  vars.talksHtml = talksHtml;
+  fs.writeFileSync(path.join(DIST, 'talks.html'), render(template, vars, 'talks-template.html'));
+  console.log(`  rendered  talks page (${talks.length}) → dist/talks.html`);
+}
+
 /** robots.txt + sitemap.xml for the public pages (absolute URLs from site.json). */
 function writeSitemap(pageEntries, posts) {
   const order = (loc) => (loc === '' ? 0 : loc === 'news.html' ? 1 : loc === 'releases.html' ? 2 : 3);
   const entries = [
     ...pageEntries,
     { loc: 'news.html', lastmod: maxDate(posts[0].modified, gitDate('src/templates/news-template.html')) },
+    { loc: 'talks.html', lastmod: gitDate('src/talks.json', 'src/templates/talks-template.html') },
     { loc: 'releases.html', lastmod: maxDate(...posts.filter((p) => p.kind === 'release').map((p) => p.modified), gitDate('src/templates/releases-template.html')) },
     ...posts.map((p) => ({ loc: p.output, lastmod: p.modified })),
     ...DOC_PAGES.map((d) => ({ loc: d.output === 'developer/index.html' ? 'developer/' : d.output, lastmod: gitDate(`src/developer/${d.content}`) })),
@@ -1050,6 +1194,7 @@ function main() {
   DOC_PAGES.forEach(renderDoc);
   copyLlmsTxt();
   writeSearchIndex();
+  renderTalks();
   console.log('✓ Build complete');
 }
 
