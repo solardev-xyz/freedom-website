@@ -557,12 +557,6 @@ function renderNews(posts) {
   console.log('  rendered  news list → dist/news.html');
 }
 
-function releaseListHtml(posts) {
-  return posts
-    .map((p) => '  <a class="post" href="' + p.output + '"><time datetime="' + p.iso + '">' + escapeHtml(p.date) + '</time><div><span class="post-ver">' + escapeHtml(p.version) + '</span><h2 class="post-title">' + escapeHtml(p.title) + '</h2><span>' + escapeHtml(p.summary) + '</span></div></a>')
-    .join('\n');
-}
-
 function renderReleases(posts) {
   const releases = posts.filter((p) => p.kind === 'release' && p.version);
   const template = fs.readFileSync(path.join(TEMPLATES_DIR, 'releases-template.html'), 'utf-8');
@@ -594,7 +588,7 @@ function renderReleases(posts) {
     organization(),
     breadcrumbs([['Home', SITE.url], ['Releases', vars.canonical]]),
   ));
-  vars.postsHtml = releaseListHtml(releases);
+  vars.postsHtml = postListHtml(releases, 'h2');
   fs.writeFileSync(path.join(DIST, 'releases.html'), render(template, vars, 'releases-template.html'));
   console.log('  rendered  releases list → dist/releases.html');
   return releases;
