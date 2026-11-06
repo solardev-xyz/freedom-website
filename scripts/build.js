@@ -588,7 +588,10 @@ function renderReleases(posts) {
     organization(),
     breadcrumbs([['Home', SITE.url], ['Releases', vars.canonical]]),
   ));
-  vars.postsHtml = postListHtml(releases, 'h2');
+  // Most release titles start with "Freedom X.Y.Z"; prefix the version on any
+  // that do not (e.g. "Introducing Freedom" for 0.6.0) so every entry shows it.
+  const listed = releases.map((p) => (p.title.includes(p.version) ? p : { ...p, title: `Freedom ${p.version}: ${p.title}` }));
+  vars.postsHtml = postListHtml(listed, 'h2');
   fs.writeFileSync(path.join(DIST, 'releases.html'), render(template, vars, 'releases-template.html'));
   console.log('  rendered  releases list → dist/releases.html');
   return releases;
