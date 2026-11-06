@@ -40,11 +40,15 @@ async function main() {
   const release = await res.json();
 
   const assetNames = (release.assets || []).map((a) => a.name);
-  const sha256sums_published = assetNames.some((n) => /^sha256sums/i.test(n) || n === 'SHA256SUMS');
-  const signatures_published = assetNames.some((n) => /\.(sig|asc)$/i.test(n));
+  const isSums = (n) => /^sha256sums/i.test(n);
+  const isSig = (n) => /\.(sig|asc)$/i.test(n);
+  const sha256sums_published = assetNames.some(isSums);
+  const signatures_published = assetNames.some(isSig);
 
   const assets = (release.assets || [])
-    .filter((a) => !/\.(blockmap|yml)$/i.test(a.name))
+    // Installers only: updater metadata, checksum lists and detached signatures
+    // are not themselves downloads to verify against a digest.
+    .filter((a) => !/\.(blockmap|yml)$/i.test(a.name) && !isSums(a.name) && !isSig(a.name))
     .map((a) => {
       if (!a.digest || !String(a.digest).startsWith('sha256:')) {
         throw new Error(`Asset ${a.name} has no sha256 digest from GitHub API (got ${a.digest})`);
