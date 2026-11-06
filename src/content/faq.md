@@ -20,7 +20,7 @@ Brave is a privacy-focused browser for today's web. Freedom is built for the dec
 
 ENS names open natively, a wallet is built in, and you can publish a website to Swarm, give it a name and keep it online with no hosting company involved. Freedom Agent can even build, publish and name a site for you from a single prompt.
 
-Like Brave, Freedom is built on Chromium, so everyday browsing works the same, with ad blocking and Tor built in. Freedom is fully open source, with no ads, no token and no data collection.
+Like Brave, Freedom is built on Chromium, so everyday browsing works the same, with ad blocking and Tor built in. Freedom is fully open source, with no ads, no token and no tracking in the app.
 
 ## Should I use Freedom as my everyday browser, or next to Brave or another browser?
 
@@ -32,11 +32,11 @@ Not today. Freedom has no token, no rewards and no ads, and you don't need anyth
 
 ## Is there a mobile app?
 
-Yes. Freedom for Android and iOS is essentially ready, and we are working through the app store review process right now. You can follow along on GitHub: [Android](https://github.com/solardev-xyz/freedom-browser-android) and [iOS](https://github.com/solardev-xyz/freedom-browser-ios). Until the apps are out, Freedom is available for macOS, Windows and Linux.
+Not yet, but soon. Freedom for Android and iOS is nearly ready and going through app store review. You can follow along on GitHub: [Android](https://github.com/solardev-xyz/freedom-browser-android) and [iOS](https://github.com/solardev-xyz/freedom-browser-ios). Until the apps are out, Freedom is available for macOS, Windows and Linux.
 
 ## How does Freedom handle the RAM, CPU and bandwidth cost of running P2P nodes?
 
-Freedom's built-in nodes for Swarm, IPFS, Radicle, Ethereum and Tor are all written in Rust and tuned to use little memory, CPU and bandwidth. We wrote our own Swarm and IPFS clients from scratch so they run smoothly on Android and iOS phones, and the desktop app uses the same ones. Only Swarm and IPFS start automatically. Radicle, the experimental Ethereum light client and Tor stay off until you turn them on in Settings. The Swarm node stays connected to its peers in the background, while IPFS only does real work when you open or publish IPFS content.
+Freedom's built-in nodes for Swarm, IPFS, Radicle, Ethereum and Tor are all written in Rust and tuned to use little memory, CPU and bandwidth. We wrote our own Swarm and IPFS clients from scratch so they run smoothly on Android and iOS phones, and the desktop app uses the same ones. Only Swarm and IPFS start automatically. Radicle, the experimental Ethereum light client and Tor stay off until you turn them on in Settings. The Swarm node stays connected to its peers in the background, while IPFS only does real work when you open IPFS content.
 
 ## How can developers contribute? Are there mentorship opportunities?
 
