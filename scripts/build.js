@@ -485,7 +485,7 @@ const softwareApplication = () => ({
   downloadUrl: `${SITE.url}#download`,
   url: SITE.url,
   image: abs(DEFAULT_IMAGE),
-  screenshot: abs('images/freedom-0.8.8-hero.webp'),
+  screenshot: abs('images/freedom-0.8.8-hero-wide.webp'),
   license: 'https://www.mozilla.org/en-US/MPL/2.0/',
   codeRepository: [
     'https://github.com/solardev-xyz/freedom-browser',
