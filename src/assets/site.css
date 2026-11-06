@@ -460,5 +460,25 @@ pre.build-code code {
 .compare-table td.win code { font-weight: 650; }
 @media (max-width: 640px) {
   pre.build-code { font-size: .8rem; padding: 14px 14px; }
-  .compare-table { font-size: .86rem; }
+}
+/* Narrow screens: one card per row, each browser's value labelled (data-l),
+   so every column is readable without horizontal scrolling. */
+@media (max-width: 760px) {
+  .compare-table { min-width: 0; font-size: .9rem; }
+  .compare-table thead { display: none; }
+  .compare-table, .compare-table tbody, .compare-table tr,
+  .compare-table th, .compare-table td { display: block; width: auto; }
+  .compare-table tbody tr { border-bottom: 1px solid rgba(255,255,255,.12); padding: 6px 0; }
+  .compare-table tbody tr:last-child { border-bottom: 0; }
+  .compare-table tbody th { white-space: normal; padding: 12px 16px 6px; border-bottom: 0; }
+  .compare-table td {
+    position: relative; padding: 8px 16px 8px calc(16px + 5.5rem + 12px);
+    border-bottom: 0; overflow-wrap: break-word;
+  }
+  .compare-table td::before {
+    content: attr(data-l); position: absolute; left: 16px; top: 8px; width: 5.5rem;
+    font-size: .74rem; line-height: 1.9; text-transform: uppercase;
+    letter-spacing: .06em; font-weight: 650; opacity: .75;
+  }
+  .compare-table td.col-freedom::before { color: #00e9c4; opacity: 1; }
 }

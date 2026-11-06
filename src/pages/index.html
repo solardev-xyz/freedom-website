@@ -125,8 +125,8 @@
       <div class="build-copy">
         <p>Ship the app on <code>bzz://</code> or an ENS name. State lives in Swarm feeds; collaboration goes through Radicle. Consent is wallet-grade: the user connects an origin once, then approves publish and sign prompts.</p>
         <div class="build-cta">
-          <a class="btn nodl" href="developer/">Read the developer docs</a>
-          <p class="build-links">Also: <a href="developer/swarm-hub.html">Swarm hub</a> · <a href="developer/radicle-hub.html">Radicle hub</a></p>
+          <a class="btn nodl" href="https://github.com/solardev-xyz/freedom-browser/blob/main/docs/swarm-provider-api.md" rel="noopener">Read the <code>window.swarm</code> API</a>
+          <p class="build-links">Also: <a href="https://github.com/solardev-xyz/freedom-browser/blob/main/docs/radicle-provider-api.md" rel="noopener"><code>window.radicle</code> API</a></p>
         </div>
       </div>
       <pre class="build-code" tabindex="0"><code>if (!window.swarm?.isFreedomBrowser)
@@ -162,57 +162,57 @@ console.log(bzzUrl);  // bzz://&lt;reference&gt;</code></pre>
         <tbody>
           <tr>
             <th scope="row">Swarm</th>
-            <td class="col-freedom win">In-browser node</td>
-            <td>No</td>
-            <td>No</td>
+            <td class="col-freedom win" data-l="Freedom">In-browser node</td>
+            <td data-l="Brave">No</td>
+            <td data-l="Helium">No</td>
           </tr>
           <tr>
             <th scope="row">IPFS</th>
-            <td class="col-freedom win">In-browser node</td>
-            <td>Gateway only (native node removed 2024)</td>
-            <td>No</td>
+            <td class="col-freedom win" data-l="Freedom">In-browser node</td>
+            <td data-l="Brave">Gateway only (native node removed 2024)</td>
+            <td data-l="Helium">No</td>
           </tr>
           <tr>
             <th scope="row">ENS / <code>.eth</code></th>
-            <td class="col-freedom win">Trustless (Myotis / Colibri)</td>
-            <td>Trusted RPC</td>
-            <td>No</td>
+            <td class="col-freedom win" data-l="Freedom">Trustless (Myotis / Colibri)</td>
+            <td data-l="Brave">Trusted RPC</td>
+            <td data-l="Helium">No</td>
           </tr>
           <tr>
             <th scope="row">Wallet</th>
-            <td class="col-freedom win">Built-in (Safe · hardware · phone signers)</td>
-            <td>Built-in Brave Wallet</td>
-            <td>No</td>
+            <td class="col-freedom win" data-l="Freedom">Built-in (Safe · hardware · phone signers)</td>
+            <td data-l="Brave">Built-in Brave Wallet</td>
+            <td data-l="Helium">No</td>
           </tr>
           <tr>
             <th scope="row">Radicle</th>
-            <td class="col-freedom win">In-browser node</td>
-            <td>No</td>
-            <td>No</td>
+            <td class="col-freedom win" data-l="Freedom">In-browser node</td>
+            <td data-l="Brave">No</td>
+            <td data-l="Helium">No</td>
           </tr>
           <tr>
             <th scope="row">Tor / <code>.onion</code></th>
-            <td class="col-freedom win">Built-in</td>
-            <td>Private Tor windows</td>
-            <td>No</td>
+            <td class="col-freedom win" data-l="Freedom">Built-in</td>
+            <td data-l="Brave">Private Tor windows</td>
+            <td data-l="Helium">No</td>
           </tr>
           <tr>
             <th scope="row">Ad / tracker blocking</th>
-            <td class="col-freedom">Built-in</td>
-            <td>Built-in</td>
-            <td>Built-in</td>
+            <td class="col-freedom" data-l="Freedom">Built-in</td>
+            <td data-l="Brave">Built-in</td>
+            <td data-l="Helium">Built-in</td>
           </tr>
           <tr>
             <th scope="row">Backend for dapps</th>
-            <td class="col-freedom win">User’s node (<code>window.swarm</code> / <code>window.radicle</code>)</td>
-            <td>N/A</td>
-            <td>N/A</td>
+            <td class="col-freedom win" data-l="Freedom">User’s node (<code>window.swarm</code> / <code>window.radicle</code>)</td>
+            <td data-l="Brave">N/A</td>
+            <td data-l="Helium">N/A</td>
           </tr>
           <tr>
             <th scope="row">Open source</th>
-            <td class="col-freedom">Yes (<a href="https://github.com/solardev-xyz/freedom-browser" rel="noopener">GitHub</a>)</td>
-            <td>Yes (Chromium fork)</td>
-            <td>Yes</td>
+            <td class="col-freedom" data-l="Freedom">Yes (<a href="https://github.com/solardev-xyz/freedom-browser" rel="noopener">GitHub</a>)</td>
+            <td data-l="Brave">Yes (Chromium fork)</td>
+            <td data-l="Helium">Yes</td>
           </tr>
         </tbody>
       </table>
