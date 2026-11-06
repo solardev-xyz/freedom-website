@@ -59,7 +59,7 @@
     <header class="docs-head">
       <p class="docs-kick">{{kick}}</p>
       <h1>{{title}}</h1>
-      <p class="docs-dek">{{dek}}</p>
+      {{dek}}
       {{source}}
     </header>
     <details class="toc-mobile">
@@ -120,6 +120,13 @@
 <script src="../assets/dither.js"></script>
 <script>
 (function () {
+  // On narrow screens the tab strip scrolls sideways; bring the current tab into view.
+  var tabs = document.querySelector('.docs-tabs'), cur = tabs.querySelector('[aria-current="page"]');
+  if (cur) {
+    var tr = tabs.getBoundingClientRect(), cr = cur.getBoundingClientRect();
+    if (cr.right > tr.right) tabs.scrollLeft += cr.right - tr.right + 16;
+    else if (cr.left < tr.left) tabs.scrollLeft -= tr.left - cr.left + 16;
+  }
   // Left nav toggle under 1024px.
   var shell = document.querySelector('.docs-shell'), btn = document.querySelector('.docs-menu-btn');
   shell.classList.add('js');

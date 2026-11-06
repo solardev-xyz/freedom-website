@@ -370,12 +370,13 @@ function renderDoc(doc) {
     : '';
   const tocHtml = renderToc(toc);
 
-  const esc = (s) => s.replace(/"/g, '&quot;');
+  const dekHtml = dek ? `<p class="docs-dek">${escapeHtml(dek)}</p>` : '';
+  // Function replacements: a `$&` or `$1` in front matter must not be read as a pattern.
   const output = template
-    .replace(/\{\{title\}\}/g, esc(title))
-    .replace(/\{\{description\}\}/g, esc(description))
-    .replace(/\{\{kick\}\}/g, esc(kick))
-    .replace(/\{\{dek\}\}/g, esc(dek))
+    .replace(/\{\{title\}\}/g, () => escapeHtml(title))
+    .replace(/\{\{description\}\}/g, () => escapeHtml(description))
+    .replace(/\{\{kick\}\}/g, () => escapeHtml(kick))
+    .replace(/\{\{dek\}\}/g, () => dekHtml)
     .replace(/\{\{tabs\}\}/g, renderTabs(doc))
     .replace(/\{\{sidenav\}\}/g, renderSideNav(doc))
     .replace(/\{\{toc\}\}/g, tocHtml)

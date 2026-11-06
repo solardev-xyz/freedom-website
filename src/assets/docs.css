@@ -110,7 +110,8 @@ a.badge:hover { filter: brightness(.95); }
 /* Open for contribution */
 .issue-list { list-style: none; padding: 0 !important; display: grid; gap: 12px; }
 .issue-list li + li { margin-top: 0; }
-.issue-card { border: 1px solid #e3e3e0; border-radius: 12px; padding: 16px 18px; }
+/* Grid items default to min-width:auto; let cards shrink and break long IDs (rad:z3…) instead of widening the page. */
+.issue-card { min-width: 0; border: 1px solid #e3e3e0; border-radius: 12px; padding: 16px 18px; overflow-wrap: anywhere; }
 .issue-title { font-size: 1.02rem; line-height: 1.4; }
 .issue-num { color: #777; font-weight: 600; }
 .issue-badges { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -143,7 +144,8 @@ a.badge:hover { filter: brightness(.95); }
 @media (max-width: 640px) {
   .docs-home { font-size: 1.15rem; }
   .docs-stamp { font-size: .76rem; }
-  .docs-tabs a { padding: 9px 12px 11px; font-size: .9rem; }
+  .docs-tabs { gap: 2px; }
+  .docs-tabs a { padding: 9px 10px 11px; font-size: .9rem; }
   .docs-prose { font-size: 1rem; }
   .docs-prose pre { font-size: .82rem; padding: 14px; }
 }
