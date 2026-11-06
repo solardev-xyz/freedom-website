@@ -106,6 +106,111 @@ imageAlt: Freedom Browser 0.8.8 with Freedom Agent building a website on Swarm, 
   </div>
 </section>
 
+
+<section class="block build teal" id="build">
+  <div class="wrap">
+    <p class="kicker">Developers</p>
+    <h2>Build on Freedom</h2>
+    <p class="sub">Your user’s node is the backend. Pages publish, read, sign and message through the browser’s own Swarm and Radicle nodes — no servers, gateways or API keys.</p>
+    <div class="build-grid">
+      <div class="build-copy">
+        <p>Ship the app on <code>bzz://</code> or an ENS name. State lives in Swarm feeds; collaboration goes through Radicle. Consent is wallet-grade: the user connects an origin once, then approves publish and sign prompts.</p>
+        <div class="build-cta">
+          <a class="btn nodl" href="{{root}}developer/">Read the developer docs</a>
+          <p class="build-links">Also: <a href="{{root}}developer/swarm-hub.html">Swarm hub</a> · <a href="{{root}}developer/radicle-hub.html">Radicle hub</a></p>
+        </div>
+      </div>
+      <pre class="build-code" tabindex="0"><code>if (!window.swarm?.isFreedomBrowser)
+  throw new Error('Open this page in Freedom');
+
+await window.swarm.requestAccess();
+
+const { bzzUrl } = await window.swarm.publishData({
+  data: '&lt;!doctype html&gt;&lt;h1&gt;Hello from my own node&lt;/h1&gt;',
+  contentType: 'text/html',
+});
+
+console.log(bzzUrl);  // bzz://&lt;reference&gt;</code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="block compare copper" id="compare">
+  <div class="wrap">
+    <p class="kicker amber">Compare</p>
+    <h2>How Freedom compares</h2>
+    <p class="sub">Freedom next to Brave and Helium — two privacy Chromium browsers — on the protocols and pieces that matter for a decentralized daily driver.</p>
+    <div class="compare-wrap" role="region" aria-label="Comparison of Freedom with Brave and Helium" tabindex="0">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col" class="col-freedom">Freedom</th>
+            <th scope="col">Brave</th>
+            <th scope="col">Helium</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Swarm</th>
+            <td class="col-freedom win">In-browser node</td>
+            <td>No</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <th scope="row">IPFS</th>
+            <td class="col-freedom win">In-browser node</td>
+            <td>Gateway only (native node removed 2024)</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <th scope="row">ENS / <code>.eth</code></th>
+            <td class="col-freedom win">Trustless (Myotis / Colibri)</td>
+            <td>Trusted RPC</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <th scope="row">Wallet</th>
+            <td class="col-freedom win">Built-in (Safe · hardware · phone signers)</td>
+            <td>Built-in Brave Wallet</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <th scope="row">Radicle</th>
+            <td class="col-freedom win">In-browser node</td>
+            <td>No</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <th scope="row">Tor / <code>.onion</code></th>
+            <td class="col-freedom win">Built-in</td>
+            <td>Private Tor windows</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <th scope="row">Ad / tracker blocking</th>
+            <td class="col-freedom">Built-in</td>
+            <td>Built-in</td>
+            <td>Built-in</td>
+          </tr>
+          <tr>
+            <th scope="row">Backend for dapps</th>
+            <td class="col-freedom win">User’s node (<code>window.swarm</code> / <code>window.radicle</code>)</td>
+            <td>N/A</td>
+            <td>N/A</td>
+          </tr>
+          <tr>
+            <th scope="row">Open source</th>
+            <td class="col-freedom">Yes (<a href="https://github.com/solardev-xyz/freedom-browser" rel="noopener">GitHub</a>)</td>
+            <td>Yes (Chromium fork)</td>
+            <td>Yes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <section class="block teal">
   <div class="wrap mobile">
     <div>
