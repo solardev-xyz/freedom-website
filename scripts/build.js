@@ -125,8 +125,6 @@ const DOC_PAGES = DOCS.filter((d) => d.content);
 // generated page in dist/.
 // Newest first; the order is also the order of the news list and the feed.
 // kind: 'release' + version → listed on dist/releases.html (and releases.xml).
-// backfill: true → release notes written after the fact; kept out of feed.xml so
-// existing subscribers do not get a batch of old releases as new items.
 // Optional here (they win over the post's front matter): description, imageAlt.
 const POSTS = [
   {
@@ -143,7 +141,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-8-7.html',
     kind: 'release',
-    backfill: true,
     version: '0.8.7',
     summary: 'Swarm browsing credit, a pop-up blocker, simpler publishing payments and a large round of fixes.',
   },
@@ -152,7 +149,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-8-6.html',
     kind: 'release',
-    backfill: true,
     version: '0.8.6',
     summary: 'External IPFS nodes, ENSv2 readiness, settings search and Arch packages.',
   },
@@ -171,7 +167,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-8-0.html',
     kind: 'release',
-    backfill: true,
     version: '0.8.0',
     summary: 'In-house Ant and freedom-ipfs nodes replace Bee and Kubo, plus multiple profiles.',
   },
@@ -180,7 +175,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-7-4.html',
     kind: 'release',
-    backfill: true,
     version: '0.7.4',
     summary: 'Native x402 payments from the wallet and Swarm publisher identities.',
   },
@@ -189,7 +183,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-7-3.html',
     kind: 'release',
-    backfill: true,
     version: '0.7.3',
     summary: 'Bee 2.8.0, a breaking peer-to-peer upgrade for the Swarm node.',
   },
@@ -198,7 +191,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-7-2.html',
     kind: 'release',
-    backfill: true,
     version: '0.7.2',
     summary: 'Cryptographic ENS verification via Colibri and a unified network registry.',
   },
@@ -207,7 +199,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-7-1.html',
     kind: 'release',
-    backfill: true,
     version: '0.7.1',
     summary: 'ENS verified across public RPCs, and native bzz://, ipfs:// and ipns:// schemes.',
   },
@@ -216,7 +207,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-7-0.html',
     kind: 'release',
-    backfill: true,
     version: '0.7.0',
     summary: 'Experimental wallet and identity, dApp connections and Swarm publishing.',
   },
@@ -225,7 +215,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-6-2.html',
     kind: 'release',
-    backfill: true,
     version: '0.6.2',
     summary: 'Experimental Radicle on macOS and Linux, plus Swarm encrypted references.',
   },
@@ -234,7 +223,6 @@ const POSTS = [
     template: 'post-template.html',
     output: 'freedom-0-6-1.html',
     kind: 'release',
-    backfill: true,
     version: '0.6.1',
     summary: 'First public open-source release, with shortcuts, DoH and security hardening.',
   },
@@ -1000,7 +988,6 @@ function renderReleases(posts) {
 
 /** RSS 2.0 with the full post in content:encoded (links made absolute for readers). */
 function writeFeed(posts) {
-  posts = posts.filter((p) => !p.backfill);
   const absolutize = (html) => html.replace(/\s(src|href)="(?![a-z][a-z0-9+.-]*:|#|\/\/)([^"]+)"/gi, (m, attr, url) => ` ${attr}="${abs(url)}"`);
   const items = posts.map((p) => `    <item>
       <title>${escapeXml(p.title)}</title>
