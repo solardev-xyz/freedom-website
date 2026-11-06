@@ -46,12 +46,14 @@ const POSTS = [
     content: 'freedom-0-8-8-agent.md',
     template: 'post-template.html',
     output: 'freedom-0-8-8-agent.html',
+    version: '0.8.8',
     summary: 'Freedom Agent: an assistant in the browser that builds, publishes and names decentralized sites from one prompt.',
   },
   {
     content: 'freedom-0-8-5-daily-driver.md',
     template: 'post-template.html',
     output: 'freedom-0-8-5-daily-driver.html',
+    version: '0.8.5',
     summary: 'The first release you can use as your only browser, now with Ethereum and Tor nodes.',
   },
   {
@@ -61,6 +63,16 @@ const POSTS = [
     summary: 'The first public preview: a minimalist browser that loads Swarm and IPFS content straight from peers.',
   },
 ];
+
+// The homepage "What's new" link follows SITE.version: the release post when
+// one is tagged with that version, otherwise the changelog pinned to the
+// release branch. Derived here (not stored in site.json) so a version bump can
+// never leave the link pointing at the previous release.
+const releasePost = POSTS.find((p) => p.version === SITE.version);
+SITE.whats_new_href = releasePost
+  ? releasePost.output
+  : `https://github.com/solardev-xyz/freedom-browser/blob/release/${SITE.version}/CHANGELOG.md`;
+SITE.whats_new_label = `What's new in ${SITE.version}`;
 
 // --- markdown front-matter + metadata helpers ---------------------------------
 

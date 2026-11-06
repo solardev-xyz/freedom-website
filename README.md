@@ -107,8 +107,11 @@ page or template is replaced at build time:
 { "version": "0.8.6", "downloads": "10k", "countries": "145", "contributors": "10", "url": "https://freedom.baby/" }
 ```
 
-Bumping `version` updates every download link, the changelog and source
-links, and the `freedom-version` meta tag that `deploy:swarm` reads. Refresh
+Bumping `version` updates every download link, the source links, the
+homepage "What's new in <version>" link, and the `freedom-version` meta tag
+that `deploy:swarm` reads. The "What's new" link goes to the release post whose
+`POSTS` entry in `scripts/build.js` has a matching `version`, and falls back to
+`blob/release/<version>/CHANGELOG.md` until such a post exists. Refresh
 the numbers from freedom.baby/stats and the GitHub contributor count (people,
 not bots) before each deploy.
 

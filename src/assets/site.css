@@ -347,7 +347,7 @@ html, body { background: #292a2a; }
 .plat.multi a { color: #fff; text-decoration: none; font-weight: 650; }
 .plat.multi a:hover { opacity: .8; }
 .dlnote { margin-top: 28px; font-size: .88rem; line-height: 1.9; text-wrap: balance; }
-.dlnote a { color: #fff; font-weight: 600; text-decoration: none; margin: 0 9px; }
+.dlnote a { color: #fff; font-weight: 600; text-decoration: none; margin: 0 9px; white-space: nowrap; display: inline-block; }
 .dlnote a:hover { opacity: .8; }
 .dlnote .nw { white-space: nowrap; }
 @media (max-width: 520px) { .dlnote .sep { display: none; } .dlnote .nw { display: block; } }
