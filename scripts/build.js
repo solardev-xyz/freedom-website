@@ -1174,6 +1174,7 @@ function renderTalks() {
     duration: t.duration,
     thumbnail: talkThumb(t),
     description: t.description || '',
+    meta: talkMetaLine(t),
   }));
   const dataHtml = `<script type="application/json" id="talks-data">\n${JSON.stringify(clientData).replace(/</g, '\\u003c')}\n</script>`;
 
@@ -1189,7 +1190,7 @@ function renderTalks() {
     `  </div>`,
     `  <aside class="talks-rail-wrap">`,
     `    <h2 class="talks-rail-heading">More talks</h2>`,
-    `    <div class="talks-rail" id="talks-rail" role="list">`,
+    `    <div class="talks-rail" id="talks-rail">`,
     railItems,
     `    </div>`,
     `  </aside>`,
