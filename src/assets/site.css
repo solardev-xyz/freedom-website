@@ -334,13 +334,21 @@ footer.ft .wrap { display: block; }
 footer.ft a { color: #fff; text-decoration: none; }
 footer.ft a:hover { opacity: .75; color: #fff; }
 .ft-social { display: inline-flex; align-items: center; gap: 8px; }
+/* image icons (Radicle) render plain white like the inline SVGs, same filter as the "How it works" row */
+.ft-social img { filter: brightness(0) invert(1); }
 .ft-small { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 6px 0; font-size: .82rem; opacity: .7; }
 /* separator dots sit in a clipped left gutter, so a wrapped line never starts with a stray dot */
 .ft-small { margin-left: -22px; clip-path: inset(0 0 0 22px); }
-.ft-small span::before { content: "·"; display: inline-block; width: 22px; text-align: center; }
+.ft-small > span::before { content: "·"; display: inline-block; width: 22px; text-align: center; }
 .ft-small i { font-style: normal; margin: 0 6px; }
 html, body { background: #292a2a; }
-@media (max-width: 640px) { .ft-small { flex-direction: column; gap: 6px; margin-left: 0; clip-path: none; } .ft-small span::before { display: none; } }
+@media (max-width: 640px) { .ft-small { flex-direction: column; gap: 6px; margin-left: 0; clip-path: none; } .ft-small > span::before { display: none; } }
+/* Phones: the Swarm and page-link rows wrap inside themselves. Each item after a dot carries that dot in a clipped
+   left gutter (same trick as above), so a line never ends on a dangling dot and never starts with one. */
+@media (max-width: 640px) { .ft-small .ft-row { display: flex; flex-wrap: wrap; row-gap: 6px; margin-left: -22px; clip-path: inset(0 0 0 22px); }
+  .ft-small .ft-row > :first-child { margin-left: 22px; }
+  .ft-small .ft-row > i { display: none; }
+  .ft-small .ft-row > i + *::before { content: "·"; display: inline-block; width: 22px; text-align: center; } }
 .platforms { grid-template-columns: repeat(3, 1fr); max-width: 960px; margin-left: auto; margin-right: auto; }
 @media (max-width: 860px) { .platforms { grid-template-columns: 1fr; max-width: 420px; } }
 .plat.multi { cursor: default; }
@@ -400,7 +408,8 @@ section.block .plat.rec { box-shadow: inset 0 0 0 2px #fff !important; }
 
 /* Home: link under a section ("Read about Freedom Agent →", "All news →") */
 section.block .more { margin-top: 32px; color: #fff; opacity: .9; }
-section.block .more a { color: #fff; font-weight: 650; margin-right: 18px; }
+section.block .more a { color: #fff; font-weight: 650; text-decoration: none; margin-right: 18px; white-space: nowrap; }
+section.block .more a:hover { opacity: .8; }
 
 /* Home: latest news on copper */
 .latest .posts { max-width: 820px; margin: 40px 0 0; border-top: 1px solid rgba(255, 255, 255, .25); }
