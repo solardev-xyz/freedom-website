@@ -18,7 +18,7 @@ Freedom 0.8.0 swaps the bundled Swarm and IPFS nodes for in-house Rust implement
   - Node data and Swarm identity migrate in place on first launch
 - [freedom-ipfs](https://github.com/solardev-xyz/freedom-ipfs) 0.4.3, a retrieval-only IPFS implementation, replaces bundled Kubo:
   - The node runs inside the browser process instead of as a separate daemon
-  - No standing peer connections — it connects when IPFS content loads
+  - No standing peer connections; it connects when IPFS content loads
   - IPFS load progress in the status bar (Settings > Experimental)
 - Multiple profiles with separate tabs, history, settings, wallet, identities and nodes, running side by side in separate windows:
   - Profiles flyout in the browser menu, a native Profiles menu and a `freedom://profiles` manager page
@@ -34,7 +34,7 @@ Freedom 0.8.0 swaps the bundled Swarm and IPFS nodes for in-house Rust implement
 
 ## Removed
 
-- Local Kubo API and gateway ports (5001, 8080) — the embedded IPFS node exposes no local endpoints
+- Local Kubo API and gateway ports (5001, 8080); the embedded IPFS node exposes no local endpoints
 
 ## Fixed
 

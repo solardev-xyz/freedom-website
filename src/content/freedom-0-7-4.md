@@ -11,11 +11,11 @@ Freedom 0.7.4 lets you pay as you browse with native x402 support from the built
 
 ## New
 
-- Native x402 payment support — pay as you browse, straight from the built-in wallet:
+- Native x402 payment support: pay as you browse, straight from the built-in wallet:
   - An approval card with optional per-origin auto-pay caps
   - Transparent subresource payments, no x402 SDK required
   - Payment history at `freedom://payments` and in the wallet sidebar
-- Swarm publisher identities — pick which identity signs the content you publish:
+- Swarm publisher identities: pick which identity signs the content you publish:
   - Use a browser EVM wallet as a publisher identity, alongside the existing app and Bee-node identities
   - Manage identities and choose one from a selector when publishing
 - `window.swarm` gains chunk-level read and write methods for dApps

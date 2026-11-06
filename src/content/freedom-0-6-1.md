@@ -26,7 +26,7 @@ It adds everyday keyboard shortcuts, a bookmark bar that remembers your preferen
 
 ## Fixed
 
-- The address bar stays focused after you pick an autocomplete suggestion
+- The address bar no longer stays focused after you pick an autocomplete suggestion
 - Unreadable pages in dark mode get light background and text defaults when the page itself does not support dark mode
 - ENS resolution replaces broken RPC providers and fixes failed handle cleanup
 - View-source updates the address bar and title correctly
