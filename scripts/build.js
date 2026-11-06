@@ -1127,6 +1127,10 @@ function talkThumb(t) {
   return t.thumbnail || `images/talks/${t.id}.webp`;
 }
 
+// Shown next to the play facade so clicking play is an informed choice
+// (the consent basis in privacy.html section 4 depends on it).
+const TALK_CONSENT_HTML = 'Clicking play loads the video from YouTube (Google). Google then receives your IP address, may store information on your device and may transfer data to the USA. <a href="privacy.html#videos">Privacy policy</a>';
+
 function renderTalks() {
   const talksPath = path.join(SRC, 'talks.json');
   const talks = JSON.parse(fs.readFileSync(talksPath, 'utf-8'))
@@ -1138,7 +1142,7 @@ function renderTalks() {
   const watch = (t) => `https://www.youtube.com/watch?v=${t.id}`;
 
   const featuredPlayer = [
-    `      <a class="talk-facade" href="${watch(featured)}" rel="noopener noreferrer" target="_blank" aria-label="Play video: ${escapeHtml(featured.title)}">`,
+    `      <a class="talk-facade" href="${watch(featured)}" rel="noopener noreferrer" target="_blank" aria-label="Play video: ${escapeHtml(featured.title)}" aria-describedby="talk-consent">`,
     `        <img src="${escapeHtml(talkThumb(featured))}" alt="" width="1280" height="720" decoding="async">`,
     `        <span class="talk-play" aria-hidden="true"></span>`,
     `      </a>`,
@@ -1185,6 +1189,7 @@ function renderTalks() {
     `    <div class="talk-player" id="talk-player" data-video-id="${escapeHtml(featured.id)}" data-slug="${escapeHtml(featured.slug)}">`,
     featuredPlayer,
     `    </div>`,
+    `    <p class="talk-consent" id="talk-consent">${TALK_CONSENT_HTML}</p>`,
     `    <div class="talk-details" id="talk-details">`,
     featuredDetails,
     `    </div>`,
