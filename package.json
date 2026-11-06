@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node scripts/build.js",
     "preview": "npm run build && npx --yes serve dist",
-    "deploy:swarm": "node scripts/deploy-swarm.js"
+    "deploy:swarm": "node scripts/deploy-swarm.js",
+    "digests": "node scripts/fetch-release-digests.js"
   },
   "dependencies": {
     "@ethersphere/bee-js": "^13.2.0",

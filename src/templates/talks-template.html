@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+{{> head}}  <link rel="stylesheet" href="{{root}}assets/content.css">
+</head>
+<body>
+
+{{> nav}}
+
+
+<div class="top page-top">
+<header class="hero-in talks-hero">
+  <h1>Talks</h1>
+  <p class="dek">Talks, workshops and interviews with the Freedom Browser team.</p>
+</header>
+</div>
+
+<main class="prose-wrap cd talks-wrap">
+{{talksHtml}}
+</main>
+
+{{> footer}}
+
+{{> scripts}}<script src="{{root}}assets/talks.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+{{> head}}  <link rel="stylesheet" href="{{root}}assets/content.css">
+  <link rel="stylesheet" href="{{root}}assets/docs.css">
+  <link rel="alternate" type="text/markdown" href="{{md_href}}">
+  <link rel="describedby" href="{{root}}developer/llms.txt">
+  <link rel="describedby" href="{{root}}llms.txt">
+</head>
+<body>
+
+{{> nav}}
+
+<div class="top page-top docs-band">
+  <div class="docs-band-in">
+    <div class="docs-band-row">
+      <a class="docs-home" href="./">Developer docs</a>
+      <form class="docs-search" role="search" action="#" autocomplete="off">
+        <label class="sr-only" for="docs-q">Search the developer docs</label>
+        <input id="docs-q" type="search" placeholder="Search docs" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="docs-search-results" aria-autocomplete="list">
+        <kbd class="docs-search-key" aria-hidden="true">/</kbd>
+        <ul class="docs-search-results" id="docs-search-results" role="listbox" aria-label="Search results" hidden></ul>
+      </form>
+      <p class="docs-stamp">Documented against <a href="https://github.com/solardev-xyz/freedom-browser/tree/{{docs_commit_full}}">main @ {{docs_commit}}</a> ({{docs_dev_version}}, {{docs_checked}}) · latest release v{{version}}</p>
+    </div>
+    <nav class="docs-tabs" aria-label="Developer docs sections">
+        {{tabsHtml}}
+    </nav>
+  </div>
+</div>
+
+<main class="docs-shell{{toc_class}}">
+  <button class="docs-menu-btn" type="button" aria-expanded="false" aria-controls="docs-side"><span class="docs-menu-icon" aria-hidden="true"></span>Pages in this section</button>
+  <nav class="docs-side" id="docs-side" aria-label="Pages in this section">
+{{sidenavHtml}}
+  </nav>
+  <article class="docs-main">
+    <header class="docs-head">
+      <p class="docs-kick">{{kick}}</p>
+      <h1>{{docTitle}}</h1>
+      {{dekHtml}}
+      {{sourceHtml}}
+    </header>
+    <details class="toc-mobile">
+      <summary>On this page</summary>
+      <ul>
+{{tocHtml}}
+      </ul>
+    </details>
+    <div class="prose docs-prose">
+{{contentHtml}}
+    </div>
+  </article>
+  <aside class="docs-toc" aria-label="On this page">
+    <p class="docs-nav-label">On this page</p>
+    <ul>
+{{tocHtml}}
+    </ul>
+  </aside>
+</main>
+
+{{> footer}}
+
+{{> scripts}}<script src="{{root}}assets/docs-search.js" defer></script>
+<script>
+(function () {
+  // On narrow screens the tab strip scrolls sideways; bring the current tab into view.
+  var tabs = document.querySelector('.docs-tabs'), cur = tabs.querySelector('[aria-current="page"]');
+  if (cur) {
+    var tr = tabs.getBoundingClientRect(), cr = cur.getBoundingClientRect();
+    if (cr.right > tr.right) tabs.scrollLeft += cr.right - tr.right + 16;
+    else if (cr.left < tr.left) tabs.scrollLeft -= tr.left - cr.left + 16;
+  }
+  // Left nav toggle under 1024px.
+  var shell = document.querySelector('.docs-shell'), btn = document.querySelector('.docs-menu-btn');
+  shell.classList.add('js');
+  btn.addEventListener('click', function () {
+    var open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', open);
+    shell.classList.toggle('nav-open', open);
+  });
+  // Copy buttons on code blocks, plus copy-link on heading anchors.
+  var live = document.createElement('p');
+  live.className = 'sr-only'; live.setAttribute('aria-live', 'polite');
+  document.body.appendChild(live);
+  function copy(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (ok, fail) {
+      var t = document.createElement('textarea');
+      t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select();
+      try { document.execCommand('copy') ? ok() : fail(); } catch (e) { fail(e); } finally { document.body.removeChild(t); }
+    });
+  }
+  function flash(el, label, done, cls) {
+    el.textContent = done; el.classList.add(cls); live.textContent = done;
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.textContent = label; el.classList.remove(cls); }, 1500);
+  }
+  document.querySelectorAll('.docs-prose pre').forEach(function (pre) {
+    var code = pre.querySelector('code');
+    var lang = code && (code.className.match(/language-(\w+)/) || [])[1];
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'copy-btn'; b.textContent = 'Copy';
+    b.setAttribute('aria-label', 'Copy code' + (lang ? ' (' + lang + ')' : ''));
+    b.addEventListener('click', function () {
+      copy((code || pre).innerText.replace(/\n$/, '')).then(
+        function () { flash(b, 'Copy', 'Copied', 'ok'); },
+        function () { flash(b, 'Copy', /Mac|iPhone|iPad/.test((navigator.platform || '') + ' ' + navigator.userAgent) ? 'Press ⌘C' : 'Press Ctrl+C', 'err'); var r = document.createRange(); r.selectNodeContents(code || pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+      );
+    });
+    var w = document.createElement('div');
+    w.className = 'code-wrap';
+    pre.parentNode.insertBefore(w, pre);
+    w.appendChild(pre);
+    if (lang && lang !== 'text') { var l = document.createElement('span'); l.className = 'code-lang'; l.textContent = lang === 'javascript' ? 'js' : lang; w.appendChild(l); }
+    w.appendChild(b);
+  });
+  document.querySelectorAll('.docs-prose .h-anchor').forEach(function (a) {
+    a.title = 'Copy link to this section';
+    a.addEventListener('click', function () {
+      var url = location.href.split('#')[0] + a.getAttribute('href');
+      copy(url).then(function () {
+        live.textContent = 'Link copied';
+        a.classList.add('copied'); setTimeout(function () { a.classList.remove('copied'); }, 1500);
+      }, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>

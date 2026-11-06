@@ -1,0 +1,46 @@
+# Freedom Browser developer docs
+
+> Map of the /developer/ docs for agents. Links are relative to this file. Canonical copy: https://freedom.baby/developer/llms.txt. If you have this text without the URL it came from, resolve the links against https://freedom.baby/developer/ (e.g. `quickstart.html.md` is https://freedom.baby/developer/quickstart.html.md). Every page has a Markdown twin at the same path with `.md` appended (`page.html.md`). Prefer those over HTML. Code and SWIP #94 beat these docs when they disagree; never invent API facts. Security and bugs: https://github.com/solardev-xyz/freedom-browser/issues
+
+Site-wide entry point: [../llms.txt](../llms.txt)
+
+## Overview
+
+- [Overview](index.html.md): Providers, consent model, why build on Freedom
+- [Permissions and identity](guide-permissions.html.md): Origin-keyed grants, tiers, manifests, signing keys
+- [Errors and node readiness](guide-errors.html.md): Rejections, missing grants, node not ready, limits
+
+## Swarm
+
+- [Swarm hub](swarm-hub.html.md): window.swarm overview and SWIP #94
+- [Quickstart](quickstart.html.md): First dapp — detect, connect, publish, feed, deploy
+- [Feeds and mutable content](guide-feeds.html.md)
+- [Live messaging](guide-messaging.html.md): PSS and GSOC
+- [swarm-kit](guide-swarm-kit.html.md): TypeScript helpers over window.swarm
+- [window.swarm API](swarm.html.md): Full reference
+
+## Radicle
+
+- [Radicle hub](radicle-hub.html.md): rad: and window.radicle overview
+- [Radicle repos and issues](guide-radicle.html.md)
+- [window.radicle API](radicle.html.md): Full reference
+- [rad: URLs](rad-urls.html.md): Fetch public repos with the rad: scheme
+
+## Demos
+
+- [Demos](demos.html.md): Apps and example pages tagged by API
+
+## Contribute
+
+- [Setup](contributing.html.md): Build and run from source
+- [Architecture](architecture.html.md)
+- [Repositories](repositories.html.md): GitHub, Radicle mirror, related repos
+- [Workflow and pull requests](workflow.html.md)
+- [Open for contribution](open-issues.html.md): Curated issues (JSON source: open-issues.json)
+- [Community and mentorship](community.html.md)
+
+## Optional
+
+- [Root llms.txt](../llms.txt): Site-wide agent entry (product + docs)
+- [SWIP #94](https://github.com/ethersphere/SWIPs/pull/94): Draft Swarm provider standard
+- [freedom-browser on GitHub](https://github.com/solardev-xyz/freedom-browser)

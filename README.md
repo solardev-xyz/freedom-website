@@ -67,36 +67,74 @@ The layout separates the three kinds of files so the build flow is obvious:
 ```text
 .
 ├── src/                        ← EDIT THIS (hand-authored source)
-│   ├── pages/
-│   │   └── index.html          ← static page, copied verbatim
-│   ├── content/                ← blog post sources (Markdown)
-│   │   ├── introducing-freedom.md
-│   │   └── freedom-0-8-5-daily-driver.md
+│   ├── pages/                  ← pages; front matter in a leading <!-- --> comment
+│   │   ├── index.html          ← home
+│   │   ├── developer/index.html, imprint.html, logo.html, privacy.html
+│   │   └── 404.html            ← served by the web server for unknown URLs
+│   ├── partials/               ← shared <head>, nav, footer and scripts
+│   ├── content/                ← blog post sources (Markdown) and faq.md
 │   ├── templates/
 │   │   ├── post-template.html  ← HTML shell for rendered posts
 │   │   └── news-template.html  ← HTML shell for the news list
-│   ├── images/                 ← logos + screenshots (copied verbatim)
-│   └── assets/
-│       └── freedom_icon.svg    ← master for index.html's inline favicon
+│   ├── images/                 ← logos, screenshots, share images (copied verbatim)
+│   ├── static/                 ← copied to the root of dist/ (favicon, icons, manifest)
+│   └── assets/                 ← site.css, content.css, os.js, fonts, grain tiles
 ├── scripts/
-│   └── build.js                ← the build
+│   ├── build.js                ← the build
+│   ├── make-grain.js           ← regenerates assets/grain-*.png
+│   └── assets/                 ← one-off image scripts (share image, icons, hero cut-out)
+├── deploy/                     ← Swarm re-push timer; nginx-seo.conf (reference only)
 └── dist/                       ← GENERATED, git-ignored — never edit by hand
-    ├── index.html
-    ├── introducing-freedom.html
-    ├── freedom-0-8-5-daily-driver.html
-    └── images/
 ```
 
 ## Build flow
 
 ```text
-src/pages/**        ──copy + fill──▶  dist/**           (home, imprint, privacy, developer)
-src/assets/**       ──copy──▶         dist/assets/**    (site.css, content.css, scripts, fonts, logos)
+src/pages/**        ──fill──▶         dist/**           (home, developer, imprint, logo, privacy, 404)
+src/partials/*      ──included──▶     every page        ({{> head}}, {{> nav}}, {{> footer}}, {{> scripts}})
+src/assets/**       ──copy──▶         dist/assets/**
 src/images/**       ──copy──▶         dist/images/**
+src/static/**       ──copy──▶         dist/**           (favicon.ico, apple-touch-icon.png, icons, manifest)
 src/content/*.md    ──render──▶       dist/<post>.html  (via src/templates/post-template.html + marked)
-POSTS (build.js)    ──render──▶       dist/news.html    (via src/templates/news-template.html)
-                    ──write──▶        dist/sitemap.xml, dist/robots.txt (absolute URLs from site.json `url`)
+src/content/faq.md  ──render──▶       home page FAQ + its FAQPage structured data
+POSTS (build.js)    ──render──▶       dist/news.html, the home page's latest news, dist/feed.xml (RSS)
+                    ──write──▶        dist/sitemap.xml (with lastmod from git), dist/robots.txt
 ```
+
+### Pages, partials and front matter
+
+A page starts with an HTML comment holding its metadata, which the build
+strips:
+
+```html
+<!--
+title: Imprint — Freedom Browser
+description: One or two sentences for search results and link previews (120–160 characters).
+-->
+<!DOCTYPE html>
+...
+<head>
+{{> head}}</head>
+```
+
+`title` and `description` are required. Optional keys: `ogTitle` (a different
+title for link previews), `ogType`, `image` and `imageAlt` (the preview image,
+default `images/freedom-og.jpg`), `robots` (e.g. `noindex`), `sitemap: no`,
+and `root` (the prefix for links to the site root; it defaults to `../` per
+directory level, `404.html` uses `/`). From these the `head` partial writes
+the title, description, canonical URL, Open Graph and Twitter tags, the RSS
+link, the icons and the page's JSON-LD (Organization, WebSite and
+SoftwareApplication on the home page, BlogPosting on posts, breadcrumbs
+elsewhere). `{{key}}` values are HTML-escaped; keys ending in `Html` are
+inserted as markup; an unknown key fails the build.
+
+### FAQ: `src/content/faq.md`
+
+Each `## ` heading is a question and the Markdown under it is the answer.
+The order in the file is the order on the page, and the same text feeds the
+FAQPage structured data. An entry with a line starting with `TODO` is a draft
+and is left out of the site; `FAQ_DRAFTS=1 npm run build` shows drafts
+locally, marked "Draft".
 
 ### Release values: `src/site.json`
 
@@ -107,8 +145,11 @@ page or template is replaced at build time:
 { "version": "0.8.6", "downloads": "10k", "countries": "145", "contributors": "10", "url": "https://freedom.baby/" }
 ```
 
-Bumping `version` updates every download link, the changelog and source
-links, and the `freedom-version` meta tag that `deploy:swarm` reads. Refresh
+Bumping `version` updates every download link, the source links, the
+developer docs links, the SoftwareApplication structured data, the homepage "What's new in <version>" link, and the `freedom-version` meta tag
+that `deploy:swarm` reads. The "What's new" link goes to the release post whose
+`POSTS` entry in `scripts/build.js` has a matching `version`, and falls back to
+`blob/release/<version>/CHANGELOG.md` until such a post exists. Refresh
 the numbers from freedom.baby/stats and the GitHub contributor count (people,
 not bots) before each deploy.
 
@@ -123,11 +164,12 @@ git-ignored.
 
 ### Adding another blog post
 
-1. Add `src/content/<post>.md` (optional `--- title/description/image ---`
-   front-matter).
+1. Add `src/content/<post>.md` with `--- title/description/image ---`
+   front-matter (`imageAlt` optional, describing the image).
 2. Register it in the `POSTS` array in `scripts/build.js` (newest first),
    with a one-line `summary` for the news list.
-3. `npm run build`.
+3. `npm run build`. The post then also appears in the home page's latest
+   news, in `feed.xml` and in the sitemap.
 
 ### Blog post conventions
 
@@ -189,10 +231,69 @@ the post carries the story. Link the changelog pinned to the release branch
 
 - The site is self-contained at runtime: fonts (Inter, OFL), scripts and
   logos ship in `src/assets/`, nothing is loaded from third parties, and
-  there are no build-time dependencies beyond `marked`. Pages use relative
-  links only, so the same `dist/` works on freedom.baby and on Swarm.
-- `src/assets/dither.js` draws the grain on the teal and copper sections at
-  runtime; `src/assets/os.js` plus a small inline script point the download
-  buttons at the visitor's platform.
+  there are no build-time dependencies beyond `marked`. Links between pages
+  are relative, so the same `dist/` works on freedom.baby and on Swarm; the
+  canonical, Open Graph, feed and sitemap URLs are absolute and point at
+  freedom.baby (`url` in `site.json`).
+- The grain on the teal and copper sections is two small tiles,
+  `src/assets/grain-teal.png` and `grain-copper.png`, laid over a CSS
+  gradient (`div.top`, `section.teal`, `section.copper` in `site.css`).
+  `node scripts/make-grain.js` regenerates them and prints the matching
+  gradients. `src/assets/os.js` plus a small inline script point the
+  download buttons at the visitor's platform.
+- `src/assets/fonts/InterVariable.woff2` is Inter 4 subset to Latin. To
+  rebuild it from the full `InterVariable.woff2` (needs `pip install
+  fonttools brotli`):
+
+  ```bash
+  pyftsubset InterVariable.woff2 --flavor=woff2 --layout-features='*' --no-hinting \
+    --unicodes="U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD" \
+    --output-file=src/assets/fonts/InterVariable.woff2
+  ```
+
+  Characters outside that range fall back to a system font; widen the range
+  (and the `unicode-range` in `site.css`) if the copy needs them.
+- The home share image `src/images/freedom-og.jpg` (1200×630), the favicon
+  and the app icons are generated from the logos, the grain tile and the
+  0.8.8 hero screenshot by `python3 scripts/assets/make-og-and-icons.py`
+  (needs Pillow). Rerun it when the hero screenshot changes.
+- `deploy/nginx-seo.conf` documents the web server settings that go with the
+  site (www and `/index.html` redirects, HTTP/2, HSTS, caching, the 404
+  page). It is a reference and is not applied by anything in this repo.
 - The output in `dist/` is a plain static site — serve it with any static
   file host.
+- Agent-readable files: `llms.txt`, `developer/llms.txt` and a Markdown twin
+  of every docs page (`developer/<page>.html.md`, placeholders filled and
+  doc links pointing at other twins). The host must serve `.md` as
+  `text/markdown; charset=utf-8` and `.txt` as `text/plain; charset=utf-8`,
+  not `application/octet-stream`. Bee takes the type from the extension (Go's
+  `mime` table plus `/etc/mime.types`, which lists `md`); `deploy:swarm`
+  prints the type it reads back for both and flags anything that is not
+  `text/*`. freedom.baby runs nginx, whose stock `mime.types` has no `md`
+  entry: include `deploy/nginx-markdown.conf` inside the server's
+  `location / { }` block (a nested regex location, so it keeps that block's
+  root and headers; a scoped `types` so the other extensions keep their
+  types), then check with
+  `curl -sI https://freedom.baby/developer/index.html.md`.
+- Links in both `llms.txt` files are relative, like the pages, so an agent
+  that reads the map from a Swarm gateway stays on Swarm. The build fails if
+  one points at freedom.baby or at a file missing from `dist/`. Each file
+  still names its canonical URL (`https://freedom.baby/llms.txt`,
+  `https://freedom.baby/developer/llms.txt`) in prose as the base for an
+  agent that has the text without its source URL; the build checks that too.
+
+## Release digests
+
+The download section shows SHA-256 digests for the current Freedom Browser
+release. They come from the GitHub Releases API (`assets[].digest`), not from
+invented hashes. Refresh them when bumping `version` in `src/site.json`:
+
+```bash
+npm run digests   # writes src/data/release-digests.json
+npm run build     # injects the verify panel and writes dist/SHA256SUMS
+```
+
+If the upstream release later publishes `SHA256SUMS` or detached signatures,
+prefer linking those; until then the site surfaces GitHub's attested digests
+and says so in the UI.
+

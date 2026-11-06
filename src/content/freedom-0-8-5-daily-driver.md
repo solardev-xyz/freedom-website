@@ -61,6 +61,6 @@ Electron 44 with Chromium 152. Installers about 15 MB smaller. Ant 0.5.44 as the
 
 ## Try it
 
-Download 0.8.5 for macOS, Linux and Windows from [freedom.baby](https://freedom.baby). The code is on [GitHub](https://github.com/solardev-xyz/freedom-browser).
+Download 0.8.5 for macOS, Linux and Windows from [freedom.baby](https://freedom.baby). The code is on [GitHub](https://github.com/solardev-xyz/freedom-browser) and [Radicle](https://radicle.network/nodes/iris.radicle.network/rad%3Az3QXuMvMmSeEX3ZgoUidZC1v5MkKE).
 
 If you have been waiting for Freedom to be usable as your main browser, this is the release to try. Report what breaks at [t.me/freedom_browser](https://t.me/freedom_browser).

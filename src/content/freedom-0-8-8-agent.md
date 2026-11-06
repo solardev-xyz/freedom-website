@@ -51,4 +51,4 @@ The [changelog](https://github.com/solardev-xyz/freedom-browser/blob/release/0.8
 
 ## Try it
 
-Download 0.8.8 for macOS, Linux and Windows from [freedom.baby](https://freedom.baby); the code is on [GitHub](https://github.com/solardev-xyz/freedom-browser). Have fun building, and share what you make at [t.me/freedom_browser](https://t.me/freedom_browser).
+Download 0.8.8 for macOS, Linux and Windows from [freedom.baby](https://freedom.baby); the code is on [GitHub](https://github.com/solardev-xyz/freedom-browser) and [Radicle](https://radicle.network/nodes/iris.radicle.network/rad%3Az3QXuMvMmSeEX3ZgoUidZC1v5MkKE). Have fun building, and share what you make at [t.me/freedom_browser](https://t.me/freedom_browser).
