@@ -250,6 +250,7 @@ function pageVars(pagePath, meta) {
   const root = meta.root !== undefined ? meta.root : '../'.repeat(depth);
   const image = meta.image || DEFAULT_IMAGE;
   const size = imageSize(path.join(SRC, image));
+  const noindex = /noindex/.test(meta.robots || '');
   return {
     ...SITE,
     title: meta.title,
@@ -262,6 +263,9 @@ function pageVars(pagePath, meta) {
     imageHeight: size.height,
     imageAlt: meta.imageAlt || DEFAULT_IMAGE_ALT,
     robotsHtml: meta.robots ? `  <meta name="robots" content="${escapeHtml(meta.robots)}">\n` : '',
+    // A noindex page (404) has no URL of its own worth pointing crawlers at.
+    canonicalHtml: noindex ? '' : `  <link rel="canonical" href="${escapeHtml(SITE.url + pagePath)}">\n`,
+    ogUrlHtml: noindex ? '' : `  <meta property="og:url" content="${escapeHtml(SITE.url + pagePath)}">\n`,
     articleMetaHtml: '',
     jsonLdHtml: '',
     root,
