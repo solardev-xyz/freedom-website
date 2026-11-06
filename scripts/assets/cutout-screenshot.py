@@ -1,6 +1,8 @@
 """Turn a macOS window screenshot taken on a white background into a
 transparent PNG/WebP: the window stays opaque, the drop shadow becomes
-black with alpha. Used once for images/freedom-0.8.8-hero*.webp.
+black with alpha. Used once for images/freedom-0.8.8-hero.webp (the portrait
+shot make-og-and-icons.py reads); the -hero-wide*.webp images were not made
+with it.
 
 usage: python3 cutout-screenshot.py in.webp out-prefix left top right bottom radius
 (window bounds in pixels, edges inclusive)."""
