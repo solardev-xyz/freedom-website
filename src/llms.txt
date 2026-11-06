@@ -2,7 +2,7 @@
 
 > Freedom is an open-source browser with in-browser Swarm, IPFS and Radicle nodes. Dapps use `window.swarm`, `window.radicle` and `rad:` URLs through the user's own nodes — no servers, gateways or API keys.
 
-Two audiences use this site: people building serverless dapps on Freedom's page providers, and people contributing to the browser itself. Prefer the Markdown twins linked below (same URL as the HTML page with `.md` appended, e.g. `page.html.md`). The human site loads no third-party scripts. Links below are relative to this file, so they resolve on whichever host (freedom.baby or a Swarm gateway) served it.
+Two audiences use this site: people building serverless dapps on Freedom's page providers, and people contributing to the browser itself. Prefer the Markdown twins linked below (same URL as the HTML page with `.md` appended, e.g. `page.html.md`). The human site loads no third-party scripts. Links below are relative to this file, so they resolve on whichever host (freedom.baby or a Swarm gateway) served it. Canonical copy: https://freedom.baby/llms.txt. If you have this text without the URL it came from, resolve the links against https://freedom.baby/ (e.g. `developer/quickstart.html.md` is https://freedom.baby/developer/quickstart.html.md).
 
 **Code is the authority for APIs.** These docs are a map; when they disagree with the browser source or with SWIP #94, trust the code. Never invent API methods, parameters, errors or permission behaviour — if a fact is missing, say so and point at the references or the repository.
 

@@ -512,11 +512,17 @@ function copyLlmsTxt() {
 /**
  * llms.txt links to this site must be relative, so an agent that reads the
  * map from a Swarm gateway stays on Swarm instead of being sent to the
- * domain, and every relative target must exist in dist/.
+ * domain, and every relative target must exist in dist/. Each map must
+ * still name its canonical URL in prose, so an agent holding only the text
+ * (no source URL) has a base to resolve the relative links against.
  */
 function checkLlmsLinks() {
   for (const rel of ['llms.txt', 'developer/llms.txt']) {
     const text = fs.readFileSync(path.join(DIST, rel), 'utf-8');
+    const canonical = new URL(rel, SITE.url).href;
+    if (!text.includes(canonical)) {
+      throw new Error(`${rel}: must name its canonical URL ${canonical} as a base for the relative links`);
+    }
     const dir = path.dirname(path.join(DIST, rel));
     for (const [, target] of text.matchAll(/\]\(([^)\s]+)\)/g)) {
       if (target.startsWith(SITE.url) || /^https?:\/\/(www\.)?freedom\.baby\b/.test(target)) {
@@ -528,7 +534,7 @@ function checkLlmsLinks() {
       if (!fs.existsSync(file)) throw new Error(`${rel}: link ${target} has no file in dist/`);
     }
   }
-  console.log('  checked   llms.txt links (relative, all resolve)');
+  console.log('  checked   llms.txt links (relative, all resolve, canonical base named)');
 }
 
 /** Fill {{…}} site values in every copied HTML page. */

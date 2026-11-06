@@ -1,6 +1,6 @@
 # Freedom Browser developer docs
 
-> Map of the /developer/ docs for agents. Links are relative to this file. Every page has a Markdown twin at the same path with `.md` appended (`page.html.md`). Prefer those over HTML. Code and SWIP #94 beat these docs when they disagree; never invent API facts. Security and bugs: https://github.com/solardev-xyz/freedom-browser/issues
+> Map of the /developer/ docs for agents. Links are relative to this file. Canonical copy: https://freedom.baby/developer/llms.txt. If you have this text without the URL it came from, resolve the links against https://freedom.baby/developer/ (e.g. `quickstart.html.md` is https://freedom.baby/developer/quickstart.html.md). Every page has a Markdown twin at the same path with `.md` appended (`page.html.md`). Prefer those over HTML. Code and SWIP #94 beat these docs when they disagree; never invent API facts. Security and bugs: https://github.com/solardev-xyz/freedom-browser/issues
 
 Site-wide entry point: [../llms.txt](../llms.txt)
 
