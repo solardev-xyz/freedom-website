@@ -1,0 +1,46 @@
+# Freedom Browser developer docs
+
+> Map of the /developer/ docs for agents. Every page has a Markdown twin at the same path with `.md` appended (`page.html.md`). Prefer those over HTML. Code and SWIP #94 beat these docs when they disagree; never invent API facts. Security and bugs: https://github.com/solardev-xyz/freedom-browser/issues
+
+Site-wide entry point: https://freedom.baby/llms.txt
+
+## Overview
+
+- [Overview](https://freedom.baby/developer/index.html.md): Providers, consent model, why build on Freedom
+- [Permissions and identity](https://freedom.baby/developer/guide-permissions.html.md): Origin-keyed grants, tiers, manifests, signing keys
+- [Errors and node readiness](https://freedom.baby/developer/guide-errors.html.md): Rejections, missing grants, node not ready, limits
+
+## Swarm
+
+- [Swarm hub](https://freedom.baby/developer/swarm-hub.html.md): window.swarm overview and SWIP #94
+- [Quickstart](https://freedom.baby/developer/quickstart.html.md): First dapp — detect, connect, publish, feed, deploy
+- [Feeds and mutable content](https://freedom.baby/developer/guide-feeds.html.md)
+- [Live messaging](https://freedom.baby/developer/guide-messaging.html.md): PSS and GSOC
+- [swarm-kit](https://freedom.baby/developer/guide-swarm-kit.html.md): TypeScript helpers over window.swarm
+- [window.swarm API](https://freedom.baby/developer/swarm.html.md): Full reference
+
+## Radicle
+
+- [Radicle hub](https://freedom.baby/developer/radicle-hub.html.md): rad: and window.radicle overview
+- [Radicle repos and issues](https://freedom.baby/developer/guide-radicle.html.md)
+- [window.radicle API](https://freedom.baby/developer/radicle.html.md): Full reference
+- [rad: URLs](https://freedom.baby/developer/rad-urls.html.md): Fetch public repos with the rad: scheme
+
+## Demos
+
+- [Demos](https://freedom.baby/developer/demos.html.md): Apps and example pages tagged by API
+
+## Contribute
+
+- [Setup](https://freedom.baby/developer/contributing.html.md): Build and run from source
+- [Architecture](https://freedom.baby/developer/architecture.html.md)
+- [Repositories](https://freedom.baby/developer/repositories.html.md): GitHub, Radicle mirror, related repos
+- [Workflow and pull requests](https://freedom.baby/developer/workflow.html.md)
+- [Open for contribution](https://freedom.baby/developer/open-issues.html.md): Curated issues (JSON source: open-issues.json)
+- [Community and mentorship](https://freedom.baby/developer/community.html.md)
+
+## Optional
+
+- [Root llms.txt](https://freedom.baby/llms.txt): Site-wide agent entry (product + docs)
+- [SWIP #94](https://github.com/ethersphere/SWIPs/pull/94): Draft Swarm provider standard
+- [freedom-browser on GitHub](https://github.com/solardev-xyz/freedom-browser)
