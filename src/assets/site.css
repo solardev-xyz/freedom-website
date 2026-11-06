@@ -403,8 +403,8 @@ section.block .plat.rec { box-shadow: inset 0 0 0 2px #fff !important; }
 .powered a img[src*="colibri"] { width: 24px; height: 24px; }
 .powered a img[src*="myotis"] { width: 30px; height: 30px; }
 
-/* Hero screenshot (portrait, 0.8.8): centred, never wider than 560px */
-.shot img { display: block; max-width: 560px; height: auto; margin: 0 auto; }
+/* Hero screenshot: the window with its shadow, full width of the column like before */
+.shot img { display: block; height: auto; margin: 0 auto; }
 
 /* Home: link under a section ("Read about Freedom Agent →", "All news →") */
 section.block .more { margin-top: 32px; color: #fff; opacity: .9; }
