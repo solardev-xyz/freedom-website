@@ -2,46 +2,46 @@
 
 > Freedom is an open-source browser with in-browser Swarm, IPFS and Radicle nodes. Dapps use `window.swarm`, `window.radicle` and `rad:` URLs through the user's own nodes — no servers, gateways or API keys.
 
-Two audiences use this site: people building serverless dapps on Freedom's page providers, and people contributing to the browser itself. Prefer the Markdown twins linked below (same URL as the HTML page with `.md` appended, e.g. `page.html.md`). The human site loads no third-party scripts.
+Two audiences use this site: people building serverless dapps on Freedom's page providers, and people contributing to the browser itself. Prefer the Markdown twins linked below (same URL as the HTML page with `.md` appended, e.g. `page.html.md`). The human site loads no third-party scripts. Links below are relative to this file, so they resolve on whichever host (freedom.baby or a Swarm gateway) served it.
 
 **Code is the authority for APIs.** These docs are a map; when they disagree with the browser source or with SWIP #94, trust the code. Never invent API methods, parameters, errors or permission behaviour — if a fact is missing, say so and point at the references or the repository.
 
 **Security and issues** go to the public GitHub tracker: https://github.com/solardev-xyz/freedom-browser/issues (no private email). Do not post credentials, seed phrases or private keys.
 
-A denser map of only the developer docs lives at https://freedom.baby/developer/llms.txt.
+A denser map of only the developer docs lives at [developer/llms.txt](developer/llms.txt).
 
 ## Build dapps
 
-- [Developer overview](https://freedom.baby/developer/index.html.md): Why build on Freedom; providers, consent model, starting points
-- [Swarm hub](https://freedom.baby/developer/swarm-hub.html.md): window.swarm overview — publish, feeds, messaging, SWIP #94
-- [Radicle hub](https://freedom.baby/developer/radicle-hub.html.md): rad: URLs and window.radicle overview
-- [Quickstart](https://freedom.baby/developer/quickstart.html.md): First dapp in plain JavaScript (detect, connect, publish, feed, deploy)
-- [window.swarm API](https://freedom.baby/developer/swarm.html.md): Full Swarm provider reference
-- [window.radicle API](https://freedom.baby/developer/radicle.html.md): Full Radicle provider reference
-- [rad: URLs](https://freedom.baby/developer/rad-urls.html.md): Fetch public Radicle repos with the rad: scheme
-- [Permissions and identity](https://freedom.baby/developer/guide-permissions.html.md): Grants, tiers, manifests, signing keys
-- [Errors and node readiness](https://freedom.baby/developer/guide-errors.html.md): Rejections, missing grants, limits, retries
-- [Feeds and mutable content](https://freedom.baby/developer/guide-feeds.html.md): Swarm feeds guide
-- [Live messaging](https://freedom.baby/developer/guide-messaging.html.md): PSS and GSOC with swarm_subscribe
-- [swarm-kit](https://freedom.baby/developer/guide-swarm-kit.html.md): TypeScript structures over window.swarm
-- [Radicle repos and issues](https://freedom.baby/developer/guide-radicle.html.md): Seed, issues, comments
-- [Demos](https://freedom.baby/developer/demos.html.md): Apps and examples to read and copy from
+- [Developer overview](developer/index.html.md): Why build on Freedom; providers, consent model, starting points
+- [Swarm hub](developer/swarm-hub.html.md): window.swarm overview — publish, feeds, messaging, SWIP #94
+- [Radicle hub](developer/radicle-hub.html.md): rad: URLs and window.radicle overview
+- [Quickstart](developer/quickstart.html.md): First dapp in plain JavaScript (detect, connect, publish, feed, deploy)
+- [window.swarm API](developer/swarm.html.md): Full Swarm provider reference
+- [window.radicle API](developer/radicle.html.md): Full Radicle provider reference
+- [rad: URLs](developer/rad-urls.html.md): Fetch public Radicle repos with the rad: scheme
+- [Permissions and identity](developer/guide-permissions.html.md): Grants, tiers, manifests, signing keys
+- [Errors and node readiness](developer/guide-errors.html.md): Rejections, missing grants, limits, retries
+- [Feeds and mutable content](developer/guide-feeds.html.md): Swarm feeds guide
+- [Live messaging](developer/guide-messaging.html.md): PSS and GSOC with swarm_subscribe
+- [swarm-kit](developer/guide-swarm-kit.html.md): TypeScript structures over window.swarm
+- [Radicle repos and issues](developer/guide-radicle.html.md): Seed, issues, comments
+- [Demos](developer/demos.html.md): Apps and examples to read and copy from
 
 ## Contribute
 
-- [Setup](https://freedom.baby/developer/contributing.html.md): Clone, install, run Freedom from source
-- [Architecture](https://freedom.baby/developer/architecture.html.md): How the browser is put together
-- [Repositories](https://freedom.baby/developer/repositories.html.md): GitHub, Radicle mirror, and related projects
-- [Workflow and pull requests](https://freedom.baby/developer/workflow.html.md): How to land a change
-- [Open for contribution](https://freedom.baby/developer/open-issues.html.md): Curated help-wanted issues (see also open-issues.json beside the HTML)
-- [Community and mentorship](https://freedom.baby/developer/community.html.md): Forum, Telegram, how mentorship works
+- [Setup](developer/contributing.html.md): Clone, install, run Freedom from source
+- [Architecture](developer/architecture.html.md): How the browser is put together
+- [Repositories](developer/repositories.html.md): GitHub, Radicle mirror, and related projects
+- [Workflow and pull requests](developer/workflow.html.md): How to land a change
+- [Open for contribution](developer/open-issues.html.md): Curated help-wanted issues (see also open-issues.json beside the HTML)
+- [Community and mentorship](developer/community.html.md): Forum, Telegram, how mentorship works
 
 ## Product
 
-- [Home](https://freedom.baby/): Product overview and download
-- [News](https://freedom.baby/news.html): Release posts and announcements
-- [Download](https://freedom.baby/#download): Installers for macOS, Windows and Linux
-- [Privacy](https://freedom.baby/privacy.html): Privacy policy
+- [Home](./): Product overview and download
+- [News](news.html): Release posts and announcements
+- [Download](./#download): Installers for macOS, Windows and Linux
+- [Privacy](privacy.html): Privacy policy
 
 ## Optional
 
@@ -49,4 +49,4 @@ A denser map of only the developer docs lives at https://freedom.baby/developer/
 - [Freedom Browser on Radicle](https://radicle.network/nodes/iris.radicle.network/rad%3Az3QXuMvMmSeEX3ZgoUidZC1v5MkKE): Mirror (`rad:z3QXuMvMmSeEX3ZgoUidZC1v5MkKE`); currently behind GitHub
 - [This website on GitHub](https://github.com/solardev-xyz/freedom-website): Static site source (freedom.baby)
 - [SWIP #94](https://github.com/ethersphere/SWIPs/pull/94): Draft Swarm page-provider standard that window.swarm implements
-- [Developer llms.txt](https://freedom.baby/developer/llms.txt): Docs-only map grouped like the Overview | Swarm | Radicle | Demos | Contribute tabs
+- [Developer llms.txt](developer/llms.txt): Docs-only map grouped like the Overview | Swarm | Radicle | Demos | Contribute tabs

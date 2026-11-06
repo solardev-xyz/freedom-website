@@ -351,6 +351,14 @@ function renderOpenIssues() {
   return { html, toc, updated, count };
 }
 
+// Inline Markdown helpers for values from open-issues.json: keep each value on
+// its own line of the list item, and stop `[`/`]`/`(`/`)` from closing a link.
+const mdLine = (s) => String(s ?? '').replace(/\s+/g, ' ').trim();
+// A summary that starts like a block (`- `, `# `, `> `, `1. `) would nest.
+const mdParagraph = (s) => mdLine(s).replace(/^[-+*#>]/, '\\$&').replace(/^(\d+)([.)])/, '$1\\$2');
+const mdLinkText = (s) => mdLine(s).replace(/[\\[\]]/g, '\\$&');
+const mdLinkUrl = (s) => mdLine(s).replace(/ /g, '%20').replace(/\(/g, '%28').replace(/\)/g, '%29');
+
 /** Open issues as a Markdown list for the page's .html.md twin. */
 function renderOpenIssuesMarkdown() {
   const { areas, proposals, updated, count } = loadOpenIssues();
@@ -359,7 +367,7 @@ function renderOpenIssuesMarkdown() {
     if (i.source === 'community') tags.push('Community');
     if (i.committed === false) tags.push('Proposal, not on the roadmap');
     if (i.difficulty) tags.push(i.difficulty === 'starter' ? 'Good first issue' : i.difficulty);
-    return `- [#${i.number} ${i.title}](${i.url}) (${tags.join(', ')})\n  ${i.summary}\n  Opened by ${i.author} · checked ${formatDate(i.last_checked)}`;
+    return `- [#${i.number} ${mdLinkText(i.title)}](${mdLinkUrl(i.url)}) (${tags.join(', ')})\n  ${mdParagraph(i.summary)}\n  Opened by ${mdLine(i.author)} · checked ${formatDate(i.last_checked)}`;
   };
   let md = areas.map((a) => `## ${a.label}\n\n${a.issues.map(item).join('\n')}`).join('\n\n');
   if (proposals.length) {
@@ -501,6 +509,28 @@ function copyLlmsTxt() {
   console.log('  copied    developer/open-issues.json → dist/developer/open-issues.json');
 }
 
+/**
+ * llms.txt links to this site must be relative, so an agent that reads the
+ * map from a Swarm gateway stays on Swarm instead of being sent to the
+ * domain, and every relative target must exist in dist/.
+ */
+function checkLlmsLinks() {
+  for (const rel of ['llms.txt', 'developer/llms.txt']) {
+    const text = fs.readFileSync(path.join(DIST, rel), 'utf-8');
+    const dir = path.dirname(path.join(DIST, rel));
+    for (const [, target] of text.matchAll(/\]\(([^)\s]+)\)/g)) {
+      if (target.startsWith(SITE.url) || /^https?:\/\/(www\.)?freedom\.baby\b/.test(target)) {
+        throw new Error(`${rel}: link ${target} must be relative to stay on the serving host`);
+      }
+      if (/^[a-z][\w+.-]*:/i.test(target)) continue;
+      let file = path.resolve(dir, target.replace(/#.*$/, ''));
+      if (target.replace(/#.*$/, '').endsWith('/') || target.startsWith('#')) file = path.join(file, 'index.html');
+      if (!fs.existsSync(file)) throw new Error(`${rel}: link ${target} has no file in dist/`);
+    }
+  }
+  console.log('  checked   llms.txt links (relative, all resolve)');
+}
+
 /** Fill {{…}} site values in every copied HTML page. */
 function fillPages(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -533,6 +563,7 @@ function main() {
   renderNews(POSTS.map(renderPost));
   DOC_PAGES.forEach(renderDoc);
   copyLlmsTxt();
+  checkLlmsLinks();
   writeSitemap();
   console.log('✓ Build complete');
 }
