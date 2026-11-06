@@ -222,6 +222,10 @@ nav.top .menu { display: flex; justify-content: flex-end; gap: 28px; font-size: 
 nav.top .menu a { text-decoration: none; color: var(--muted); transition: color .15s; white-space: nowrap; }
 nav.top .menu a:hover { color: var(--text); }
 nav.top .btn { color: var(--btn-text); }
+/* The logo never gives up width to the menu (the global img max-width would let the grid squeeze it). */
+nav.top .brand img { max-width: none; }
+/* Small tablets: tighter gaps so logo, all menu links and Download fit on one row */
+@media (min-width: 641px) and (max-width: 760px) { nav.top .wrap { gap: 16px; } nav.top .menu { gap: 16px; } }
 .burger { display: none; }
 @media (max-width: 640px) {
   nav.top .wrap { grid-template-columns: 1fr auto auto; gap: 10px; }
@@ -296,6 +300,7 @@ section.block:nth-of-type(odd) .kicker::before { background: #ffffff; }
 /* Full-width header: logo at the far left, menu and Download at the far right */
 nav.top .wrap { max-width: none; padding: 0 32px; }
 @media (max-width: 640px) { nav.top .wrap { padding: 0 20px; } }
+@media (min-width: 641px) and (max-width: 760px) { nav.top .wrap { padding: 0 24px; } }
 @media (max-width: 640px) { section.block { padding: 80px 0; } }
 
 /* Two-colour dither replaces the smooth gradients (grain, 1px dots), drawn by ../dither.js */
