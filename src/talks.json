@@ -1,5 +1,17 @@
 [
   {
+    "id": "Z0YK0_SOH4Y",
+    "slug": "gateway-free-by-design",
+    "title": "Gateway-Free by Design: Building a Browser for Permissionless Networks",
+    "event": "Devcon 8",
+    "channel": "Ethereum Foundation",
+    "speaker": "Meinhard Benn",
+    "date": "2026-11-05",
+    "duration": 1644,
+    "thumbnail": "images/talks/Z0YK0_SOH4Y.webp",
+    "description": "Meinhard Benn, co-founder of Freedom Browser, speaks at Devcon 8 on the engineering lessons from shipping Freedom Browser, an open-source browser with integrated Swarm, IPFS, and Radicle nodes, native Ethereum name resolution, and a native wallet. Drawing on 7,000+ organic downloads across 139 countries, the talk examines node lifecycle and resource constraints, name-resolution trust boundaries, browser security, and how to design access to peer-to-peer networks that keeps working when gateways, stores, or network paths fail."
+  },
+  {
     "id": "iY5RF7XbTJM",
     "slug": "building-a-privacy-browser-for-ethereum",
     "title": "Building a Privacy Browser for Ethereum",
