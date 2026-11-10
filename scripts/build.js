@@ -128,6 +128,12 @@ const DOC_PAGES = DOCS.filter((d) => d.content);
 // Optional here (they win over the post's front matter): description, imageAlt.
 const POSTS = [
   {
+    content: 'apps-that-live-in-a-contract.md',
+    template: 'post-template.html',
+    output: 'apps-that-live-in-a-contract.html',
+    summary: 'Freedom opens web3:// apps whose whole page lives in an Ethereum contract, and checks the code before it runs.',
+  },
+  {
     content: 'freedom-0-8-8-agent.md',
     template: 'post-template.html',
     output: 'freedom-0-8-8-agent.html',
