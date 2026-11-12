@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-11-11",
+  "last_updated": "2026-11-12",
   "repo": "solardev-xyz/freedom-browser",
   "areas": [
     {
@@ -35,7 +35,7 @@
       "difficulty": "starter",
       "committed": null,
       "summary": "radicle_unseed always shows a consent prompt, but the window.radicle shim gives it the 60 s timeout instead of the 300 s budget other prompting methods get. The issue names the one list that needs the method added, plus a test.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1002,
@@ -56,9 +56,15 @@
       "difficulty": null,
       "committed": null,
       "summary": "After unlock, Freedom restarts its node to inject the identity, and every window.swarm call fails with node-stopped until it is back. Suggests queueing page calls during a planned restart, or exposing readiness to pages.",
-      "last_checked": "2026-11-11",
-      "prs": [],
-      "status": "needs-fix"
+      "last_checked": "2026-11-12",
+      "prs": [
+        {
+          "number": 1172,
+          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1172",
+          "title": "fix(swarm): hold window.swarm calls while Freedom restarts the node (#988)"
+        }
+      ],
+      "status": "needs-review"
     },
     {
       "number": 989,
@@ -71,7 +77,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Without an index the call returns the referenced content; with an index it returns the raw entry. Asks for one documented shape, with an option to resolve the reference.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1170,
@@ -92,7 +98,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Today every user needs their own postage batch before their first write. Asks that publishChunk, writeSingleOwnerChunk and writeFeedEntry accept an optional stamp a sponsor signed.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [],
       "status": "needs-fix"
     },
@@ -107,7 +113,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Feed owners are app-scoped per origin, so the same person is a different member in every community. Asks for a freedom-manifest.json field, with its own consent wording, that lets a site use the wallet identity for feeds (with #949 in mind).",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [],
       "status": "needs-fix"
     },
@@ -122,7 +128,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Private communities need group and member-to-member keys without pages holding long-term secrets. Asks either for ACT with grantee management, or for key agreement with the page's identity key.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1153,
@@ -143,7 +149,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The swap succeeded, then the batch step failed on a transient RPC error and the user saw \"failed\". Suggests retrying the batch step automatically and saying the funds are safe.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1139,
@@ -164,7 +170,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Uploads in freedom://publish jump from 0% to 100% with no progress in between. This worked with Bee and stopped after the switch to Ant.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [],
       "status": "needs-fix"
     },
@@ -179,7 +185,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Feedback on the publish setup flow. A maintainer status pass lists three points still open: link fund.ethswarm.org, hint how little xDAI is needed, and allow manual batch configuration.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [],
       "status": "needs-fix"
     },
@@ -194,7 +200,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Notes from driving Freedom over CDP: an undocumented ant.apiGet allowlist, identity helpers that return objects instead of booleans, and a fixed node port that stops two profiles running at once.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1169,
@@ -215,7 +221,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The Radicle mirror of the source was about four months (2714 commits) behind GitHub main on 2026-11-05. Suggests a CI job that pushes on every main push and tag.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [],
       "status": "needs-fix"
     },
@@ -230,52 +236,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "A Swarm-hosted wiki loads its search form in Freedom but gets stuck there, while it works through a Bee node's local gateway. A second user reported the same.",
-      "last_checked": "2026-11-11",
-      "prs": [],
-      "status": "needs-fix"
-    },
-    {
-      "number": 169,
-      "title": "Confirming single-range bzz:// support as a kept contract (enables lazy SQLite & friends) + test-page offer",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/169",
-      "area": "compat",
-      "kind": "dx",
-      "source": "community",
-      "author": "petfold",
-      "difficulty": null,
-      "committed": null,
-      "summary": "swarmlite reads SQLite pages over HTTP Range requests. Asks the team to confirm single-range bzz:// support as a kept contract, and offers a test page.",
-      "last_checked": "2026-11-11",
-      "prs": [],
-      "status": "needs-fix"
-    },
-    {
-      "number": 647,
-      "title": "`window.swarm`: publish a single-owner chunk the page signed, stamped by the node",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/647",
-      "area": "swarm-provider",
-      "kind": "feature-request",
-      "source": "community",
-      "author": "petfold",
-      "difficulty": null,
-      "committed": false,
-      "summary": "Proposal for a method that lets a page publish a single-owner chunk signed with a key the page holds, stamped by the node. This lets apps keep one Swarm identity across Freedom, Bee-based browsers and other clients.",
-      "last_checked": "2026-11-11",
-      "prs": [],
-      "status": "needs-fix"
-    },
-    {
-      "number": 648,
-      "title": "`window.swarm`: open content shared with the user's node through ACT, with consent per publisher",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/648",
-      "area": "swarm-provider",
-      "kind": "feature-request",
-      "source": "community",
-      "author": "petfold",
-      "difficulty": null,
-      "committed": false,
-      "summary": "Proposal for a way for pages to open ACT content shared with the user's node, with consent per publisher. Today bzz:// drops the Swarm-Act headers and window.swarm has no ACT method.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [],
       "status": "needs-fix"
     },
@@ -290,98 +251,9 @@
       "difficulty": null,
       "committed": null,
       "summary": "Request for full web3:// support. A maintainer has since extended it into a plan for the ERC-6860 family; Freedom currently resolves web3:// through ERC-8244 html().",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [],
       "status": "needs-fix"
-    },
-    {
-      "number": 1062,
-      "title": "window.swarm.sendPss fails against the bundled node: the recipient key is sent without its SEC1 prefix",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/1062",
-      "area": "swarm-provider",
-      "kind": "bug",
-      "source": "maintainer",
-      "author": "flotob",
-      "difficulty": null,
-      "committed": null,
-      "summary": "The provider accepts a 66-hex compressed key, but bee-js re-encodes it as a 64-byte key and the bundled node rejects it with HTTP 400. The issue proposes sending the compressed key as given, plus a test against a node or a recorded exchange.",
-      "last_checked": "2026-11-11",
-      "prs": [
-        {
-          "number": 1089,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1089",
-          "title": "Send the PSS recipient as the compressed key the node reads (#1062)"
-        }
-      ],
-      "status": "needs-review"
-    },
-    {
-      "number": 1052,
-      "title": "window.swarm publishFiles: nested paths reach the node with backslashes on Windows",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/1052",
-      "area": "swarm-provider",
-      "kind": "bug",
-      "source": "maintainer",
-      "author": "flotob",
-      "difficulty": null,
-      "committed": null,
-      "summary": "On Windows, a nested file such as assets/app.js reaches the node as assets\\app.js, so a nested indexDocument does not match. The issue proposes uploading through publishCollection and testing nested paths on Windows CI. Not yet run on Windows.",
-      "last_checked": "2026-11-11",
-      "prs": [
-        {
-          "number": 1056,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1056",
-          "title": "fix(swarm): budget feed reads before download, publish files under page paths, 404-only free index (#1051, #1052, #1054)"
-        },
-        {
-          "number": 1124,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1124",
-          "title": "fix(swarm): preserve POSIX paths in publishFiles via publishCollection (#1052)"
-        }
-      ],
-      "status": "needs-review"
-    },
-    {
-      "number": 1054,
-      "title": "Feed write at an explicit index treats a node 500 as a free index",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/1054",
-      "area": "swarm-provider",
-      "kind": "bug",
-      "source": "maintainer",
-      "author": "flotob",
-      "difficulty": null,
-      "committed": null,
-      "summary": "The overwrite check treats a node 500 as \"no entry\", so a write can overwrite an existing entry. The issue proposes that only a 404 means a free index, with a retryable error for anything else.",
-      "last_checked": "2026-11-11",
-      "prs": [
-        {
-          "number": 1056,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1056",
-          "title": "fix(swarm): budget feed reads before download, publish files under page paths, 404-only free index (#1051, #1052, #1054)"
-        }
-      ],
-      "status": "needs-review"
-    },
-    {
-      "number": 1051,
-      "title": "window.swarm: any page can make main download a whole feed entry of any size",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/1051",
-      "area": "swarm-provider",
-      "kind": "bug",
-      "source": "maintainer",
-      "author": "flotob",
-      "difficulty": null,
-      "committed": null,
-      "summary": "swarm_readFeedEntry needs no grant and downloads the whole entry before charging the page's read budget, so a page can exhaust the browser process's memory. The issue proposes reserving against the budget from the wrapped chunk's size first, and capping the latest-entry body as it streams.",
-      "last_checked": "2026-11-11",
-      "prs": [
-        {
-          "number": 1056,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1056",
-          "title": "fix(swarm): budget feed reads before download, publish files under page paths, 404-only free index (#1051, #1052, #1054)"
-        }
-      ],
-      "status": "needs-review"
     },
     {
       "number": 1053,
@@ -394,56 +266,9 @@
       "difficulty": null,
       "committed": null,
       "summary": "swarm_writeFeedEntry checks the type of the data but not its size, so it can pass publishData's 10 MiB limit. The proposed fix is the same 10 MiB limit, refused with payload_too_large. It is a page-visible change and waits on the maintainers' OK.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [],
       "status": "needs-fix"
-    },
-    {
-      "number": 1050,
-      "title": "rad: error replies can carry the local Radicle storage path to pages",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/1050",
-      "area": "radicle",
-      "kind": "bug",
-      "source": "maintainer",
-      "author": "flotob",
-      "difficulty": null,
-      "committed": null,
-      "summary": "The rad: handler returns the add-on's own error text, which can include the local Radicle storage path and so usually the OS user name. The issue proposes fixed error texts per category on the public rad: path, with detail only in redacted logs.",
-      "last_checked": "2026-11-11",
-      "prs": [
-        {
-          "number": 1061,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1061",
-          "title": "fix(radicle): answer rad: add-on errors with fixed texts, never their own (#1050)"
-        }
-      ],
-      "status": "needs-review"
-    },
-    {
-      "number": 1073,
-      "title": "window.radicle provider replies can carry the add-on's error text, including local paths",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/1073",
-      "area": "radicle",
-      "kind": "bug",
-      "source": "maintainer",
-      "author": "flotob",
-      "difficulty": null,
-      "committed": null,
-      "summary": "Three window.radicle paths (listSeededRepos, wrapCobError and the dispatcher's catch-all) pass the add-on's error text to the page, which can include local paths. The issue proposes fixed texts per category and a test that no reply carries an absolute path.",
-      "last_checked": "2026-11-11",
-      "prs": [
-        {
-          "number": 1087,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1087",
-          "title": "fix(radicle): answer window.radicle add-on errors with fixed texts (#1073)"
-        },
-        {
-          "number": 1104,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1104",
-          "title": "fix(radicle): reply to window.radicle provider errors with fixed texts without local paths (#1073)"
-        }
-      ],
-      "status": "needs-review"
     },
     {
       "number": 1096,
@@ -456,7 +281,7 @@
       "difficulty": null,
       "committed": false,
       "summary": "Asks Freedom to open pubky:// addresses the way it opens ipfs:// and bzz://, with a main-process handler that resolves the key's homeserver and serves public files under /pub/ (GET and HEAD only).",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1098,
@@ -477,7 +302,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "App-scoped publisher keys come from a counter stored in the profile, so restoring the recovery phrase on another device gives a site a different key and its feeds can no longer be updated. The issue proposes deriving new keys from the site so the same phrase restores them; existing keys keep working.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1164,
@@ -498,7 +323,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The node decrypts PSS messages with one key shared by every site, so any site with the messaging grant that subscribes to a topic receives all messages on it, including those meant for another site. The issue records the limitation and points to per-site PSS keys, or end-to-end encryption in apps, as directions.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [],
       "status": "needs-fix"
     },
@@ -513,7 +338,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "swarm_unsubscribe returns an error for an unknown or already closed id, and swarm_subscribe accepts a history parameter but ignores it. The issue proposes making unsubscribe idempotent and refusing history with a clear error until it is implemented.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1162,
@@ -534,7 +359,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The connect event fires only after the plain connect prompt, not when a permission manifest connects a site, and disconnect is sent only to the active tab. The issue proposes firing connect whenever access is granted and sending disconnect to every tab showing that site.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1161,
@@ -555,7 +380,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Freedom reads a site's permission manifest from freedom-manifest.json, while the Swarm provider standard will use swarm-manifest.json. The issue proposes reading the new name first and falling back to the old one, without prompting again when a site moves between them, plus docs.",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "prs": [
         {
           "number": 1160,
