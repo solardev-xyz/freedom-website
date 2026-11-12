@@ -34,7 +34,8 @@
  *   src/developer/*.md    → rendered with      → dist/developer/*.html
  *     + src/templates/docs-template.html
  *     (tabs, left nav and "On this page" are generated; see DOCS below;
- *     open-issues.md pulls in src/developer/open-issues.json)
+ *     open-issues.md pulls in src/developer/open-issues.json; each issue's
+ *     status/prs come from `npm run issues:prs`, scripts/open-issues-prs.js)
  *                         → twin (YAML kept,   → dist/developer/*.html.md
  *                           placeholders filled, doc links → twins)
  *   src/llms.txt          → copied             → dist/llms.txt
@@ -713,57 +714,96 @@ function formatDate(iso) {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
 
+const STATUS = {
+  'needs-fix': {
+    label: 'Needs a fix',
+    intro: 'Nobody has opened a pull request for these yet, so this is the best place to start. Pick one, say on the issue that you are taking it, and send a fix.',
+  },
+  'needs-review': {
+    label: 'Needs review',
+    intro: 'These already have an open pull request. Help by reading the change, building the branch and testing the fix in Freedom, then leave what you found on the PR.',
+  },
+};
+const STATUS_ORDER = ['needs-fix', 'needs-review'];
+
 function renderIssueCard(i) {
-  const badges = [`<span class="badge kind-${i.kind}">${KIND_LABEL[i.kind] || i.kind}</span>`];
+  const badges = [`<span class="badge status-${i.status}">${STATUS[i.status].label}</span>`, `<span class="badge kind-${i.kind}">${KIND_LABEL[i.kind] || i.kind}</span>`];
   if (i.source === 'community') badges.push('<span class="badge community">Community</span>');
   if (i.committed === false) badges.push('<span class="badge proposal">Proposal · not on the roadmap</span>');
   if (i.difficulty) badges.push(`<span class="badge difficulty">${escapeHtml(i.difficulty === 'starter' ? 'Good first issue' : i.difficulty)}</span>`);
-  return `<li class="issue-card">
+  const prs = i.prs.length
+    ? `\n  <ul class="issue-prs">${i.prs.map((pr) => `<li><a href="${escapeHtml(pr.url)}">PR #${pr.number}</a> <span class="issue-pr-title">${escapeHtml(pr.title)}</span> <span class="issue-pr-cta">— review / test it</span></li>`).join('')}</ul>`
+    : '';
+  return `<li class="issue-card status-${i.status}">
   <div class="issue-head"><a class="issue-title" href="${escapeHtml(i.url)}"><span class="issue-num">#${i.number}</span> ${escapeHtml(i.title)}</a></div>
   <div class="issue-badges">${badges.join(' ')}</div>
-  <p>${escapeHtml(i.summary)}</p>
+  <p>${escapeHtml(i.summary)}</p>${prs}
   <p class="issue-meta">Opened by ${escapeHtml(i.author)} · checked ${formatDate(i.last_checked)}</p>
 </li>`;
 }
 
-/** Load and validate src/developer/open-issues.json (authored by hand; no API calls at build time). */
+/**
+ * Load and validate src/developer/open-issues.json (authored by hand, plus
+ * status/prs from `npm run issues:prs`; no API calls at build time).
+ * Issues are split by status (needs a fix first), then by area; community
+ * proposals get their own group inside each status.
+ */
 function loadOpenIssues() {
   const data = JSON.parse(fs.readFileSync(OPEN_ISSUES_PATH, 'utf-8'));
   const kinds = new Set(Object.keys(KIND_LABEL));
   for (const i of data.issues) {
-    for (const f of ['number', 'title', 'url', 'area', 'kind', 'summary', 'last_checked']) {
-      if (i[f] === undefined || i[f] === '') throw new Error(`open-issues.json: #${i.number} is missing ${f}`);
+    for (const f of ['number', 'title', 'url', 'area', 'kind', 'summary', 'last_checked', 'status']) {
+      if (i[f] === undefined || i[f] === '') throw new Error(`open-issues.json: #${i.number} is missing ${f} (run npm run issues:prs)`);
     }
     if (!kinds.has(i.kind)) throw new Error(`open-issues.json: #${i.number} has unknown kind ${i.kind}`);
     if (!data.areas.some((a) => a.id === i.area)) throw new Error(`open-issues.json: #${i.number} has unknown area ${i.area}`);
+    if (!STATUS[i.status]) throw new Error(`open-issues.json: #${i.number} has unknown status ${i.status}`);
+    if (!Array.isArray(i.prs)) i.prs = [];
+    if ((i.status === 'needs-review') !== (i.prs.length > 0)) throw new Error(`open-issues.json: #${i.number} is ${i.status} but lists ${i.prs.length} PRs`);
   }
   const isProposal = (i) => i.source === 'community' && i.kind === 'feature-request';
   const order = { bug: 0, dx: 1, 'feature-request': 2 };
   const sort = (a, b) => (order[a.kind] - order[b.kind]) || (b.number - a.number);
-  const areas = data.areas
-    .map((area) => ({ ...area, issues: data.issues.filter((i) => i.area === area.id && !isProposal(i)).sort(sort) }))
-    .filter((a) => a.issues.length);
-  const proposals = data.issues.filter(isProposal).sort((a, b) => b.number - a.number);
-  return { areas, proposals, updated: formatDate(data.last_updated), count: data.issues.length };
+  const statuses = STATUS_ORDER.map((id) => {
+    const issues = data.issues.filter((i) => i.status === id);
+    const areas = data.areas
+      .map((area) => ({ ...area, issues: issues.filter((i) => i.area === area.id && !isProposal(i)).sort(sort) }))
+      .filter((a) => a.issues.length);
+    const proposals = issues.filter(isProposal).sort((a, b) => b.number - a.number);
+    return { id, ...STATUS[id], count: issues.length, areas, proposals };
+  });
+  return { statuses, updated: formatDate(data.last_updated), count: data.issues.length };
 }
 
 const PROPOSALS_INTRO = 'Feature ideas from developers outside the core team. They are open for discussion, design and prototypes, but a proposal is not a commitment: items marked %BADGE% are not on the roadmap. Comment on the issue before you start building.';
 
+const anchor = (id) => `<a class="h-anchor" href="#${id}" aria-label="Link to this section">#</a>`;
+
 /** Open issues as HTML cards for the docs page. */
 function renderOpenIssues() {
-  const { areas, proposals, updated, count } = loadOpenIssues();
+  const { statuses, updated, count } = loadOpenIssues();
+  const splitHtml = `<p class="issues-split">${statuses.map((st) => `<a class="issues-split-link status-${st.id}" href="#${st.id}">${st.label} <strong>${st.count}</strong></a>`).join(' ')}</p>`;
   let html = '';
-  for (const area of areas) {
-    html += `<h2 id="${area.id}">${escapeHtml(area.label)}<a class="h-anchor" href="#${area.id}" aria-label="Link to this section">#</a></h2>\n<ul class="issue-list">\n${area.issues.map(renderIssueCard).join('\n')}\n</ul>\n`;
-  }
-  if (proposals.length) {
-    html += `<h2 id="community-proposals">Community proposals<a class="h-anchor" href="#community-proposals" aria-label="Link to this section">#</a></h2>
+  const toc = [];
+  for (const st of statuses) {
+    const heading = `${st.label} (${st.count})`;
+    html += `<h2 id="${st.id}" class="issues-status-h status-${st.id}">${escapeHtml(heading)}${anchor(st.id)}</h2>\n<p>${escapeHtml(st.intro)}</p>\n`;
+    toc.push({ depth: 2, id: st.id, label: escapeHtml(heading) });
+    if (!st.count) { html += '<p class="issues-empty">Nothing here right now.</p>\n'; continue; }
+    for (const area of st.areas) {
+      const id = `${st.id}-${area.id}`;
+      html += `<h3 id="${id}">${escapeHtml(area.label)}${anchor(id)}</h3>\n<ul class="issue-list">\n${area.issues.map(renderIssueCard).join('\n')}\n</ul>\n`;
+      toc.push({ depth: 3, id, label: escapeHtml(area.label) });
+    }
+    if (st.proposals.length) {
+      const id = `${st.id}-community-proposals`;
+      html += `<h3 id="${id}">Community proposals${anchor(id)}</h3>
 <p>${PROPOSALS_INTRO.replace('%BADGE%', '<span class="badge proposal">Proposal · not on the roadmap</span>')}</p>
-<ul class="issue-list">\n${proposals.map(renderIssueCard).join('\n')}\n</ul>\n`;
+<ul class="issue-list">\n${st.proposals.map(renderIssueCard).join('\n')}\n</ul>\n`;
+      toc.push({ depth: 3, id, label: 'Community proposals' });
+    }
   }
-  const toc = areas.map((a) => ({ depth: 2, id: a.id, label: escapeHtml(a.label) }));
-  if (proposals.length) toc.push({ depth: 2, id: 'community-proposals', label: 'Community proposals' });
-  return { html, toc, updated, count };
+  return { html, toc, updated, count, splitHtml };
 }
 
 // Inline Markdown helpers for values from open-issues.json: keep each value on
@@ -776,19 +816,26 @@ const mdLinkUrl = (s) => mdLine(s).replace(/ /g, '%20').replace(/\(/g, '%28').re
 
 /** Open issues as a Markdown list for the page's .html.md twin. */
 function renderOpenIssuesMarkdown() {
-  const { areas, proposals, updated, count } = loadOpenIssues();
+  const { statuses, updated, count } = loadOpenIssues();
   const item = (i) => {
-    const tags = [KIND_LABEL[i.kind] || i.kind];
+    const tags = [STATUS[i.status].label, KIND_LABEL[i.kind] || i.kind];
     if (i.source === 'community') tags.push('Community');
     if (i.committed === false) tags.push('Proposal, not on the roadmap');
     if (i.difficulty) tags.push(i.difficulty === 'starter' ? 'Good first issue' : i.difficulty);
-    return `- [#${i.number} ${mdLinkText(i.title)}](${mdLinkUrl(i.url)}) (${tags.join(', ')})\n  ${mdParagraph(i.summary)}\n  Opened by ${mdLine(i.author)} · checked ${formatDate(i.last_checked)}`;
+    const prs = i.prs.map((pr) => `\n  Open PR: [PR #${pr.number} ${mdLinkText(pr.title)}](${mdLinkUrl(pr.url)}) — review / test it`).join('');
+    return `- [#${i.number} ${mdLinkText(i.title)}](${mdLinkUrl(i.url)}) (${tags.join(', ')})\n  ${mdParagraph(i.summary)}${prs}\n  Opened by ${mdLine(i.author)} · checked ${formatDate(i.last_checked)}`;
   };
-  let md = areas.map((a) => `## ${a.label}\n\n${a.issues.map(item).join('\n')}`).join('\n\n');
-  if (proposals.length) {
-    md += `\n\n## Community proposals\n\n${PROPOSALS_INTRO.replace('%BADGE%', '**Proposal · not on the roadmap**')}\n\n${proposals.map(item).join('\n')}`;
-  }
-  return { md, updated, count };
+  const md = statuses.map((st) => {
+    let out = `## ${st.label} (${st.count})\n\n${st.intro}`;
+    if (!st.count) return `${out}\n\nNothing here right now.`;
+    out += st.areas.map((a) => `\n\n### ${a.label}\n\n${a.issues.map(item).join('\n')}`).join('');
+    if (st.proposals.length) {
+      out += `\n\n### Community proposals\n\n${PROPOSALS_INTRO.replace('%BADGE%', '**Proposal · not on the roadmap**')}\n\n${st.proposals.map(item).join('\n')}`;
+    }
+    return out;
+  }).join('\n\n');
+  const splitMd = statuses.map((st) => `**${st.label}: ${st.count}**`).join(' · ');
+  return { md, updated, count, splitMd };
 }
 
 // Doc pages by HTML file name, for pointing twin links at other twins.
@@ -806,6 +853,7 @@ function renderDocTwin(rawMarkdown) {
     const issues = renderOpenIssuesMarkdown();
     md = md
       .replace(/^\{\{open_issues\}\}$/m, () => issues.md)
+      .replace(/^\{\{open_issues_split\}\}$/m, () => issues.splitMd)
       .replace(/\{\{open_issues_updated\}\}/g, issues.updated)
       .replace(/\{\{open_issues_count\}\}/g, String(issues.count));
   }
@@ -844,6 +892,7 @@ function renderDoc(doc) {
     const issues = renderOpenIssues();
     html = html
       .replace(/<p>\{\{open_issues\}\}<\/p>/, issues.html)
+      .replace(/<p>\{\{open_issues_split\}\}<\/p>/, issues.splitHtml)
       .replace(/\{\{open_issues_updated\}\}/g, issues.updated)
       .replace(/\{\{open_issues_count\}\}/g, String(issues.count));
     toc = toc.concat(issues.toc);
