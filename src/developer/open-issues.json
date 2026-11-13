@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-11-12",
+  "last_updated": "2026-11-13",
   "repo": "solardev-xyz/freedom-browser",
   "areas": [
     {
@@ -35,7 +35,7 @@
       "difficulty": "starter",
       "committed": null,
       "summary": "radicle_unseed always shows a consent prompt, but the window.radicle shim gives it the 60 s timeout instead of the 300 s budget other prompting methods get. The issue names the one list that needs the method added, plus a test.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1002,
@@ -56,7 +56,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "After unlock, Freedom restarts its node to inject the identity, and every window.swarm call fails with node-stopped until it is back. Suggests queueing page calls during a planned restart, or exposing readiness to pages.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1172,
@@ -77,7 +77,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Without an index the call returns the referenced content; with an index it returns the raw entry. Asks for one documented shape, with an option to resolve the reference.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1170,
@@ -98,7 +98,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Today every user needs their own postage batch before their first write. Asks that publishChunk, writeSingleOwnerChunk and writeFeedEntry accept an optional stamp a sponsor signed.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [],
       "status": "needs-fix"
     },
@@ -113,7 +113,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Feed owners are app-scoped per origin, so the same person is a different member in every community. Asks for a freedom-manifest.json field, with its own consent wording, that lets a site use the wallet identity for feeds (with #949 in mind).",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [],
       "status": "needs-fix"
     },
@@ -128,7 +128,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Private communities need group and member-to-member keys without pages holding long-term secrets. Asks either for ACT with grantee management, or for key agreement with the page's identity key.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1153,
@@ -149,7 +149,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The swap succeeded, then the batch step failed on a transient RPC error and the user saw \"failed\". Suggests retrying the batch step automatically and saying the funds are safe.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1139,
@@ -170,7 +170,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Uploads in freedom://publish jump from 0% to 100% with no progress in between. This worked with Bee and stopped after the switch to Ant.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [],
       "status": "needs-fix"
     },
@@ -185,7 +185,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Feedback on the publish setup flow. A maintainer status pass lists three points still open: link fund.ethswarm.org, hint how little xDAI is needed, and allow manual batch configuration.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [],
       "status": "needs-fix"
     },
@@ -200,7 +200,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Notes from driving Freedom over CDP: an undocumented ant.apiGet allowlist, identity helpers that return objects instead of booleans, and a fixed node port that stops two profiles running at once.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1169,
@@ -221,7 +221,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The Radicle mirror of the source was about four months (2714 commits) behind GitHub main on 2026-11-05. Suggests a CI job that pushes on every main push and tag.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [],
       "status": "needs-fix"
     },
@@ -236,7 +236,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "A Swarm-hosted wiki loads its search form in Freedom but gets stuck there, while it works through a Bee node's local gateway. A second user reported the same.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [],
       "status": "needs-fix"
     },
@@ -251,7 +251,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Request for full web3:// support. A maintainer has since extended it into a plan for the ERC-6860 family; Freedom currently resolves web3:// through ERC-8244 html().",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [],
       "status": "needs-fix"
     },
@@ -266,7 +266,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "swarm_writeFeedEntry checks the type of the data but not its size, so it can pass publishData's 10 MiB limit. The proposed fix is the same 10 MiB limit, refused with payload_too_large. It is a page-visible change and waits on the maintainers' OK.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [],
       "status": "needs-fix"
     },
@@ -281,7 +281,7 @@
       "difficulty": null,
       "committed": false,
       "summary": "Asks Freedom to open pubky:// addresses the way it opens ipfs:// and bzz://, with a main-process handler that resolves the key's homeserver and serves public files under /pub/ (GET and HEAD only).",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1098,
@@ -302,7 +302,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "App-scoped publisher keys come from a counter stored in the profile, so restoring the recovery phrase on another device gives a site a different key and its feeds can no longer be updated. The issue proposes deriving new keys from the site so the same phrase restores them; existing keys keep working.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1164,
@@ -323,7 +323,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The node decrypts PSS messages with one key shared by every site, so any site with the messaging grant that subscribes to a topic receives all messages on it, including those meant for another site. The issue records the limitation and points to per-site PSS keys, or end-to-end encryption in apps, as directions.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [],
       "status": "needs-fix"
     },
@@ -338,7 +338,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "swarm_unsubscribe returns an error for an unknown or already closed id, and swarm_subscribe accepts a history parameter but ignores it. The issue proposes making unsubscribe idempotent and refusing history with a clear error until it is implemented.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1162,
@@ -359,7 +359,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The connect event fires only after the plain connect prompt, not when a permission manifest connects a site, and disconnect is sent only to the active tab. The issue proposes firing connect whenever access is granted and sending disconnect to every tab showing that site.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1161,
@@ -380,7 +380,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Freedom reads a site's permission manifest from freedom-manifest.json, while the Swarm provider standard will use swarm-manifest.json. The issue proposes reading the new name first and falling back to the old one, without prompting again when a site moves between them, plus docs.",
-      "last_checked": "2026-11-12",
+      "last_checked": "2026-11-13",
       "prs": [
         {
           "number": 1160,
