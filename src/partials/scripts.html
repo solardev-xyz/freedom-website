@@ -1,0 +1,16 @@
+<script src="{{root}}assets/os.js"></script>
+<script>(function(){const h=document.getElementById("hero-dl");if(h)h.textContent = "Download Freedom";})();</script>
+<script>
+(function () {
+  const b = document.querySelector('.burger'), m = document.getElementById('menu');
+  const set = open => { b.setAttribute('aria-expanded', open); m.classList.toggle('open', open); };
+  b.addEventListener('click', () => set(b.getAttribute('aria-expanded') !== 'true'));
+  m.addEventListener('click', e => { if (e.target.closest('a')) set(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+  // close on tap outside the menu, and on scroll
+  document.addEventListener('click', e => { if (b.getAttribute('aria-expanded') === 'true' && !m.contains(e.target) && !b.contains(e.target)) set(false); });
+  addEventListener('scroll', () => { if (b.getAttribute('aria-expanded') === 'true') set(false); }, { passive: true });
+})();
+</script>
+<script>(function(){const n=document.querySelector("nav.top");const f=()=>n.classList.toggle("scrolled",scrollY>4);addEventListener("scroll",f,{passive:true});f();})();</script>
+<script>(function(){const ua=(navigator.userAgentData?.platform||navigator.platform+" "+navigator.userAgent).toLowerCase();const os=/android|iphone|ipad/.test(ua)?null:ua.includes("mac")?"mac":ua.includes("win")?"win":ua.includes("linux")?"linux":null;document.querySelectorAll(".plat.rec").forEach(e=>e.classList.remove("rec"));const b=os&&document.querySelector(".plat[data-os="+os+"] a.pill");const h=document.getElementById("hero-dl");if(b){b.classList.add("primary");if(h){h.href=b.href;h.setAttribute("download","");}}else if(h){h.href="{{homeAnchor}}#download";h.removeAttribute("download");}if(h)h.textContent="Download Freedom";})();</script>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+{{> head}}  <link rel="stylesheet" href="{{root}}assets/content.css">
+  <link rel="alternate" type="application/rss+xml" title="Freedom Browser releases" href="{{url}}releases.xml">
+</head>
+<body>
+
+{{> nav}}
+
+<div class="top page-top">
+<header class="hero-in">
+  <h1>Releases</h1>
+  <p class="dek">Stable Freedom Browser release notes, newest first. <a href="releases.xml">Subscribe via RSS</a>. <a href="news.html">All news →</a></p>
+</header>
+</div>
+
+<main class="prose-wrap cd">
+<div class="posts releases">
+{{postsHtml}}
+</div>
+</main>
+
+{{> footer}}
+
+{{> scripts}}</body>
+</html>
