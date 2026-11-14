@@ -152,6 +152,12 @@ const POSTS = [
     summary: 'Swarm browsing credit, a pop-up blocker, simpler publishing payments and a large round of fixes.',
   },
   {
+    content: 'who-decides-where-a-name-takes-you.md',
+    template: 'post-template.html',
+    output: 'who-decides-where-a-name-takes-you.html',
+    summary: 'What a single RPC provider can do to a name lookup, and how Freedom checks the answer instead.',
+  },
+  {
     content: 'freedom-0-8-6.md',
     template: 'post-template.html',
     output: 'freedom-0-8-6.html',
