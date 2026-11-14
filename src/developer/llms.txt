@@ -36,7 +36,7 @@ Site-wide entry point: [../llms.txt](../llms.txt)
 - [Architecture](architecture.html.md)
 - [Repositories](repositories.html.md): GitHub, Radicle mirror, related repos
 - [Workflow and pull requests](workflow.html.md)
-- [Open for contribution](open-issues.html.md): Curated issues (JSON source: open-issues.json)
+- [Open for contribution](open-issues.html.md): Curated issues, split into "Needs a fix" (no open PR) and "Needs review" (open PR linked to review and test); JSON source: open-issues.json, with status and prs per issue
 - [Community and mentorship](community.html.md)
 
 ## Optional

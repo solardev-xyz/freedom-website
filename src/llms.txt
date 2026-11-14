@@ -33,7 +33,7 @@ A denser map of only the developer docs lives at [developer/llms.txt](developer/
 - [Architecture](developer/architecture.html.md): How the browser is put together
 - [Repositories](developer/repositories.html.md): GitHub, Radicle mirror, and related projects
 - [Workflow and pull requests](developer/workflow.html.md): How to land a change
-- [Open for contribution](developer/open-issues.html.md): Curated help-wanted issues (see also open-issues.json beside the HTML)
+- [Open for contribution](developer/open-issues.html.md): Curated help-wanted issues, split into "Needs a fix" and "Needs review" (open PR to review and test); see also open-issues.json beside the HTML, with status and prs per issue
 - [Community and mentorship](developer/community.html.md): Forum, Telegram, how mentorship works
 
 ## Product

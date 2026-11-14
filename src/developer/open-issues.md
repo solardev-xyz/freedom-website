@@ -7,10 +7,17 @@ dek: Bugs and rough edges that developers building on Freedom reported, plus com
 
 <p class="issues-updated">Last updated {{open_issues_updated}} · {{open_issues_count}} issues</p>
 
+{{open_issues_split}}
+
 Many of these came from developers building on Freedom's APIs; others from
 our own docs audit. Security-sensitive findings stay on GitHub only. We review
 the list regularly: closed issues drop off, and new feedback that fits is
 added with a short summary.
+
+Issues are split in two. **Needs a fix** means nobody has opened a pull
+request yet: that is where to start if you want to write code. **Needs
+review** means a pull request is open, and the card links to it: help by
+reviewing the change and testing the branch, then report back on the PR.
 
 ## Picking one up
 
@@ -23,7 +30,12 @@ added with a short summary.
 4. Stuck? Ask in [Telegram](https://t.me/freedom_browser) or on the
    [forum](https://freedom.davinci.space). We offer mentorship.
 
-Badges: **Bug** is a defect, **Developer experience** an improvement to
+To review instead, open the linked PR, read the diff, build the branch with
+the [Setup guide](contributing.html) and try the fix. A comment saying what
+you tested and what happened is a real help, even without code.
+
+Badges: **Needs a fix** (amber) and **Needs review** (teal) give the status
+above. **Bug** is a defect, **Developer experience** an improvement to
 docs, errors or tooling, **Feature request** a new capability. **Community**
 marks issues opened from outside the core team, **Good first issue** a small,
 well-understood change, and **Proposal · not on the roadmap** an idea we have
