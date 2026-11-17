@@ -129,6 +129,12 @@ const DOC_PAGES = DOCS.filter((d) => d.content);
 // Optional here (they win over the post's front matter): description, imageAlt.
 const POSTS = [
   {
+    content: 'keys-off-the-computer.md',
+    template: 'post-template.html',
+    output: 'keys-off-the-computer.html',
+    summary: 'Freedom signs with a Ledger over USB or with the wallet on your phone, and the key never enters the browser.',
+  },
+  {
     content: 'apps-that-live-in-a-contract.md',
     template: 'post-template.html',
     output: 'apps-that-live-in-a-contract.html',
