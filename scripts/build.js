@@ -471,6 +471,7 @@ const organization = () => ({
     'https://github.com/solardev-xyz/freedom-browser',
     'https://radicle.network/nodes/iris.radicle.network/rad%3Az3QXuMvMmSeEX3ZgoUidZC1v5MkKE',
     'https://bsky.app/profile/freedombrowser.bsky.social',
+    'https://x.com/freedom_browser',
     'https://t.me/freedom_browser',
   ],
 });

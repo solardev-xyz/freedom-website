@@ -11,6 +11,7 @@ dek: Ask early, ask in public, and we will help you land your first change. We o
 | ------- | ---------- |
 | [Community forum](https://freedom.davinci.space) | Longer discussions, ideas, showing what you built |
 | [Telegram: Freedom Browser](https://t.me/freedom_browser) | Quick questions, design discussion, new integrations |
+| [X: @freedom_browser](https://x.com/freedom_browser) | Announcements and updates |
 | [GitHub issues](https://github.com/solardev-xyz/freedom-browser/issues) | Bugs, feature proposals, security reports, tracked work |
 
 Never post credentials, seed phrases, private keys or sensitive logs in a

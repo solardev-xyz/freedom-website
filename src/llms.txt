@@ -34,7 +34,7 @@ A denser map of only the developer docs lives at [developer/llms.txt](developer/
 - [Repositories](developer/repositories.html.md): GitHub, Radicle mirror, and related projects
 - [Workflow and pull requests](developer/workflow.html.md): How to land a change
 - [Open for contribution](developer/open-issues.html.md): Curated help-wanted issues, split into "Needs a fix" and "Needs review" (open PR to review and test); see also open-issues.json beside the HTML, with status and prs per issue
-- [Community and mentorship](developer/community.html.md): Forum, Telegram, how mentorship works
+- [Community and mentorship](developer/community.html.md): Forum, Telegram, X, how mentorship works
 
 ## Product
 
@@ -48,5 +48,6 @@ A denser map of only the developer docs lives at [developer/llms.txt](developer/
 - [Freedom Browser on GitHub](https://github.com/solardev-xyz/freedom-browser): Source, issues and pull requests
 - [Freedom Browser on Radicle](https://radicle.network/nodes/iris.radicle.network/rad%3Az3QXuMvMmSeEX3ZgoUidZC1v5MkKE): Mirror (`rad:z3QXuMvMmSeEX3ZgoUidZC1v5MkKE`); currently behind GitHub
 - [This website on GitHub](https://github.com/solardev-xyz/freedom-website): Static site source (freedom.baby)
+- [Freedom Browser on X](https://x.com/freedom_browser): Official account (@freedom_browser)
 - [SWIP #94](https://github.com/ethersphere/SWIPs/pull/94): Draft Swarm page-provider standard that window.swarm implements
 - [Developer llms.txt](developer/llms.txt): Docs-only map grouped like the Overview | Swarm | Radicle | Demos | Contribute tabs
