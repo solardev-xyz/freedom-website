@@ -129,6 +129,12 @@ const DOC_PAGES = DOCS.filter((d) => d.content);
 // Optional here (they win over the post's front matter): description, imageAlt.
 const POSTS = [
   {
+    content: 'onion-sites-in-freedom.md',
+    template: 'post-template.html',
+    output: 'onion-sites-in-freedom.html',
+    summary: 'Freedom opens .onion sites through its built-in Tor client, while every other site keeps connecting directly.',
+  },
+  {
     content: 'apps-that-live-in-a-contract.md',
     template: 'post-template.html',
     output: 'apps-that-live-in-a-contract.html',
