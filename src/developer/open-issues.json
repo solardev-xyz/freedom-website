@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-11-26",
+  "last_updated": "2026-11-27",
   "repo": "solardev-xyz/freedom-browser",
   "areas": [
     {
@@ -25,27 +25,6 @@
   ],
   "issues": [
     {
-      "number": 1001,
-      "title": "radicle_unseed prompts for consent but times out after 60s instead of 300s",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/1001",
-      "area": "radicle",
-      "kind": "bug",
-      "source": "docs-audit",
-      "author": "flotob",
-      "difficulty": "starter",
-      "committed": null,
-      "summary": "radicle_unseed always shows a consent prompt, but the window.radicle shim gives it the 60 s timeout instead of the 300 s budget other prompting methods get. The issue names the one list that needs the method added, plus a test.",
-      "last_checked": "2026-11-26",
-      "prs": [
-        {
-          "number": 1002,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1002",
-          "title": "fix(radicle): include radicle_unseed in 300s canPrompt budget (#1001)"
-        }
-      ],
-      "status": "needs-review"
-    },
-    {
       "number": 987,
       "title": "Sponsored postage: let window.swarm writes take a pre-signed stamp",
       "url": "https://github.com/solardev-xyz/freedom-browser/issues/987",
@@ -56,7 +35,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Today every user needs their own postage batch before their first write. Asks that publishChunk, writeSingleOwnerChunk and writeFeedEntry accept an optional stamp a sponsor signed.",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [],
       "status": "needs-fix"
     },
@@ -71,7 +50,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Feed owners are app-scoped per origin, so the same person is a different member in every community. Asks for a freedom-manifest.json field, with its own consent wording, that lets a site use the wallet identity for feeds (with #949 in mind).",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [],
       "status": "needs-fix"
     },
@@ -86,30 +65,9 @@
       "difficulty": null,
       "committed": null,
       "summary": "Uploads in freedom://publish jump from 0% to 100% with no progress in between. This worked with Bee and stopped after the switch to Ant.",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [],
       "status": "needs-fix"
-    },
-    {
-      "number": 993,
-      "title": "Small docs and dev-experience notes from automating Freedom",
-      "url": "https://github.com/solardev-xyz/freedom-browser/issues/993",
-      "area": "dx",
-      "kind": "dx",
-      "source": "developer-feedback",
-      "author": "flotob",
-      "difficulty": null,
-      "committed": null,
-      "summary": "Notes from driving Freedom over CDP: an undocumented ant.apiGet allowlist, identity helpers that return objects instead of booleans, and a fixed node port that stops two profiles running at once.",
-      "last_checked": "2026-11-26",
-      "prs": [
-        {
-          "number": 1169,
-          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1169",
-          "title": "refactor(main): drop unused identity status calls; document scripted runs (#993)"
-        }
-      ],
-      "status": "needs-review"
     },
     {
       "number": 1000,
@@ -122,7 +80,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The Radicle mirror of the source was about four months (2714 commits) behind GitHub main on 2026-11-05. Suggests a CI job that pushes on every main push and tag.",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [],
       "status": "needs-fix"
     },
@@ -137,7 +95,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "Request for full web3:// support. A maintainer has since extended it into a plan for the ERC-6860 family; Freedom currently resolves web3:// through ERC-8244 html().",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [],
       "status": "needs-fix"
     },
@@ -152,7 +110,7 @@
       "difficulty": null,
       "committed": false,
       "summary": "Asks Freedom to open pubky:// addresses the way it opens ipfs:// and bzz://, with a main-process handler that resolves the key's homeserver and serves public files under /pub/ (GET and HEAD only).",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [
         {
           "number": 1098,
@@ -173,7 +131,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "App-scoped publisher keys come from a counter stored in the profile, so restoring the recovery phrase on another device gives a site a different key and its feeds can no longer be updated. The issue proposes deriving new keys from the site so the same phrase restores them; existing keys keep working.",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [
         {
           "number": 1164,
@@ -194,7 +152,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The node decrypts PSS messages with one key shared by every site, so any site with the messaging grant that subscribes to a topic receives all messages on it, including those meant for another site. The issue records the limitation and points to per-site PSS keys, or end-to-end encryption in apps, as directions.",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [],
       "status": "needs-fix"
     },
@@ -209,7 +167,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "swarm_unsubscribe returns an error for an unknown or already closed id, and swarm_subscribe accepts a history parameter but ignores it. The issue proposes making unsubscribe idempotent and refusing history with a clear error until it is implemented.",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [
         {
           "number": 1162,
@@ -232,7 +190,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "window.swarm takes each upload as one in-memory value, so a site cannot publish a video, archive or dataset (10 MiB for publishData, 50 MiB for publishFiles). The issue proposes accepting a File or Blob, an optional Freedom file picker, a per-site upload budget, an early stamp check, progress and cancel, and a capability flag.",
-      "last_checked": "2026-11-26"
+      "last_checked": "2026-11-27"
     },
     {
       "number": 1309,
@@ -247,7 +205,7 @@
       "difficulty": null,
       "committed": false,
       "summary": "The Aqua Protocol team (inblock.io) offers to contribute a freedom://identity page where users sign claims about themselves, with a new window.ethereum method aqua_requestDisclosure for field-by-field disclosure. They ask first whether it is in scope, and about a vendored WASM build, a remote identity service and a Settings entry.",
-      "last_checked": "2026-11-26"
+      "last_checked": "2026-11-27"
     },
     {
       "number": 1327,
@@ -260,9 +218,15 @@
       "difficulty": null,
       "committed": null,
       "summary": "Feed names are looked up as plain object keys, so a name such as toString or constructor reads the inherited property instead of a feed, and createFeed answers with an undefined topic and owner. A feed named __proto__ is never saved. The issue proposes looking names up as own properties only (Object.hasOwn) or using an object with no prototype.",
-      "last_checked": "2026-11-26",
-      "prs": [],
-      "status": "needs-fix"
+      "last_checked": "2026-11-27",
+      "prs": [
+        {
+          "number": 1333,
+          "url": "https://github.com/solardev-xyz/freedom-browser/pull/1333",
+          "title": "fix(swarm): treat feed names as own properties"
+        }
+      ],
+      "status": "needs-review"
     },
     {
       "number": 1328,
@@ -275,7 +239,7 @@
       "difficulty": null,
       "committed": null,
       "summary": "The indexDocument (and contentType) goes to the node as an HTTP header value unchanged. A character above U+00FF fails the publish before any upload, and one between U+0080 and U+00FF goes out as a Latin-1 byte while the path in the tar is UTF-8. The issue suggests refusing a non-ASCII indexDocument with a clear error, or percent-encoding it if Bee decodes the header.",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
       "prs": [],
       "status": "needs-fix"
     },
@@ -290,7 +254,22 @@
       "difficulty": null,
       "committed": null,
       "summary": "The embedded Radicle node dials private and reserved addresses (such as RFC1918 and 100.64.0.0/10) that remote peers advertise, which looks like a network scan on hosted servers and triggers abuse reports. The issue proposes not dialling private or reserved addresses learned from peers, while keeping LAN peers and user-configured addresses.",
-      "last_checked": "2026-11-26",
+      "last_checked": "2026-11-27",
+      "prs": [],
+      "status": "needs-fix"
+    },
+    {
+      "number": 1344,
+      "title": "Swarm: remote writes can be resent by Chromium below the Ant guard, and the one-shot form",
+      "url": "https://github.com/solardev-xyz/freedom-browser/issues/1344",
+      "area": "swarm-provider",
+      "kind": "bug",
+      "source": "maintainer",
+      "author": "flotob",
+      "difficulty": null,
+      "committed": null,
+      "summary": "On a remote Swarm node, Chromium can resend a request on a new connection when a reused keep-alive connection is closed, below the guard that is meant to allow one dial per call. That can deliver a pss_send twice or repeat uploads, and a streamed upload can crash the network service. It is not reachable in packaged builds today. The issue says remote writes must be sent exactly once and lists candidate fixes, such as a fresh proxied connection per write or undici for remote writes.",
+      "last_checked": "2026-11-27",
       "prs": [],
       "status": "needs-fix"
     }
